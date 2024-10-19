@@ -22,6 +22,7 @@ public class Elevator extends SubsystemBase {
         IDLE(() -> 0.0),
         UP(() -> 1.0),
         DEBUGGING(() -> 0.0),
+        DEBUGGING_VOLTS(() -> 0.0),
         MANUAL_UP(() -> 0.0),
         MANUAL_DOWN(() -> 0.0);
 
@@ -56,13 +57,15 @@ public class Elevator extends SubsystemBase {
     private static final LoggedTunableNumber kV = new LoggedTunableNumber(
         "Elevator/kV", kControllerConfig.kV());
     private static final LoggedTunableNumber kA = new LoggedTunableNumber(
-        "Elevator/kV", kControllerConfig.kA());
+        "Elevator/kA", kControllerConfig.kA());
 
     private static final LoggedTunableNumber kManualSpeed = 
-        new LoggedTunableNumber("Elevator/ManualSpeedDegrees", kAngularPerSecond.getDegrees());
+        new LoggedTunableNumber("Elevator/ManualSpeedMetersPerSecond", kAngularPerSecond.getDegrees());
 
     private static final LoggedTunableNumber kDebugginGoal = 
-        new LoggedTunableNumber("Elevator/DebuggingGoalDegrees", 10.0);
+        new LoggedTunableNumber("Elevator/DebuggingGoalMeters", 10.0);
+    private static final LoggedTunableNumber kDebugginGoalVolts = 
+        new LoggedTunableNumber("Elevator/DebuggingGoalVolts", 0.0);
 
     private ElevatorKrakenHardware io;
     private ElevatorInputsAutoLogged elevatorInputs = new ElevatorInputsAutoLogged();
@@ -98,9 +101,9 @@ public class Elevator extends SubsystemBase {
                     positionGoal = elevatorInputs.positionMeters - kManualSpeed.get() * 0.02;
                         break;
                 case DEBUGGING:
+                case DEBUGGING_VOLTS:
                     positionGoal = kDebugginGoal.get();
                     break;
-                // Blubber
                 case IDLE:
                 case UP:
                     positionGoal = goal.getGoal().getAsDouble();
@@ -110,9 +113,13 @@ public class Elevator extends SubsystemBase {
                     positionGoal = goal.getGoal().getAsDouble();
             }
 
-            Logger.recordOutput("Elevator/PositionGoal", goal.getGoal().getAsDouble());
-            positionGoal = MathUtil.clamp(positionGoal, kMinPosMeters, kMaxPosmeters);
-            io.setPosition(positionGoal);
+            if(!goal.equals(ElevatorGoal.DEBUGGING_VOLTS)) {
+                Logger.recordOutput("Elevator/PositionGoal", goal.getGoal().getAsDouble());
+                positionGoal = MathUtil.clamp(positionGoal, kMinPosMeters, kMaxPosmeters);
+                io.setPosition(positionGoal);
+            } else {
+                io.setVolts(kDebugginGoalVolts.get());
+            }
         }
     }
 
@@ -130,6 +137,10 @@ public class Elevator extends SubsystemBase {
 
     public void stopMotor() {
         io.setVolts(0.0);
+    }
+
+    public boolean inTolerance() {
+        return Math.abs(goal.getGoal().getAsDouble() - elevatorInputs.positionMeters) < 0.05;
     }
 
     public ElevatorGoal getElevatorGoal() {

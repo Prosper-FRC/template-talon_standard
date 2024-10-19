@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
 import frc.robot.subsystems.flywheels.Flywheels;
@@ -15,6 +16,8 @@ public class RobotContainer {
   private final Flywheels robotFlywheels;
   private final Elevator robotElevator;
 
+  private CommandXboxController controller;
+
   public RobotContainer() {
     robotFlywheels = new Flywheels();
     robotElevator = new Elevator();
@@ -22,21 +25,27 @@ public class RobotContainer {
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    controller.a()
+      .onTrue(robotFlywheels.setGoalCommand(FlywheelSetpoint.SHOOT))
+      .onFalse(robotFlywheels.setGoalCommand(FlywheelSetpoint.STOP));
+
+    controller.x()
+      .onTrue(robotFlywheels.setGoalCommand(FlywheelSetpoint.AMP))
+      .onFalse(robotFlywheels.setGoalCommand(FlywheelSetpoint.STOP));
+
+    controller.b()
+      .onTrue(robotElevator.setGoalCommand(ElevatorGoal.UP))
+      .onFalse(robotElevator.setGoalCommand(ElevatorGoal.IDLE));
+
+    controller.y()
+      .onTrue(robotElevator.setGoalCommand(ElevatorGoal.DEBUGGING_VOLTS));
+
+    controller.povDown()
+      .onTrue(robotElevator.setGoalCommand(ElevatorGoal.IDLE));
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
-  }
-
-  public void periodicTest() {
-    robotFlywheels.setGoal(FlywheelSetpoint.AMP);
-    robotFlywheels.setGoal(FlywheelSetpoint.SHOOT);
-    robotFlywheels.setGoal(FlywheelSetpoint.STOP);
-    robotFlywheels.setGoal(null);
-
-    robotElevator.setGoal(ElevatorGoal.DEBUGGING);
-    robotElevator.setGoal(ElevatorGoal.MANUAL_UP);
-    robotElevator.setGoal(ElevatorGoal.IDLE);
-    robotElevator.setGoal(null);
   }
 }
