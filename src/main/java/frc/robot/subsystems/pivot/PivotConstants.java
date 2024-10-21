@@ -10,70 +10,60 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 public class PivotConstants {
   /** Motor configuration constants */
   public record KrakenConfiguration(
-    boolean kEnableStatorCurrentLimit,
-    boolean kEnableSupplyCurrentLimit,
-    double kStatorCurrentLimitAmps,
-    double kSupplyCurrentLimitAmps,
-    NeutralModeValue kNeutralMode,
-    boolean kInverted,
-    double kPeakForwardVoltage,
-    double kPeakReverseVoltage
-  ) {}
+      boolean kEnableStatorCurrentLimit,
+      boolean kEnableSupplyCurrentLimit,
+      double kStatorCurrentLimitAmps,
+      double kSupplyCurrentLimitAmps,
+      NeutralModeValue kNeutralMode,
+      boolean kInverted,
+      double kPeakForwardVoltage,
+      double kPeakReverseVoltage) {}
 
   /** Feedback, feedforward, and profile constraints */
   public record PivotGains(
-    double kP,
-    double kI,
-    double kD,
-    double kS,
-    double kG,
-    double kA,
-    double kV,
-    // Max velocity constraint for the Trapezoidal Motion Profile
-    double kMaxVelocity,
-    // Max acceleration constraint for the Trapezoidal Motion Profile
-    double kMaxAcceleration
-  ) {}
+      double kP,
+      double kI,
+      double kD,
+      double kS,
+      double kG,
+      double kA,
+      double kV,
+      // Max velocity constraint for the Trapezoidal Motion Profile
+      double kMaxVelocity,
+      // Max acceleration constraint for the Trapezoidal Motion Profile
+      double kMaxAcceleration) {}
 
   // If using a CANBus, set this boolean to true and set the CANBus name to
   // what is is. Consult your electrical lead if you are unsure if your team
   // is using a CANBus. The name can be configured using Phoenix Tuner.
-  public final boolean kUseCANBus = true;
-  public final String kCANBusName = "*";
+  public static final boolean kUseCANBus = true;
+  public static final String kCANBusName = "*";
 
   // The gearing between your motor shaft and output shaft, consult the
   // mechanical team for this value
-  public final double kGearRatio = 1.0 / 1.0;
+  public static final double kGearRatio = 1.0 / 1.0;
 
-  public final int kLeaderMotorID = 0;
-  public final int kFollowerMotorID = 0;
+  public static final int kLeaderMotorID = 0;
+  public static final int kFollowerMotorID = 0;
+
+  // If using a CANCoder as your absolute encoder, set this value to true.
+  public static final boolean kUseCANCoder = false;
+  public static final int kCANCoderID = 0;
 
   // TODO Check if this is accurate
-  // Whether or not the follower-motor will spin in the opposite direction of 
+  // Whether or not the follower-motor will spin in the opposite direction of
   // the leader-motor. If the follower-motor is mounted facing the opposite
   // direction of the leader-motor, this value should be set to true.
-  public final boolean kFollowerMotorOpposeMasterDirection = true;
+  public static final boolean kFollowerMotorOpposeMasterDirection = true;
 
-  // NOTE The configuration only needs to be applied to the leader-motor. The 
+  /** The frequency that telemetry form the motor is pushed to the CANBus */
+  public static final double kStatusSignalUpdateFrequencyHz = 100.0;
+
+  // NOTE The configuration only needs to be applied to the leader-motor. The
   // follower-motor MUST obey the configuration of the leader-motor.
-  public final KrakenConfiguration kMotorConfiguration = new KrakenConfiguration(
-    true, 
-    true, 
-    0.0, 
-    0.0, 
-    NeutralModeValue.Brake, 
-    false, 
-    0.0, 
-    0.0);
+  public static final KrakenConfiguration kMotorConfiguration =
+      new KrakenConfiguration(true, true, 0.0, 0.0, NeutralModeValue.Brake, false, 0.0, 0.0);
 
-  public final PivotGains kPivotGains = new PivotGains(
-    0.0, 
-    0.0, 
-    0.0, 
-    0.0, 
-    0.0, 
-    0.0, 
-    0.0,
-    0.0, 
-    0.0);
+  public static final PivotGains kPivotGains =
+      new PivotGains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
 }
