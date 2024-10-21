@@ -8,6 +8,5 @@ The first type of sensor, photo-electric:
 
 Photo-electric sensors work by emitting a laser, if an object 
 
-![ Alt Text](URL)
+![image](https://github.com/user-attachments/assets/e8e93da7-e164-4a0c-b597-9b4215b70131)
 
-![image](https://github.com/user-attachments/assets/608e4af9-4d86-4aa3-b3e0-cd7672d43226)
