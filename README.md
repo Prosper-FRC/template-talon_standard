@@ -1,4 +1,12 @@
 # template-talon_standard
 
-This template standard contains code for two main types of sensors, Beam Break and Color Sensors. 
+This template standard contains code for two main types of sensors, photo-electric and Color Sensors. 
+
+This code template will explain how to use beam break and color sensors.
+
+The first type of sensor, photo-electric:
+
+Photo-electric sensors work by emitting a laser, if an object 
+
+![ Alt Text](URL)
 
