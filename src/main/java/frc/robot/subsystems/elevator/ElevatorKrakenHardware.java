@@ -90,6 +90,11 @@ public class ElevatorKrakenHardware {
         motor.optimizeBusUtilization();
     }
 
+    public ElevatorKrakenHardware(ElevatorControllerConfig controlConfigs, int motorID, InvertedValue invert, int followerID, boolean followerInvert) {
+        this(controlConfigs, motorID, invert);
+        motor.setControl(new Follower(followerID, followerInvert));
+    }
+
     public void updateInputs(ElevatorInputs inputs) {
         inputs.isMotorConnected = BaseStatusSignal.refreshAll(
             motorPosition,
@@ -104,11 +109,6 @@ public class ElevatorKrakenHardware {
         inputs.statorCurrentAmps = new double[] {motorStatorCurrent.getValueAsDouble()};
         inputs.supplyCurrentAmps = new double[] {motorSupplyCurrent.getValueAsDouble()};
         inputs.temperatureCelsius = new double[] {motorTemp.getValueAsDouble()};
-    }
-
-    public ElevatorKrakenHardware(ElevatorControllerConfig controlConfigs, int motorID, InvertedValue invert, int followerID, boolean followerInvert) {
-        this(controlConfigs, motorID, invert);
-        motor.setControl(new Follower(followerID, followerInvert));
     }
 
     public void setVolts(double volts) {

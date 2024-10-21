@@ -16,8 +16,6 @@ import frc.robot.utils.debugging.LoggedTunableNumber;
 import static frc.robot.subsystems.elevator.ElevatorConstants.*;
 
 public class Elevator extends SubsystemBase {
-    public static LoggedTunableNumber debugging = new LoggedTunableNumber("Elevator/Debugging", 0.0);
-
     public static enum ElevatorGoal {
         IDLE(() -> 0.0),
         UP(() -> 1.0),
@@ -26,14 +24,14 @@ public class Elevator extends SubsystemBase {
         MANUAL_UP(() -> 0.0),
         MANUAL_DOWN(() -> 0.0);
 
-        private DoubleSupplier posSupplier;
+        private DoubleSupplier posMeterSupplier;
 
         private ElevatorGoal(DoubleSupplier posSupplier) {
-            this.posSupplier = posSupplier;
+            this.posMeterSupplier = posSupplier;
         }
 
         public DoubleSupplier getGoal() {
-            return posSupplier;
+            return posMeterSupplier;
         }
     }
 
@@ -139,10 +137,12 @@ public class Elevator extends SubsystemBase {
         io.setVolts(0.0);
     }
 
+    @AutoLogOutput(key="Elevator/inTolerance")
     public boolean inTolerance() {
         return Math.abs(goal.getGoal().getAsDouble() - elevatorInputs.positionMeters) < 0.05;
     }
 
+    @AutoLogOutput(key="Elevator/Goal")
     public ElevatorGoal getElevatorGoal() {
         return goal;
     }

@@ -5,7 +5,6 @@ import static frc.robot.subsystems.flywheels.FlywheelsConstants.kTopConfig;
 
 import java.util.function.DoubleSupplier;
 
-import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 import edu.wpi.first.wpilibj.DriverStation;
@@ -19,17 +18,6 @@ import frc.robot.utils.math.LinearProfile;
 import org.littletonrobotics.junction.Logger;
 
 public class Flywheels extends SubsystemBase {
-    @AutoLog
-    public static class FlywheelInputs {
-        public boolean isConnected = true;
-        public double velocityMPS = 0.0;
-        public double appliedVolts = 0.0;
-        public double motorVolts = 0.0;
-        public double[] statorCurrentAmps = {0.0};
-        public double[] supplyCurrentAmps = {0.0};
-        public double[] temperatureCelsius = {0.0};
-    }
-
     public static enum FlywheelSetpoint {
 
         SHOOT(() -> 20.0, () ->  20.0),
@@ -103,20 +91,24 @@ public class Flywheels extends SubsystemBase {
 
         if(goal != null) {
             if(!goal.equals(FlywheelSetpoint.AMP)) {
+                // VELOCITY AND ACCELERATION CALCULATIONS
                 double topSetpoint = topProfile.calculateSetpoint();
                 double topAcceleration = topProfile.getCurrentAcceleration();
+
+                double bottomSetpoint = bottomProfile.calculateSetpoint();
+                double bottomAcceleration = bottomProfile.getCurrentAcceleration();
+
+                topFlywheel.setVelocity(topSetpoint, topAcceleration);
+                bottomFlywheel.setVelocity(bottomSetpoint, bottomAcceleration);
+
+                // LOGGING
                 Logger.recordOutput("Flywheels/TopGoal", goal.getTopVelocityMPS().getAsDouble());
                 Logger.recordOutput("Flywheels/TopSetpoint", topSetpoint);
                 Logger.recordOutput("Flywheels/TopAcceeleration", topAcceleration);
 
-                double bottomSetpoint = bottomProfile.calculateSetpoint();
-                double bottomAcceleration = bottomProfile.getCurrentAcceleration();
                 Logger.recordOutput("Flywheels/BottomGoal", goal.getBottomVelocityMPS().getAsDouble());
                 Logger.recordOutput("Flywheels/BottomSetpoint", bottomSetpoint);
                 Logger.recordOutput("Flywheels/BottomAcceeleration", bottomAcceleration);
-
-                topFlywheel.setVelocity(topSetpoint, topAcceleration);
-                bottomFlywheel.setVelocity(bottomSetpoint, bottomAcceleration);
             } else {
                 topFlywheel.setVolts(ampVolt2.get());
                 bottomFlywheel.setVolts(ampVolt1.get());

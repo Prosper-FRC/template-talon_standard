@@ -1,5 +1,7 @@
 package frc.robot.subsystems.flywheels;
 
+import org.littletonrobotics.junction.AutoLog;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -11,9 +13,19 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.MathUtil;
 import frc.robot.subsystems.flywheels.FlywheelsConstants.FlywheelHardwareConfig;
-import frc.robot.subsystems.flywheels.Flywheels.FlywheelInputs;
 
 public class FlywheelsKrakenHardware {
+    @AutoLog
+    public static class FlywheelInputs {
+        public boolean isConnected = true;
+        public double velocityMPS = 0.0;
+        public double appliedVolts = 0.0;
+        public double motorVolts = 0.0;
+        public double[] statorCurrentAmps = {0.0};
+        public double[] supplyCurrentAmps = {0.0};
+        public double[] temperatureCelsius = {0.0};
+    }
+
     private TalonFX motor;
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withUpdateFreqHz(1000);
