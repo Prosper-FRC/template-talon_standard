@@ -12,8 +12,11 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.List;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class Pivot extends SubsystemBase {
   private final TalonFX kLeadMotor =
@@ -29,6 +32,7 @@ public class Pivot extends SubsystemBase {
 
   private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
+  // When using these values, call the appropriate getter methods
   private StatusSignal<Double> internalPositionRotations;
   private StatusSignal<Double> velocityRotationsPerSec;
   private List<StatusSignal<Double>> appliedVolts;
@@ -107,7 +111,30 @@ public class Pivot extends SubsystemBase {
   }
 
   @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
+  public void periodic() {}
+
+  @AutoLogOutput(key = "Pivot/PositionRads")
+  public Rotation2d getInternnalPositionRads() {
+    return Rotation2d.fromRotations(internalPositionRotations.getValueAsDouble());
+  }
+
+  @AutoLogOutput(key = "Pivot/VelocityRadsPerSec")
+  public double getVelocityRadsPerSec() {
+    return Units.rotationsToRadians(velocityRotationsPerSec.getValueAsDouble());
+  }
+
+  @AutoLogOutput(key = "Pivot/AppliedVolts")
+  public double[] getAppliedVolts() {
+    return appliedVolts.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
+  }
+
+  @AutoLogOutput(key = "Pivot/SupplyCurrentAmps")
+  public double[] getSupplyCurrentAmps() {
+    return supplyCurrentAmps.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
+  }
+
+  @AutoLogOutput(key = "Pivot/TemperatureCelsius")
+  public double[] getTemperatureCelsius() {
+    return temperatureCelsius.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
   }
 }
