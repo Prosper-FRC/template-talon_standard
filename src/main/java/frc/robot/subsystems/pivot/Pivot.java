@@ -16,9 +16,26 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.List;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public class Pivot extends SubsystemBase {
+  /** List of position setpoints for the pivot */
+  public enum PivotGoal {
+    DEMO(() -> Rotation2d.fromDegrees(0.0)),
+    STOPPED(() -> Rotation2d.fromDegrees(0.0));
+
+    Supplier<Rotation2d> goal;
+
+    PivotGoal(Supplier<Rotation2d> goal) {
+      this.goal = goal;
+    }
+
+    public Rotation2d getgoal() {
+      return this.goal.get();
+    }
+  }
+
   private final TalonFX kLeadMotor =
       PivotConstants.kUseCANBus
           ? new TalonFX(PivotConstants.kLeaderMotorID, PivotConstants.kCANBusName)
@@ -38,6 +55,9 @@ public class Pivot extends SubsystemBase {
   private List<StatusSignal<Double>> appliedVolts;
   private List<StatusSignal<Double>> supplyCurrentAmps;
   private List<StatusSignal<Double>> temperatureCelsius;
+
+  @AutoLogOutput(key = "Pivot/CurrentGoal")
+  private PivotGoal currentPivotGoal = PivotGoal.STOPPED;
 
   /** Creates a new Pivot. */
   public Pivot() {
@@ -113,27 +133,27 @@ public class Pivot extends SubsystemBase {
   @Override
   public void periodic() {}
 
-  @AutoLogOutput(key = "Pivot/PositionRads")
+  @AutoLogOutput(key = "Pivot/Inputs/PositionRads")
   public Rotation2d getInternnalPositionRads() {
     return Rotation2d.fromRotations(internalPositionRotations.getValueAsDouble());
   }
 
-  @AutoLogOutput(key = "Pivot/VelocityRadsPerSec")
+  @AutoLogOutput(key = "Pivot/Inputs/VelocityRadsPerSec")
   public double getVelocityRadsPerSec() {
     return Units.rotationsToRadians(velocityRotationsPerSec.getValueAsDouble());
   }
 
-  @AutoLogOutput(key = "Pivot/AppliedVolts")
+  @AutoLogOutput(key = "Pivot/Inputs/AppliedVolts")
   public double[] getAppliedVolts() {
     return appliedVolts.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
   }
 
-  @AutoLogOutput(key = "Pivot/SupplyCurrentAmps")
+  @AutoLogOutput(key = "Pivot/Inputs/SupplyCurrentAmps")
   public double[] getSupplyCurrentAmps() {
     return supplyCurrentAmps.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
   }
 
-  @AutoLogOutput(key = "Pivot/TemperatureCelsius")
+  @AutoLogOutput(key = "Pivot/Inputs/TemperatureCelsius")
   public double[] getTemperatureCelsius() {
     return temperatureCelsius.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
   }
