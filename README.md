@@ -24,6 +24,6 @@ You can keep the default boolean value flipped to 'false', you can switch it lat
 
 After you have figured out your flipped value from now on when you call your getter that finds out if there is an object in front of the sensor you just flip the value if needed. 
 
-
+Fun Fact: DONT DONT DONT use i2c ports ever as it can cause robo-rio shutdowns completely.
 
 
