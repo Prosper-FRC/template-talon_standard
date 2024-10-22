@@ -20,6 +20,8 @@ There are two main constants that you need for photoelectric sensors, you need t
 DIO port:
 ![image](https://github.com/user-attachments/assets/b5645af8-ea9a-4c41-9518-d5738aec36a7)
 
-You can keep the default boolean value flipped to 'false', you can switch it later if necessary. You should log if your sensor detects something and if the sensor is flipped periodically (public void periodic). You can test if the sensor if flipped by reading the value when you put your hand in front of it, if its false then you keep the 'flipped' boolean value to true, if it reads true then you are fine.
+You can keep the default boolean value flipped to 'false', you can switch it later if necessary. You should log if your sensor detects something and if the sensor is flipped periodically (public void periodic). You can test if the sensor if flipped by reading the value when you put your hand in front of it, if its false then you keep the 'flipped' boolean value to true, if it reads true then you are fine. 
 
-After you have figured out your flipped value from now on when you call your getter that finds out if there is an object in front of the sensor you just flip the value if needed.
+After you have figured out your flipped value from now on when you call your getter that finds out if there is an object in front of the sensor you just flip the value if needed. 
+
+Fun Fact: DONT DONT DONT use i2c ports ever as it can cause robo-rio shutdowns completely.
