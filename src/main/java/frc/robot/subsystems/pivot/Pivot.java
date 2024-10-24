@@ -181,7 +181,7 @@ public class Pivot extends SubsystemBase {
    *
    * @param desiredGoal The desired goal of the pivot
    */
-  public void setState(PivotGoal desiredGoal) {
+  public void setGoal(PivotGoal desiredGoal) {
     currentPivotGoal = desiredGoal;
   }
 
@@ -195,7 +195,7 @@ public class Pivot extends SubsystemBase {
   }
 
   /** Sets the motor control to neutral, the switching to the default neutral control mode */
-  public void stopMotors() {
+  public void stop() {
     currentPivotGoal = null;
     kLeadMotor.setControl(new NeutralOut());
   }

@@ -7,8 +7,12 @@ package frc.robot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.pivot.Pivot;
+import frc.robot.subsystems.pivot.Pivot.PivotGoal;
 
 public class RobotContainer {
+  private final Pivot kPivot = new Pivot();
+
   private final CommandXboxController kPilotController =
       new CommandXboxController(Constants.kPilotControllerPort);
 
@@ -16,7 +20,12 @@ public class RobotContainer {
     configureBindings();
   }
 
-  private void configureBindings() {}
+  private void configureBindings() {
+    kPilotController
+        .a()
+        .whileTrue(Commands.runOnce(() -> kPivot.setGoal(PivotGoal.DEMO), kPivot))
+        .whileFalse(Commands.runOnce(() -> kPivot.stop(), kPivot));
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
