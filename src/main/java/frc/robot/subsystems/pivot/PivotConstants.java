@@ -5,6 +5,7 @@
 package frc.robot.subsystems.pivot;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.geometry.Rotation2d;
 
 /** Constants for a Pivot (Single jointed arm) */
 public class PivotConstants {
@@ -58,6 +59,10 @@ public class PivotConstants {
 
   /** The frequency that telemetry form the motor is pushed to the CANBus */
   public static final double kStatusSignalUpdateFrequencyHz = 100.0;
+
+  // Soft positions limits to prevent the arm from breaking itself
+  public static final Rotation2d kUpperPositionLimit = new Rotation2d();
+  public static final Rotation2d kLowerPositionLimit = new Rotation2d();
 
   // NOTE The configuration only needs to be applied to the leader-motor. The
   // follower-motor MUST obey the configuration of the leader-motor.
