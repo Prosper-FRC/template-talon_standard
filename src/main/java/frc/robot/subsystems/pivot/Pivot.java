@@ -159,20 +159,20 @@ public class Pivot extends SubsystemBase {
   @Override
   public void periodic() {
     if (currentPivotGoal != null) {
-        currentPivotGoalPosition = currentPivotGoal.getGoal();
-        setpointState =
-            kProfile.calculate(
-                0.02,
-                setpointState,
-                new TrapezoidProfile.State(
-                    MathUtil.clamp(
-                        currentPivotGoalPosition.getRadians(),
-                        PivotConstants.kLowerPositionLimit.getRadians(),
-                        PivotConstants.kUpperPositionLimit.getRadians()),
-                    0.0));
-        setPosition(
-            setpointState.position,
-            kFeedforward.calculate(setpointState.position, setpointState.velocity));
+      currentPivotGoalPosition = currentPivotGoal.getGoal();
+      setpointState =
+          kProfile.calculate(
+              0.02,
+              setpointState,
+              new TrapezoidProfile.State(
+                  MathUtil.clamp(
+                      currentPivotGoalPosition.getRadians(),
+                      PivotConstants.kLowerPositionLimit.getRadians(),
+                      PivotConstants.kUpperPositionLimit.getRadians()),
+                  0.0));
+      setPosition(
+          setpointState.position,
+          kFeedforward.calculate(setpointState.position, setpointState.velocity));
     }
   }
 
