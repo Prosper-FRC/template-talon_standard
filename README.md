@@ -35,9 +35,11 @@ This will not be a very in-depth explanation as more will be covered in 'level-2
 A gyroscope is a sensor that helps determine the robot's orientation/position in real-time. It is really helpful and is needed on all robots. 
 
 Here is the specific gyroscope we use. (read more about it ): 
+
 ![image](https://github.com/user-attachments/assets/38a4fdcb-ba37-460e-9580-fb5dbc55db7e)
 
 The main value we pull from gyroscopes is the 'yaw' which is displayed below:
+
 ![image](https://github.com/user-attachments/assets/69521094-8e2e-4336-8e42-8a77d70ddd7e)
 
 Other values are pulled from the gyroscope but you should only need 'yaw' unless we do a balance game (Charged Up -> Look it up)
