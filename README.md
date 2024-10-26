@@ -46,6 +46,10 @@ Other values are pulled from the gyroscope but you should only need 'yaw' unless
 
 The ID of this gyroscope can be found in Phoenix Tuner X.
 
-The default value for how the yaw comes out is in rotations, meaning that usually for logging values you need to change it to degrees for readability. 
+The default value for how the yaw comes out is in rotations, meaning that for logging values, you usually need to change it to degrees for readability. 
 
-Gyroscopes also need to be in the dead center of the robot, this is done by taking a string in the middle horizontal and vertical sides of the robot. The intersection of the strings is the exact center of the robot. 
+Gyroscopes also need to be in the dead center of the robot. This is done by taking a string from the middle of the robot's horizontal and vertical sides. The intersection of the strings is the exact center of the robot. 
+
+Gyroscopes can also be inverted sometimes, the way to check is to rotate the robot counter clockwise. If the yaw increases then your gyro does not need to be inverted.
+
+READ THE DOCUMENTATION I KEPT IN THE CODE
