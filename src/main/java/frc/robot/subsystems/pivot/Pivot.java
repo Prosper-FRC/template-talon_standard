@@ -14,8 +14,14 @@ import org.littletonrobotics.junction.Logger;
 public class Pivot extends SubsystemBase {
   /** List of position setpoints for the pivot */
   public enum PivotGoal {
+    // NOTE These setpoints must be updated per robot, "DEMO" is merely an example setpoint.
+
     DEMO(() -> Rotation2d.fromDegrees(10.0));
 
+    // Suppliers are used to keep in line with this team's programming convention. In some
+    // instances, we may need to have a goal that dynamically changes based on a state from another
+    // class. If we do not use a Supplier, java will only create an instance of the setpoint once
+    // and never check if it is updated again.
     Supplier<Rotation2d> goal;
 
     PivotGoal(Supplier<Rotation2d> goal) {
@@ -27,7 +33,9 @@ public class Pivot extends SubsystemBase {
     }
   }
 
+  // Hardware is where we interact with the motors and sensors directly
   private final PivotKrakenHardware kPivotHardware;
+  // "Inputs" is telemetry data from the motors or sensors, such as motor temperature
   private final PivotInputsAutoLogged kPivotInputs = new PivotInputsAutoLogged();
 
   @AutoLogOutput(key = "Pivot/CurrentGoal")
@@ -35,28 +43,20 @@ public class Pivot extends SubsystemBase {
 
   private Rotation2d currentPivotGoalPosition = new Rotation2d();
 
-  private final LoggedTunableNumber kP;
-  private final LoggedTunableNumber kI;
-  private final LoggedTunableNumber kD;
-  private final LoggedTunableNumber kS;
-  private final LoggedTunableNumber kV;
-  private final LoggedTunableNumber kA;
-  private final LoggedTunableNumber kG;
-  private final LoggedTunableNumber kMaxVelocity;
-  private final LoggedTunableNumber kMaxAcceleration;
+  private final LoggedTunableNumber kP, kI, kD, kS, kV, kA, kG, kMaxVelocity, kMaxAcceleration;
 
   /** Creates a new Pivot. */
   public Pivot(PivotKrakenHardware pivotHardware) {
     kPivotHardware = pivotHardware;
 
     // Initialize tunable numbers with default values from constants
-    kP = new LoggedTunableNumber("Pivot/Feedback/kP", PivotConstants.kPivotGains.kP());
-    kI = new LoggedTunableNumber("Pivot/Feedback/kI", PivotConstants.kPivotGains.kI());
-    kD = new LoggedTunableNumber("Pivot/Feedback/kD", PivotConstants.kPivotGains.kD());
-    kS = new LoggedTunableNumber("Pivot/Feedforward/kS", PivotConstants.kPivotGains.kS());
-    kV = new LoggedTunableNumber("Pivot/Feedforward/kV", PivotConstants.kPivotGains.kV());
-    kA = new LoggedTunableNumber("Pivot/Feedforward/kA", PivotConstants.kPivotGains.kA());
-    kG = new LoggedTunableNumber("Pivot/Feedforward/kG", PivotConstants.kPivotGains.kG());
+    kP = new LoggedTunableNumber("Pivot/Gains/kP", PivotConstants.kPivotGains.kP());
+    kI = new LoggedTunableNumber("Pivot/Gains/kI", PivotConstants.kPivotGains.kI());
+    kD = new LoggedTunableNumber("Pivot/Gains/kD", PivotConstants.kPivotGains.kD());
+    kS = new LoggedTunableNumber("Pivot/Gains/kS", PivotConstants.kPivotGains.kS());
+    kV = new LoggedTunableNumber("Pivot/Gains/kV", PivotConstants.kPivotGains.kV());
+    kA = new LoggedTunableNumber("Pivot/Gains/kA", PivotConstants.kPivotGains.kA());
+    kG = new LoggedTunableNumber("Pivot/Gains/kG", PivotConstants.kPivotGains.kG());
     kMaxVelocity =
         new LoggedTunableNumber(
             "Pivot/MotionMagic/kMaxVelocity", PivotConstants.kPivotGains.kMaxVelocity());
