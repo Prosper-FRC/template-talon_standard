@@ -4,12 +4,9 @@
 
 package frc.robot.subsystems.pivot;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.utils.math.EqualsUtil;
+import frc.robot.utils.debugging.LoggedTunableNumber;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -33,29 +30,39 @@ public class Pivot extends SubsystemBase {
   private final PivotKrakenHardware kPivotHardware;
   private final PivotInputsAutoLogged kPivotInputs = new PivotInputsAutoLogged();
 
-  private final ArmFeedforward kFeedforward =
-      new ArmFeedforward(
-          PivotConstants.kPivotGains.kS(),
-          PivotConstants.kPivotGains.kG(),
-          PivotConstants.kPivotGains.kV(),
-          PivotConstants.kPivotGains.kA());
-
-  private final TrapezoidProfile kProfile =
-      new TrapezoidProfile(
-          new TrapezoidProfile.Constraints(
-              PivotConstants.kPivotGains.kMaxVelocity(),
-              PivotConstants.kPivotGains.kMaxAcceleration()));
-
-  private TrapezoidProfile.State setpointState = new TrapezoidProfile.State(0.0, 0.0);
-
   @AutoLogOutput(key = "Pivot/CurrentGoal")
   private PivotGoal currentPivotGoal = null;
 
   private Rotation2d currentPivotGoalPosition = new Rotation2d();
 
+  private final LoggedTunableNumber kP;
+  private final LoggedTunableNumber kI;
+  private final LoggedTunableNumber kD;
+  private final LoggedTunableNumber kS;
+  private final LoggedTunableNumber kV;
+  private final LoggedTunableNumber kA;
+  private final LoggedTunableNumber kG;
+  private final LoggedTunableNumber kMaxVelocity;
+  private final LoggedTunableNumber kMaxAcceleration;
+
   /** Creates a new Pivot. */
   public Pivot(PivotKrakenHardware pivotHardware) {
     kPivotHardware = pivotHardware;
+
+    // Initialize tunable numbers with default values from constants
+    kP = new LoggedTunableNumber("Pivot/Feedback/kP", PivotConstants.kPivotGains.kP());
+    kI = new LoggedTunableNumber("Pivot/Feedback/kI", PivotConstants.kPivotGains.kI());
+    kD = new LoggedTunableNumber("Pivot/Feedback/kD", PivotConstants.kPivotGains.kD());
+    kS = new LoggedTunableNumber("Pivot/Feedforward/kS", PivotConstants.kPivotGains.kS());
+    kV = new LoggedTunableNumber("Pivot/Feedforward/kV", PivotConstants.kPivotGains.kV());
+    kA = new LoggedTunableNumber("Pivot/Feedforward/kA", PivotConstants.kPivotGains.kA());
+    kG = new LoggedTunableNumber("Pivot/Feedforward/kG", PivotConstants.kPivotGains.kG());
+    kMaxVelocity =
+        new LoggedTunableNumber(
+            "Pivot/MotionMagic/kMaxVelocity", PivotConstants.kPivotGains.kMaxVelocity());
+    kMaxAcceleration =
+        new LoggedTunableNumber(
+            "Pivot/MotionMagic/kMaxAcceleration", PivotConstants.kPivotGains.kMaxAcceleration());
   }
 
   @Override
@@ -65,20 +72,30 @@ public class Pivot extends SubsystemBase {
 
     if (currentPivotGoal != null) {
       currentPivotGoalPosition = currentPivotGoal.getGoal();
-      setpointState =
-          kProfile.calculate(
-              0.02,
-              setpointState,
-              new TrapezoidProfile.State(
-                  MathUtil.clamp(
-                      currentPivotGoalPosition.getRadians(),
-                      PivotConstants.kLowerPositionLimit.getRadians(),
-                      PivotConstants.kUpperPositionLimit.getRadians()),
-                  0.0));
-      setPosition(
-          setpointState.position,
-          kFeedforward.calculate(setpointState.position, setpointState.velocity));
+      setPosition(currentPivotGoalPosition.getRadians());
     }
+
+    // Update feedback, feedforward, and motion magic gains if we change them from network tables
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          kPivotHardware.setGains(
+              kP.get(), kI.get(), kD.get(), kS.get(), kV.get(), kA.get(), kG.get());
+        },
+        kP,
+        kI,
+        kD,
+        kS,
+        kV,
+        kA,
+        kG);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          kPivotHardware.setMotionMagicConstraints(kMaxVelocity.get(), kMaxAcceleration.get());
+        },
+        kMaxVelocity,
+        kMaxAcceleration);
   }
 
   /**
@@ -109,21 +126,19 @@ public class Pivot extends SubsystemBase {
    * Sets the desired position of the motor. Runs using internal PID controller
    *
    * @param positionRads The desired position in radians
-   * @param feedforwardOutput Feedforward that will also be applied to the control effort
    */
-  private void setPosition(double positionRads, double feedforwardOutput) {
-    kPivotHardware.setPosition(positionRads, feedforwardOutput);
+  private void setPosition(double positionRads) {
+    kPivotHardware.setPosition(positionRads);
   }
 
   /**
-   * Checks if the profiles position is equal to the goal position
+   * Computs the current position error by subtracting the current position from the goal position
    *
-   * @return If the pivot is at the goal position
+   * @return The position error in radians
    */
-  @AutoLogOutput(key = "Pivot/AtGoal")
-  public boolean atGoal() {
-    return EqualsUtil.epsilonEquals(
-        setpointState.position, currentPivotGoalPosition.getRadians(), 1e-3);
+  @AutoLogOutput(key = "Pivot/Feedback/ErrorRads")
+  public double getErrorRads() {
+    return currentPivotGoalPosition.minus(getPosition()).getRadians();
   }
 
   /**

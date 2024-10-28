@@ -6,6 +6,8 @@ package frc.robot.subsystems.pivot;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.MotionMagicConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.NeutralOut;
@@ -103,7 +105,7 @@ public class PivotKrakenHardware {
       // shaft (with no gears, sprokets, etc. separated the sensor from the shaft)
       motorConfiguration.Feedback.SensorToMechanismRatio = 1.0 / 1.0;
     } else {
-      motorConfiguration.Feedback.RotorToSensorRatio = PivotConstants.kGearRatio;
+      motorConfiguration.Feedback.SensorToMechanismRatio = PivotConstants.kGearRatio;
       motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
     }
 
@@ -143,9 +145,9 @@ public class PivotKrakenHardware {
         BaseStatusSignal.refreshAll(
                 internalPositionRotations,
                 velocityRotationsPerSec,
-                appliedVolts.get(1),
-                supplyCurrentAmps.get(1),
-                temperatureCelsius.get(1))
+                appliedVolts.get(0),
+                supplyCurrentAmps.get(0),
+                temperatureCelsius.get(0))
             .isOK();
     inputs.followerMotorConnected =
         BaseStatusSignal.refreshAll(
@@ -179,13 +181,52 @@ public class PivotKrakenHardware {
    * @param positionRads The desired position in radians
    * @param feedforwardOutput Feedforward that will also be applied to the control effort
    */
-  public void setPosition(double positionRads, double feedforwardOutput) {
-    kLeadMotor.setControl(
-        kPositionVoltage.withPosition(positionRads).withSlot(0).withFeedForward(feedforwardOutput));
+  public void setPosition(double positionRads) {
+    kLeadMotor.setControl(kPositionVoltage.withPosition(positionRads).withSlot(0));
   }
 
   /** Sets the motor control to neutral, then switching to the default neutral control mode */
   public void stop() {
     kLeadMotor.setControl(new NeutralOut());
+  }
+
+  /**
+   * Update the gains of the internal feedback controller and the internal feedforward model
+   *
+   * @param p The new proportional gain
+   * @param i The new integral gain
+   * @param d The new derivative gain
+   * @param s The new static gain
+   * @param v The new voltage gain
+   * @param a The new acceleration gain
+   * @param g The new gravity gain
+   */
+  public void setGains(double p, double i, double d, double s, double v, double a, double g) {
+    var slotConfiguration = new Slot0Configs();
+
+    slotConfiguration.kP = p;
+    slotConfiguration.kI = i;
+    slotConfiguration.kD = d;
+    slotConfiguration.kS = s;
+    slotConfiguration.kV = v;
+    slotConfiguration.kA = a;
+    slotConfiguration.kG = g;
+
+    kLeadMotor.getConfigurator().apply((slotConfiguration));
+  }
+
+  /**
+   * Update the gains of the internal trapezoidal motion profile. Units are up to the programmer.
+   *
+   * @param maxVelocity The new maximum achieveable velocity
+   * @param maxAcceleration The new maximum achieveable acceleration
+   */
+  public void setMotionMagicConstraints(double maxVelocity, double maxAcceleration) {
+    var motionMagicConfiguration = new MotionMagicConfigs();
+
+    motionMagicConfiguration.MotionMagicCruiseVelocity = maxVelocity;
+    motionMagicConfiguration.MotionMagicAcceleration = maxAcceleration;
+
+    kLeadMotor.getConfigurator().apply(motionMagicConfiguration);
   }
 }
