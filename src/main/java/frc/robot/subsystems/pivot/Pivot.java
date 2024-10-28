@@ -43,26 +43,30 @@ public class Pivot extends SubsystemBase {
 
   private Rotation2d currentPivotGoalPosition = new Rotation2d();
 
-  private final LoggedTunableNumber kP, kI, kD, kS, kV, kA, kG, kMaxVelocity, kMaxAcceleration;
+  private final LoggedTunableNumber kP =
+      new LoggedTunableNumber("Pivot/Gains/kP", PivotConstants.kPivotGains.kP());
+  private final LoggedTunableNumber kI =
+      new LoggedTunableNumber("Pivot/Gains/kI", PivotConstants.kPivotGains.kI());
+  private final LoggedTunableNumber kD =
+      new LoggedTunableNumber("Pivot/Gains/kD", PivotConstants.kPivotGains.kD());
+  private final LoggedTunableNumber kS =
+      new LoggedTunableNumber("Pivot/Gains/kS", PivotConstants.kPivotGains.kS());
+  private final LoggedTunableNumber kV =
+      new LoggedTunableNumber("Pivot/Gains/kV", PivotConstants.kPivotGains.kV());
+  private final LoggedTunableNumber kA =
+      new LoggedTunableNumber("Pivot/Gains/kA", PivotConstants.kPivotGains.kA());
+  private final LoggedTunableNumber kG =
+      new LoggedTunableNumber("Pivot/Gains/kG", PivotConstants.kPivotGains.kG());
+  private final LoggedTunableNumber kMaxVelocity =
+      new LoggedTunableNumber(
+          "Pivot/MotionMagic/kMaxVelocity", PivotConstants.kPivotGains.kMaxVelocity());
+  private final LoggedTunableNumber kMaxAcceleration =
+      new LoggedTunableNumber(
+          "Pivot/MotionMagic/kMaxAcceleration", PivotConstants.kPivotGains.kMaxAcceleration());
 
   /** Creates a new Pivot. */
   public Pivot(PivotKrakenHardware pivotHardware) {
     kPivotHardware = pivotHardware;
-
-    // Initialize tunable numbers with default values from constants
-    kP = new LoggedTunableNumber("Pivot/Gains/kP", PivotConstants.kPivotGains.kP());
-    kI = new LoggedTunableNumber("Pivot/Gains/kI", PivotConstants.kPivotGains.kI());
-    kD = new LoggedTunableNumber("Pivot/Gains/kD", PivotConstants.kPivotGains.kD());
-    kS = new LoggedTunableNumber("Pivot/Gains/kS", PivotConstants.kPivotGains.kS());
-    kV = new LoggedTunableNumber("Pivot/Gains/kV", PivotConstants.kPivotGains.kV());
-    kA = new LoggedTunableNumber("Pivot/Gains/kA", PivotConstants.kPivotGains.kA());
-    kG = new LoggedTunableNumber("Pivot/Gains/kG", PivotConstants.kPivotGains.kG());
-    kMaxVelocity =
-        new LoggedTunableNumber(
-            "Pivot/MotionMagic/kMaxVelocity", PivotConstants.kPivotGains.kMaxVelocity());
-    kMaxAcceleration =
-        new LoggedTunableNumber(
-            "Pivot/MotionMagic/kMaxAcceleration", PivotConstants.kPivotGains.kMaxAcceleration());
   }
 
   @Override
