@@ -9,9 +9,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.pivot.Pivot;
 import frc.robot.subsystems.pivot.Pivot.PivotGoal;
+import frc.robot.subsystems.pivot.PivotConstants;
+import frc.robot.subsystems.pivot.PivotKrakenHardware;
 
 public class RobotContainer {
-  private final Pivot kPivot = new Pivot();
+  private final Pivot kPivot =
+      new Pivot(new PivotKrakenHardware(PivotConstants.kMotorConfiguration));
 
   private final CommandXboxController kPilotController =
       new CommandXboxController(Constants.kPilotControllerPort);

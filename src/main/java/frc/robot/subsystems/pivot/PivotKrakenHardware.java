@@ -8,6 +8,7 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -15,6 +16,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.subsystems.pivot.PivotConstants.KrakenConfiguration;
 import java.util.List;
 import org.littletonrobotics.junction.AutoLog;
@@ -53,17 +55,18 @@ public class PivotKrakenHardware {
 
   private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
-  // When using these values, call the appropriate getter methods
+  // Motor data we wish to log
   private StatusSignal<Double> internalPositionRotations;
   private StatusSignal<Double> velocityRotationsPerSec;
   private List<StatusSignal<Double>> appliedVolts;
   private List<StatusSignal<Double>> supplyCurrentAmps;
   private List<StatusSignal<Double>> temperatureCelsius;
 
+  // Control modes
   private final VoltageOut kVoltageOut = new VoltageOut(0.0);
   private final PositionVoltage kPositionVoltage = new PositionVoltage(0.0);
 
-  public PivotKrakenHardware(int motorID, KrakenConfiguration configuration) {
+  public PivotKrakenHardware(KrakenConfiguration configuration) {
     kFollowMotor.setControl(
         new Follower(
             PivotConstants.kLeaderMotorID, PivotConstants.kFollowerMotorOpposeMasterDirection));
@@ -87,6 +90,7 @@ public class PivotKrakenHardware {
     motorConfiguration.Voltage.PeakForwardVoltage = configuration.kPeakForwardVoltage();
     motorConfiguration.Voltage.PeakReverseVoltage = configuration.kPeakReverseVoltage();
 
+    // Setup feedback sensor for position control
     if (PivotConstants.kUseCANCoder) {
       if (PivotConstants.kUseCANBus) {
         absoluteEncoder = new CANcoder(PivotConstants.kCANCoderID, PivotConstants.kCANBusName);
@@ -129,5 +133,59 @@ public class PivotKrakenHardware {
     kFollowMotor.optimizeBusUtilization(0.0, 1.0);
   }
 
-  public void updateInputs(PivotInputs inputs) {}
+  /**
+   * Write telemetry data from motor to "inputs" object for logging to network tables
+   *
+   * @param inputs The logged inputs object
+   */
+  public void updateInputs(PivotInputs inputs) {
+    inputs.leaderMotorConnected =
+        BaseStatusSignal.refreshAll(
+                internalPositionRotations,
+                velocityRotationsPerSec,
+                appliedVolts.get(1),
+                supplyCurrentAmps.get(1),
+                temperatureCelsius.get(1))
+            .isOK();
+    inputs.followerMotorConnected =
+        BaseStatusSignal.refreshAll(
+                appliedVolts.get(1), supplyCurrentAmps.get(1), temperatureCelsius.get(1))
+            .isOK();
+
+    inputs.inteneralPosition =
+        Rotation2d.fromRotations(internalPositionRotations.getValueAsDouble());
+    inputs.velocityRadsPerSec =
+        Units.rotationsToRadians(velocityRotationsPerSec.getValueAsDouble());
+    inputs.appliedVolts =
+        appliedVolts.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
+    inputs.supplyCurrentAmps =
+        supplyCurrentAmps.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
+    inputs.temperatureCelsius =
+        temperatureCelsius.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
+  }
+
+  /**
+   * Sets the voltage of the motor
+   *
+   * @param voltage The voltage to set the motor to
+   */
+  public void setVoltage(double voltage) {
+    kLeadMotor.setControl(kVoltageOut.withOutput(voltage));
+  }
+
+  /**
+   * Sets the desired position of the motor. Runs using internal PID controller
+   *
+   * @param positionRads The desired position in radians
+   * @param feedforwardOutput Feedforward that will also be applied to the control effort
+   */
+  public void setPosition(double positionRads, double feedforwardOutput) {
+    kLeadMotor.setControl(
+        kPositionVoltage.withPosition(positionRads).withSlot(0).withFeedForward(feedforwardOutput));
+  }
+
+  /** Sets the motor control to neutral, then switching to the default neutral control mode */
+  public void stop() {
+    kLeadMotor.setControl(new NeutralOut());
+  }
 }
