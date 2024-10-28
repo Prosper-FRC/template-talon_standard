@@ -45,11 +45,11 @@ public class PivotKrakenHardware {
   }
 
   private final TalonFX kLeadMotor =
-      PivotConstants.kUseCANBus
+      PivotConstants.kUseCANivore
           ? new TalonFX(PivotConstants.kLeaderMotorID, PivotConstants.kCANBusName)
           : new TalonFX(PivotConstants.kLeaderMotorID);
   private final TalonFX kFollowMotor =
-      PivotConstants.kUseCANBus
+      PivotConstants.kUseCANivore
           ? new TalonFX(PivotConstants.kFollowerMotorID, PivotConstants.kCANBusName)
           : new TalonFX(PivotConstants.kFollowerMotorID);
 
@@ -94,7 +94,7 @@ public class PivotKrakenHardware {
 
     // Setup feedback sensor for position control
     if (PivotConstants.kUseCANCoder) {
-      if (PivotConstants.kUseCANBus) {
+      if (PivotConstants.kUseCANivore) {
         absoluteEncoder = new CANcoder(PivotConstants.kCANCoderID, PivotConstants.kCANBusName);
       } else {
         absoluteEncoder = new CANcoder(PivotConstants.kCANCoderID);

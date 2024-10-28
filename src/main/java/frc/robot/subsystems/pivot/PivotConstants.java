@@ -34,10 +34,10 @@ public class PivotConstants {
       // Max acceleration constraint for the Trapezoidal Motion Profile
       double kMaxAcceleration) {}
 
-  // If using a CANBus, set this boolean to true and set the CANBus name to
+  // If using a CANivore, set this boolean to true and set the CANivore name to
   // what is is. Consult your electrical lead if you are unsure if your team
-  // is using a CANBus. The name can be configured using Phoenix Tuner.
-  public static final boolean kUseCANBus = true;
+  // is using a CANivore. The name can be configured using Phoenix Tuner.
+  public static final boolean kUseCANivore = true;
   public static final String kCANBusName = "*";
 
   // The gearing between your motor shaft and output shaft, consult the
