@@ -41,6 +41,7 @@ public class Pivot extends SubsystemBase {
   @AutoLogOutput(key = "Pivot/CurrentGoal")
   private PivotGoal currentPivotGoal = null;
 
+  @AutoLogOutput(key = "Pivot/CurrentGoalPosition")
   private Rotation2d currentPivotGoalPosition = new Rotation2d();
 
   private final LoggedTunableNumber kP =
