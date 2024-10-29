@@ -10,8 +10,8 @@ import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
-import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -66,7 +66,7 @@ public class PivotKrakenHardware {
 
   // Control modes
   private final VoltageOut kVoltageOut = new VoltageOut(0.0);
-  private final PositionVoltage kPositionVoltage = new PositionVoltage(0.0);
+  private final MotionMagicVoltage kPositionVoltage = new MotionMagicVoltage(0.0);
 
   public PivotKrakenHardware(KrakenConfiguration configuration) {
     kFollowMotor.setControl(

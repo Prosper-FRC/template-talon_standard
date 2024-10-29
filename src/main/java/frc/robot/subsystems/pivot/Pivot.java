@@ -113,7 +113,8 @@ public class Pivot extends SubsystemBase {
   }
 
   /**
-   * Sets the voltage of the motor
+   * Sets the voltage of the motor. Note that {@link #setGoal} should be called and set to null in
+   * order to not run position control while also attempting to control voltage.
    *
    * @param voltage The voltage to set the motor to
    */
