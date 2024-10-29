@@ -13,7 +13,6 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -54,7 +53,6 @@ public class PivotKrakenHardware {
           ? new TalonFX(PivotConstants.kFollowerMotorID, PivotConstants.kCANBusName)
           : new TalonFX(PivotConstants.kFollowerMotorID);
 
-  private CANcoder absoluteEncoder;
   private DutyCycleEncoder throughBoreEncoder;
 
   private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
