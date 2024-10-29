@@ -47,9 +47,14 @@ public class PivotConstants {
   public static final int kLeaderMotorID = 0;
   public static final int kFollowerMotorID = 0;
 
-  // If using a CANCoder as your absolute encoder, set this value to true.
-  public static final boolean kUseCANCoder = false;
-  public static final int kCANCoderID = 0;
+  // If using a REV ThroughBore as your absolute encoder, set this value to true
+  public static final boolean kUseThroughBore = false;
+  // This is the digital input port of the RoboRIO that your through bore data pin plugs into
+  public static final int kThroughBoreEncoderPort = 0;
+  // If your absolute encoder is mounted anywhere except directly on to the shaft, you need to plug
+  // in the gear ratio between the shaft that your absolute encoder is on, and shaft that your
+  // mechanism is on
+  public static final double kThroughBoreEncoderRatio = 1.0 / 1.0;
 
   // TODO Check if this is accurate
   // Whether or not the follower-motor will spin in the opposite direction of

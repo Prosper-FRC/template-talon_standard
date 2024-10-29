@@ -19,6 +19,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import frc.robot.subsystems.pivot.PivotConstants.KrakenConfiguration;
 import java.util.List;
 import org.littletonrobotics.junction.AutoLog;
@@ -54,6 +55,7 @@ public class PivotKrakenHardware {
           : new TalonFX(PivotConstants.kFollowerMotorID);
 
   private CANcoder absoluteEncoder;
+  private DutyCycleEncoder throughBoreEncoder;
 
   private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
 
@@ -93,21 +95,15 @@ public class PivotKrakenHardware {
     motorConfiguration.Voltage.PeakReverseVoltage = configuration.kPeakReverseVoltage();
 
     // Setup feedback sensor for position control
-    if (PivotConstants.kUseCANCoder) {
-      if (PivotConstants.kUseCANivore) {
-        absoluteEncoder = new CANcoder(PivotConstants.kCANCoderID, PivotConstants.kCANBusName);
-      } else {
-        absoluteEncoder = new CANcoder(PivotConstants.kCANCoderID);
-      }
-      motorConfiguration.Feedback.FeedbackRemoteSensorID = PivotConstants.kCANCoderID;
-      motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.FusedCANcoder;
-      // This ratio assumes that the CANCoder is mounted directly to your pivot
-      // shaft (with no gears, sprokets, etc. separated the sensor from the shaft)
-      motorConfiguration.Feedback.SensorToMechanismRatio = 1.0 / 1.0;
-    } else {
-      motorConfiguration.Feedback.SensorToMechanismRatio = PivotConstants.kGearRatio;
-      motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
+    if (PivotConstants.kUseThroughBore) {
+      throughBoreEncoder = new DutyCycleEncoder(PivotConstants.kThroughBoreEncoderPort);
+      throughBoreEncoder.setDistancePerRotation(PivotConstants.kThroughBoreEncoderRatio);
+      // Reset the position of the mechanism (not necessarily the motor) to the position of the
+      // through bore encoder, which measures the absolute position of the mechanism.
+      kLeadMotor.setPosition(throughBoreEncoder.getAbsolutePosition(), 1.0);
     }
+    motorConfiguration.Feedback.SensorToMechanismRatio = PivotConstants.kGearRatio;
+    motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
     kLeadMotor.getConfigurator().apply(motorConfiguration, 1.0);
 
