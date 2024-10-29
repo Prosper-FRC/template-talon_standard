@@ -15,6 +15,7 @@ import frc.robot.utils.debugging.LoggedTunableNumber;
 
 import static frc.robot.subsystems.elevator.ElevatorConstants.*;
 
+// A linearly moving mechanism, usually goes up and down like an elevator
 public class Elevator extends SubsystemBase {
     public static enum ElevatorGoal {
         IDLE(() -> 0.0),
@@ -24,14 +25,14 @@ public class Elevator extends SubsystemBase {
         MANUAL_UP(() -> 0.0),
         MANUAL_DOWN(() -> 0.0);
 
-        private DoubleSupplier posMeterSupplier;
+        private DoubleSupplier posSupplierMeter;
 
-        private ElevatorGoal(DoubleSupplier posSupplier) {
-            this.posMeterSupplier = posSupplier;
+        private ElevatorGoal(DoubleSupplier posSupplierMeter) {
+            this.posSupplierMeter = posSupplierMeter;
         }
 
         public DoubleSupplier getGoal() {
-            return posMeterSupplier;
+            return posSupplierMeter;
         }
     }
 
@@ -73,6 +74,7 @@ public class Elevator extends SubsystemBase {
 
 
     public Elevator() {
+        // INVERT AND CONSTANT IS ROBOT SPECIFIC
         io = new ElevatorKrakenHardware(kControllerConfig, kMotorID, InvertedValue.CounterClockwise_Positive);
         setGoal(ElevatorGoal.IDLE);
     }
@@ -81,6 +83,9 @@ public class Elevator extends SubsystemBase {
         io.updateInputs(elevatorInputs);
         Logger.processInputs("Elevator", elevatorInputs);
 
+        // This says that if the value is changed in the advantageScope tool,
+        // Then we change the values in the code. Saves deploy time.
+        // More found in prerequisites slide
         LoggedTunableNumber.ifChanged(hashCode(), () -> {
             io.setPFF(kP.get(), kD.get(), kS.get(), kV.get(), kA.get(), kG.get());
         }, kP, kD, kS, kV, kA, kG);
@@ -108,7 +113,8 @@ public class Elevator extends SubsystemBase {
                     break;
                 // Had to satisfy compiler
                 default:
-                    positionGoal = goal.getGoal().getAsDouble();
+                    // Back up position, up position theoretically can still score
+                    positionGoal = ElevatorGoal.UP.getGoal().getAsDouble();
             }
 
             if(!goal.equals(ElevatorGoal.DEBUGGING_VOLTS)) {

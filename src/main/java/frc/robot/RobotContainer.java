@@ -16,7 +16,7 @@ public class RobotContainer {
   private final Flywheels robotFlywheels;
   private final Elevator robotElevator;
 
-  private CommandXboxController controller;
+  private CommandXboxController controller = new CommandXboxController(0);
 
   public RobotContainer() {
     robotFlywheels = new Flywheels();

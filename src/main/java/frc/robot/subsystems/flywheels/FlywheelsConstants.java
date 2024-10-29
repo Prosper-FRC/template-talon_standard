@@ -5,8 +5,12 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import edu.wpi.first.wpilibj.RobotBase;
 
 public class FlywheelsConstants {
+    // You get these from the CAD, Mechanical and Electrical teams
     public static final double kGearing = 1.0;
-    public static final double kCircumferenceMeters = 0.0635 * 2 * Math.PI;
+    public static final double kRadiusMeters = 0.0635;
+    public static final double kCircumferenceMeters = kRadiusMeters * 2 * Math.PI;
+
+    public static final double kToleranceMPS = 1.0;
 
     public static final FlywheelHardwareConfig kTopConfig = 
         new FlywheelHardwareConfig(34, InvertedValue.CounterClockwise_Positive);
@@ -14,6 +18,8 @@ public class FlywheelsConstants {
     public static final FlywheelHardwareConfig kBottomConfig = 
         new FlywheelHardwareConfig(35, InvertedValue.CounterClockwise_Positive);
 
+    // You tune these. The more you increase your max accleration, the higher the amperage is
+    // Make the amperage reach the current limit
     public static final double kMaxAccelerationMPSS = 53.0;
 
     public static final FlywheelControllerconfig kControllerConfig = (RobotBase.isReal()) ?

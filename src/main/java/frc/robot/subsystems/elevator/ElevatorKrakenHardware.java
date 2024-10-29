@@ -1,5 +1,7 @@
 package frc.robot.subsystems.elevator;
 
+import java.lang.invoke.ConstantBootstraps;
+
 import org.littletonrobotics.junction.AutoLog;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -13,6 +15,7 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import frc.robot.Constants;
 import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorControllerConfig;
 
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
@@ -44,16 +47,24 @@ public class ElevatorKrakenHardware {
     private StatusSignal<Double> motorPosition;
 
     public ElevatorKrakenHardware(ElevatorControllerConfig controlConfigs, int motorID, InvertedValue invert) {
-        motor = new TalonFX(ElevatorConstants.kMotorID, "drivetrain");
+        motor = new TalonFX(ElevatorConstants.kMotorID, Constants.kCanbusName);
 
+        // SPECIFIC TO SYSTEM. 
+        // https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/improving-performance-with-current-limits.html
         motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         motorConfig.CurrentLimits.StatorCurrentLimit = 60;
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         motorConfig.CurrentLimits.SupplyCurrentLimit = 60;
+
+        // GENERAL FOR ALL FRC MOTORS, 12 VOLT BATTERIES
         motorConfig.Voltage.PeakForwardVoltage = 12.0;
         motorConfig.Voltage.PeakReverseVoltage = -12.0;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+        // ROBOT SPECIFIC
         motorConfig.MotorOutput.Inverted = invert;
+
+        // WILL USUALLY BE ROTOR SENSOR, BUT COULD BE A CANCODER BASED ON DESIGN
         motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         motorConfig.Feedback.SensorToMechanismRatio = ElevatorConstants.kDrumCircumferenceMeters / ElevatorConstants.kGearing;
 

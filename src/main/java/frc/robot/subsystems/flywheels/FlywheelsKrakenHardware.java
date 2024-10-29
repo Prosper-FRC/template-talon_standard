@@ -7,11 +7,12 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.MathUtil;
+import frc.robot.Constants;
 import frc.robot.subsystems.flywheels.FlywheelsConstants.FlywheelHardwareConfig;
 
 public class FlywheelsKrakenHardware {
@@ -25,10 +26,10 @@ public class FlywheelsKrakenHardware {
         public double[] supplyCurrentAmps = {0.0};
         public double[] temperatureCelsius = {0.0};
     }
-
     private TalonFX motor;
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-    private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0).withUpdateFreqHz(1000);
+    private VoltageOut voltageControl = new VoltageOut(0);
+    private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0);
 
     private double appliedVolts = 0.0;
     private StatusSignal<Double> motorVelocity;
@@ -38,19 +39,28 @@ public class FlywheelsKrakenHardware {
     private StatusSignal<Double> motorTemp;
 
     public FlywheelsKrakenHardware(FlywheelHardwareConfig hardConfig) {
-        motor = new TalonFX(hardConfig.motorID(), "drivetrain");
+        motor = new TalonFX(hardConfig.motorID(), Constants.kCanbusName);
 
+        // SPECIFIC TO SYSTEM. 
+        // https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/improving-performance-with-current-limits.html
         motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
         motorConfig.CurrentLimits.StatorCurrentLimit = 60;
         motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         motorConfig.CurrentLimits.SupplyCurrentLimit = 60;
+
+        // GENERAL FOR ALL FRC MOTORS, 12 VOLT BATTERIES
         motorConfig.Voltage.PeakForwardVoltage = 12.0;
         motorConfig.Voltage.PeakReverseVoltage = -12.0;
         motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+
+        // ROBOT SPECIFIC
         motorConfig.MotorOutput.Inverted = hardConfig.motorInvert();
+
+        // USES INTERNAL ENCODER
         motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         motorConfig.Feedback.SensorToMechanismRatio = FlywheelsConstants.kCircumferenceMeters / FlywheelsConstants.kGearing;
 
+        // ONLY THINGS YOU NEED TO TUNE FOR FLYWHEELS, CAN BE RUN USING SYSID
         motorConfig.Slot0.kP = FlywheelsConstants.kControllerConfig.kP();
         motorConfig.Slot0.kS = FlywheelsConstants.kControllerConfig.kS();
         motorConfig.Slot0.kV = FlywheelsConstants.kControllerConfig.kV();
@@ -89,8 +99,7 @@ public class FlywheelsKrakenHardware {
     }
 
     public void setVolts(double volts) {
-        appliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
-        motor.setVoltage(appliedVolts);
+        motor.setControl(voltageControl.withOutput(volts));
     }
 
     public void setVelocity(double velocityMPS, double accelMPSS) {

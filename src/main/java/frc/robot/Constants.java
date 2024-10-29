@@ -6,11 +6,13 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 public final class Constants {
     public static final Mode kCurrentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
+    // FALSE IT BEFORE COMPETITION
     public static final boolean kTuningMode = true;
 
     public static final Alliance kAlliance = DriverStation.getAlliance().isPresent() && 
         DriverStation.getAlliance().get() == Alliance.Red ? Alliance.Red : Alliance.Blue;
 
+    // ROBOT SEPCIFIC
     public static final String kCanbusName = "sigma";
 
     public static enum Mode {

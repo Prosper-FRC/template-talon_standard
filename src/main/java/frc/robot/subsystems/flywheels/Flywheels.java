@@ -17,9 +17,12 @@ import frc.robot.utils.math.LinearProfile;
 
 import org.littletonrobotics.junction.Logger;
 
+// A wheel on a motor that hits high velocities very quickly
+// Usually used to shoot gamepieces
 public class Flywheels extends SubsystemBase {
     public static enum FlywheelSetpoint {
-
+        // GAME SPECIFIC. YOU WILL FIND NEW VALUES
+        // AND NEW CASES THROUGH OUT THE NEXT SEASON
         SHOOT(() -> 20.0, () ->  20.0),
         FEED_SHOOT(()-> 17.5, ()-> 17.5),
         IDLE(() -> 0.0, () -> 0.0),
@@ -56,6 +59,8 @@ public class Flywheels extends SubsystemBase {
         new LoggedTunableNumber("Shooter/Flywheel/kA", FlywheelsConstants.kControllerConfig.kA());
     public static LoggedTunableNumber kMaxAccel = 
         new LoggedTunableNumber("Shooter/Flywheel/kMaxAccel", FlywheelsConstants.kMaxAccelerationMPSS);
+    public static LoggedTunableNumber kToleranceMPS = 
+        new LoggedTunableNumber("Shooter/Flywheel/kMaxAccel", FlywheelsConstants.kToleranceMPS);
 
     private FlywheelsKrakenHardware topFlywheel;
     private FlywheelInputsAutoLogged topInputs = new FlywheelInputsAutoLogged();
@@ -65,6 +70,7 @@ public class Flywheels extends SubsystemBase {
     private FlywheelInputsAutoLogged bottomInputs = new FlywheelInputsAutoLogged();
     private LinearProfile bottomProfile = new LinearProfile(kMaxAccel.get(), 0.02);
 
+    // Tuning for the special case
     private LoggedTunableNumber ampVolt1 = new LoggedTunableNumber("Intake/AmpVolt1", 2.45);
     private LoggedTunableNumber ampVolt2 = new LoggedTunableNumber("Intake/AmpVolt2", 0);
 
@@ -90,6 +96,8 @@ public class Flywheels extends SubsystemBase {
         Logger.processInputs("Flywheels/Bottom", bottomInputs);
 
         if(goal != null) {
+            // SPECIAL CASE WHERE MOTORS NEED TO RUN OPENLOOP
+            // Special cases are found depending on the game
             if(!goal.equals(FlywheelSetpoint.AMP)) {
                 // VELOCITY AND ACCELERATION CALCULATIONS
                 double topSetpoint = topProfile.calculateSetpoint();
@@ -115,6 +123,9 @@ public class Flywheels extends SubsystemBase {
             }
         }
 
+        // This says that if the value is changed in the advantageScope tool,
+        // Then we change the values in the code. Saves deploy time.
+        // More found in prerequisites slide
         LoggedTunableNumber.ifChanged(hashCode(), () -> {
             topFlywheel.setPFF(kP.get(), kS.get(), kV.get(), kA.get());
             bottomFlywheel.setPFF(kP.get(), kS.get(), kV.get(), kA.get());
@@ -123,6 +134,8 @@ public class Flywheels extends SubsystemBase {
         if(DriverStation.isDisabled()) stopFlywheels();
     }
 
+    // CLOSED LOOP SETPOINT CONTROL, MEANT TO BE USED WITH ENUMS
+    // Goal is to use all closed loop control through these functions
     public void setGoal(FlywheelSetpoint goal) {
         this.goal = goal;
         if(this.goal != null) {
@@ -135,6 +148,8 @@ public class Flywheels extends SubsystemBase {
         return Commands.runOnce(() -> setGoal(goal), this);
     }
 
+    // UNLESS USED IN A SPECIAL IN PERIODIC LIKE AMP,
+    // SET this.goal = null before using these functions
     public void setTopVolts(double volts) {
         topFlywheel.setVolts(volts);
     }
@@ -150,10 +165,12 @@ public class Flywheels extends SubsystemBase {
 
     @AutoLogOutput(key="Flywheels/InTolerance")
     public boolean inTolerance() {
-        return (topProfile.getGoal() - topInputs.velocityMPS) < 1.0
-            && (bottomProfile.getGoal() - bottomInputs.velocityMPS) < 1.0;
+        return (topProfile.getGoal() - topInputs.velocityMPS) < kToleranceMPS.get()
+            && (bottomProfile.getGoal() - bottomInputs.velocityMPS) < kToleranceMPS.get();
     }
 
+    // Runs sys ID tests, learn about these in Sys ID slides.
+    // Just run this command to use it, but make sure to be careful
     public Command characterizeShooter() {
         return SysIDCharacterization.runShooterSysIDTests((v) -> {
             setGoal(null);

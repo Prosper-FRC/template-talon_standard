@@ -3,6 +3,7 @@ package frc.robot.subsystems.elevator;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class ElevatorConstants {
+    // Taken from mech and electrical
     public static final int kMotorID = 22;
     public static final int kAbsoluteEncoderID = 9;
     public static final Rotation2d kAbsoluteEncoderOffset = Rotation2d.fromDegrees(301.6);
@@ -13,6 +14,7 @@ public class ElevatorConstants {
     public static final double kMinPosMeters = 0;
     public static final double kMaxPosmeters = 2.0;
 
+    // Tuned by user
     public static final Rotation2d kAngularPerSecond = Rotation2d.fromDegrees(30.0);
 
     public static final ElevatorControllerConfig kControllerConfig = 
