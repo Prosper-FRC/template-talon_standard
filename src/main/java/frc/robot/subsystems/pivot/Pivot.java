@@ -72,6 +72,9 @@ public class Pivot extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // We pass in kPivotInputs to kPivotHardware to "update" it with data from the hardware layer
+    // (E.g. Motor temperatures, motor positions). This must be called periodically in order to
+    // properly update and call values from kPivotInputs.
     kPivotHardware.updateInputs(kPivotInputs);
     Logger.processInputs("Pivot/Inputs", kPivotInputs);
 
