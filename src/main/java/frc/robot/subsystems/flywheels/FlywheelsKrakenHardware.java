@@ -28,8 +28,10 @@ public class FlywheelsKrakenHardware {
     }
     private TalonFX motor;
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-    private VoltageOut voltageControl = new VoltageOut(0);
+    // Closed-loop control, this is where the PID, FF and profile is run
     private VelocityVoltage velocityVoltage = new VelocityVoltage(0.0);
+    // Open-loop control, basically setVoltage()
+    private VoltageOut voltageControl = new VoltageOut(0);
 
     private double appliedVolts = 0.0;
     private StatusSignal<Double> motorVelocity;

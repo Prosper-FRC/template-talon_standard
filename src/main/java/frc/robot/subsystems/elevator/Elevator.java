@@ -65,6 +65,8 @@ public class Elevator extends SubsystemBase {
         new LoggedTunableNumber("Elevator/DebuggingGoalMeters", 10.0);
     private static final LoggedTunableNumber kDebugginGoalVolts = 
         new LoggedTunableNumber("Elevator/DebuggingGoalVolts", 0.0);
+    private static final LoggedTunableNumber kToleranceMeters =
+        new LoggedTunableNumber("Elevator/DebuggingGoalVolts", ElevatorConstants.kToleranceMeters);
 
     private ElevatorKrakenHardware io;
     private ElevatorInputsAutoLogged elevatorInputs = new ElevatorInputsAutoLogged();
@@ -104,6 +106,8 @@ public class Elevator extends SubsystemBase {
                     positionGoal = elevatorInputs.positionMeters - kManualSpeed.get() * 0.02;
                         break;
                 case DEBUGGING:
+                // Position not used for debugging volts, but left in there
+                // as a back-up(Doesn't matter)
                 case DEBUGGING_VOLTS:
                     positionGoal = kDebugginGoal.get();
                     break;
@@ -113,7 +117,7 @@ public class Elevator extends SubsystemBase {
                     break;
                 // Had to satisfy compiler
                 default:
-                    // Back up position, up position theoretically can still score
+                    // Back up position, UP position theoretically can still score
                     positionGoal = ElevatorGoal.UP.getGoal().getAsDouble();
             }
 
@@ -145,7 +149,7 @@ public class Elevator extends SubsystemBase {
 
     @AutoLogOutput(key="Elevator/inTolerance")
     public boolean inTolerance() {
-        return Math.abs(goal.getGoal().getAsDouble() - elevatorInputs.positionMeters) < 0.05;
+        return Math.abs(goal.getGoal().getAsDouble() - elevatorInputs.positionMeters) < kToleranceMeters.getAsDouble();
     }
 
     @AutoLogOutput(key="Elevator/Goal")

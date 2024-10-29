@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandUtils {
+    // Makes a copy of a command, which doesn't share the
+    // the same reference as the old command
+    // Useful for working around composition requirements
+    // But preferable don't use this.
     public static Command copyCommand(Command command) {
         return new FunctionalCommand(
             command::initialize,
@@ -24,7 +28,9 @@ public class CommandUtils {
         return buildAutoChooser("");
     }
 
-    // Build auto chooser method that catches null autos
+    // A safe version of the autochooser
+    // That doesn't "corrupt" the roborio
+    // if thereis a null path
     public static SendableChooser<Command> buildAutoChooser(String defaultAutoName) {
         if (!AutoBuilder.isConfigured()) {
             throw new RuntimeException(

@@ -17,6 +17,8 @@ public class ElevatorConstants {
     // Tuned by user
     public static final Rotation2d kAngularPerSecond = Rotation2d.fromDegrees(30.0);
 
+    public static final double kToleranceMeters = 0.05;
+
     public static final ElevatorControllerConfig kControllerConfig = 
         new ElevatorControllerConfig(0.25, 0.0, 450.0, 300.0, 3000.0, 0.1, 0.32, 2.1, 0.0);
 

@@ -1,7 +1,5 @@
 package frc.robot.subsystems.elevator;
 
-import java.lang.invoke.ConstantBootstraps;
-
 import org.littletonrobotics.junction.AutoLog;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -36,7 +34,9 @@ public class ElevatorKrakenHardware {
 
     private TalonFX motor;
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
+    // Closed-loop control, this is where the PID, FF and profile is run
     private MotionMagicVoltage positionControl = new MotionMagicVoltage(0.0);
+    // Open-loop control, basically setVoltage()
     private VoltageOut voltageControl = new VoltageOut(0.0);
 
     private StatusSignal<Double> motorVelocity;
@@ -101,9 +101,11 @@ public class ElevatorKrakenHardware {
         motor.optimizeBusUtilization();
     }
 
-    public ElevatorKrakenHardware(ElevatorControllerConfig controlConfigs, int motorID, InvertedValue invert, int followerID, boolean followerInvert) {
+    // Construct the motor follow a master motor's id, and a new invert to match the master motor
+    // Once constructed, should never be called unless for telemetry, as the master motor's ElevatorKrakeHardware object should do all the work
+    public ElevatorKrakenHardware(ElevatorControllerConfig controlConfigs, int motorID, InvertedValue invert, int masterID, boolean masterInvert) {
         this(controlConfigs, motorID, invert);
-        motor.setControl(new Follower(followerID, followerInvert));
+        motor.setControl(new Follower(masterID, masterInvert));
     }
 
     public void updateInputs(ElevatorInputs inputs) {
@@ -130,6 +132,7 @@ public class ElevatorKrakenHardware {
         motor.setControl(positionControl.withPosition(positionMeters));
     }
 
+    // https://docs.wpilib.org/en/stable/docs/software/advanced-controls/introduction/introduction-to-feedforward.html
     public void setPFF(double kP, double kD, double kS, double kV, double kA, double kG) {
         var slotConfig = new Slot0Configs();
         slotConfig.kP = kP;
@@ -142,6 +145,7 @@ public class ElevatorKrakenHardware {
         motor.getConfigurator().apply(slotConfig);
     }
 
+    // Affects your position control constraints
     public void setMotionMagicConstraints(double kMaxVDeg, double kMaxADeg, double kMaxJDeg) {
         var slotConfig = new MotionMagicConfigs();
         slotConfig.MotionMagicCruiseVelocity = kMaxVDeg;
