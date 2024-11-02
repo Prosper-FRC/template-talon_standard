@@ -24,17 +24,21 @@ public class Pneumatics extends SubsystemBase {
 
     // Use the PneumaticsConstants class to get the forward and reverse channel of the Double Solenoid //
     // Also, if you are using a CTRE pneumatics hub change 'REVPH' to 'CTREPM' //
+    // Module number is default going to be '1' //
+    // Read here to learn more about it -> https://docs.wpilib.org/en/stable/docs/software/hardware-apis/pneumatics/index.html //
     rightSolenoid =
         new DoubleSolenoid(
-            PneumaticsModuleType.REVPH,
-            PnematicsConstants.rightSolenoidPorts[0],
-            PnematicsConstants.rightSolenoidPorts[1]);
+          PnematicsConstants.moduleID,
+          PneumaticsModuleType.REVPH,
+          PnematicsConstants.rightSolenoidPorts[0],
+          PnematicsConstants.rightSolenoidPorts[1]);
 
     leftSolenoid =
         new DoubleSolenoid(
-            PneumaticsModuleType.REVPH,
-            PnematicsConstants.leftSolenoidPorts[0],
-            PnematicsConstants.leftSolenoidPorts[1]);
+          PnematicsConstants.moduleID,
+          PneumaticsModuleType.REVPH,
+          PnematicsConstants.leftSolenoidPorts[0],
+          PnematicsConstants.leftSolenoidPorts[1]);
 
     // Extantiate the compressor object so that air flow starts //
     compressor = new Compressor(PneumaticsModuleType.REVPH);

@@ -6,5 +6,7 @@ public class PnematicsConstants {
   // Allocate less variables and looks cleaner //
   public static final int[] rightSolenoidPorts = new int[] {0, 0};
   public static final int[] leftSolenoidPorts = new int[] {0, 0};
-  
+
+  public static final int moduleID = 1;
+
 }
