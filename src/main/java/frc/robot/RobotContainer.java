@@ -9,16 +9,73 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
-  private final CommandXboxController kPilotController =
-      new CommandXboxController(Constants.kPilotControllerPort);
 
-  public RobotContainer() {
-    configureBindings();
-  }
+    private final CommandXboxController driverController = new CommandXboxController(0);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
-  private void configureBindings() {}
+    // Define subsystems
+    // ex: private final LEDSubsystem LEDs;
 
-  public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
-  }
+    // Define other utility classes
+    private final AutonCommands autonCommands;
+    private final TeleopCommands telopCommands;
+
+    private final LoggedDashboardChooser<Command> autoChooser;
+
+    private final boolean useCompetitionBindings = true;
+
+    public RobotContainer() {
+
+        // If using AdvantageKit, perform mode-specific instantiation of subsystems.
+        switch (Constants.kCurrentMode) {
+            case REAL:
+                // Instantiate subsystems that operate actual hardware (Hardware controller based modules)
+                break;
+            case SIM:
+                // Instantiate subsystems that simulate actual hardware (IOSim modules)
+                break;
+            default:
+                // Instantiate subsystems that are driven by playback of recorded sessions. (IO modules)
+                break;
+        }
+
+        // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
+        // ex: LEDs = new LEDSubsystem();
+
+        // Instantiate your TeleopCommands and AutonCommands classes
+        telopCommands = new TeleopCommands(/* pass subsystems here */);
+        autonCommands = new AutonCommands(/* pass subsystems here */);
+        autoChooser = new LoggedDashboardChooser<>("Auton Program", autonCommands.getAutoChooser());
+
+
+        // Pass subsystems to classes that need them for configuration
+
+
+        // Create any Dashboard choosers (LoggedDashboardChooser, etc)
+
+        // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
+
+        configureStateTriggers();
+        configureButtonBindings();
+    }
+
+    public Command getTeleopCommand() {
+        return new SequentialCommandGroup(
+            // Commands to run on teleop go here.
+        );
+    }
+
+    public Command getAutonomousCommand() {
+        return autoChooser.get();
+    }
+
+    private void configureStateTriggers() {
+
+
+    }
+
+    private void configureButtonBindings() {
+
+    }
+
 }
