@@ -19,6 +19,7 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /**
+ * Comments everything in detail
  * Represents an individual swerve module, controlling both the angle and drive
  * of a single wheel in a swerve drive setup.
  */
