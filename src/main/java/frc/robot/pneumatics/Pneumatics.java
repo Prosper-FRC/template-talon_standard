@@ -16,7 +16,7 @@ public class Pneumatics extends SubsystemBase {
   private DoubleSolenoid rightSolenoid;
   private DoubleSolenoid leftSolenoid;
 
-  // We dont use the compressor but it needs to be extantiated anways //
+  // We dont use the compressor but it needs to be instantiated anways //
   // This is to make sure that the compressor holds air for the solenoids //
   private Compressor compressor;
 
@@ -42,14 +42,20 @@ public class Pneumatics extends SubsystemBase {
 
     // Extantiate the compressor object so that air flow starts //
     compressor = new Compressor(PneumaticsModuleType.REVPH);
+
+    // Setting an intial state to the solenoids make sure that the 'toggle' method works //
+    // Toggle can only work is the solenoid is set to 'reverse' or 'forward' instead of 'off' //
+    leftSolenoid.set(Value.kReverse);
+    rightSolenoid.set(Value.kReverse);
+
   }
 
   @Override
   public void periodic() {
 
     // Log the state of the solenoids //
-    Logger.recordOutput("/Pneumatics/right/Value", returnRightPneumatic());
-    Logger.recordOutput("/Pneumatics/left/Value", returnLeftPneumatic());
+    Logger.recordOutput("/Pneumatics/right/Value", getRightState());
+    Logger.recordOutput("/Pneumatics/left/Value", getLeftState());
   }
 
   // This command will be schduled when a button is clicked //  /
@@ -67,11 +73,39 @@ public class Pneumatics extends SubsystemBase {
   }
 
   // Grab these values for telemetry //
-  public Value returnRightPneumatic() {
-    return rightSolenoid.get();
+  public String getRightState() {
+    // State of the solenoid //
+    DoubleSolenoid.Value result = rightSolenoid.get();
+
+    // Three different possiblities for the result (Forward, Reverse, and Off) //
+    if(result.equals(DoubleSolenoid.Value.kForward)){
+      return "Forward";
+    }
+
+    else if(result.equals(DoubleSolenoid.Value.kReverse)){
+      return "Reverse";
+    }
+
+    else{
+      return "Off";
+    }
   }
 
-  public Value returnLeftPneumatic() {
-    return leftSolenoid.get();
+  public String getLeftState() {
+    // State of the solenoid //
+    DoubleSolenoid.Value result = leftSolenoid.get();
+
+    // Three different possiblities for the result (Forward, Reverse, and Off) //
+    if(result.equals(DoubleSolenoid.Value.kForward)){
+      return "Forward";
+    }
+
+    else if(result.equals(DoubleSolenoid.Value.kReverse)){
+      return "Reverse";
+    }
+
+    else{
+      return "Off";
+    }
   }
 }

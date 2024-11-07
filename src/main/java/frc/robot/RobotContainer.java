@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.pneumatics.Pneumatics;
 
 public class RobotContainer {
-  private final CommandXboxController controller = new CommandXboxController(Constants.kPilotControllerPort);
+  private final CommandXboxController driveController = new CommandXboxController(Constants.kPilotControllerPort);
   private final Pneumatics pneumatics;
 
   public RobotContainer() {
@@ -19,7 +19,7 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    controller.rightTrigger().onTrue(pneumatics.toggleSolenoids());
+    driveController.rightTrigger().onTrue(pneumatics.toggleSolenoids());
   }
 
   public Command getAutonomousCommand() {
