@@ -30,7 +30,7 @@ Fun Fact: DONT DONT DONT use i2c ports ever as it can cause robo-rio shutdowns c
 
 The second type of sensor, gyroscope:
 
-This will not be a very in-depth explanation as more will be covered in 'level-2-drive'. Also, read the documentation yourself jeez.
+This will not be a very in-depth explanation as more will be covered in 'level-2-drive'.
 
 A gyroscope is a sensor that helps determine the robot's orientation/position in real-time. It is really helpful and is needed on all robots. 
 
@@ -46,9 +46,9 @@ Other values are pulled from the gyroscope but you should only need 'yaw' unless
 
 The ID of this gyroscope can be found in Phoenix Tuner X.
 
-The default value for how the yaw comes out is in rotations, meaning that for logging values, you usually need to change it to degrees for readability. 
+The default value for how the yaw comes out is in degrees, meaning that for logging values, you usually need to 'modulus' by 360 so that the rotations don't build up.
 
-Gyroscopes also need to be in the dead center of the robot. This is done by taking a string from the middle of the robot's horizontal and vertical sides. The intersection of the strings is the exact center of the robot. 
+Gyroscopes also need to be in the dead center of the robot. This is done by taking a string from the middle of the robot's horizontal and vertical sides. The intersection of the strings is the exact center of the robot. There is a little icon on the pigeon that can help indicate this 'dead center'. If you are to use strings and you see the icon is covered by the pigeon then you are good to go.
 
 Gyroscopes can also be inverted sometimes, the way to check is to rotate the robot counter clockwise. If the yaw increases then your gyro does not need to be inverted.
 

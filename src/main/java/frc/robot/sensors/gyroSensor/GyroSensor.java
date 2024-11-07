@@ -17,18 +17,18 @@ public class GyroSensor extends SubsystemBase {
   // This is the gyroscope object for the sensor //
   private Pigeon2 gyro;
 
-  // This is a signal that collects data called 'yawRotations' //
+  // This is a signal that collects data called 'yawDegrees' //
   // StatusSignals are from Phoenix6 which con constantly retreive certain information //
   // The 'Double' is a wrapper class for the double paramater //
   // Read about Status Signals here -> https://v6.docs.ctr-electronics.com/en/stable/docs/api-reference/api-usage/status-signals.html // 
-  private StatusSignal<Double> yawRotations;
+  private StatusSignal<Double> yawDegrees;
 
   public GyroSensor() {
 
     // Create the gyroscope sensor with the ID from phoenix tuner x //
     // If you have a CANiovre attached to the pigeon then you would add a second argument //
     // The second arguemnt would be the name of the Canivore //
-    gyro = new Pigeon2(GyroConstants.gyroSensor);
+    gyro = new Pigeon2(GyroConstants.port);
 
     // This is how to apply factory default settings to the gyroscope sensor //
     // What you are doing here is you are going to get the configurator of the gyroscope to apply settings //
@@ -40,14 +40,14 @@ public class GyroSensor extends SubsystemBase {
     setYaw(0);    
 
     // 'The StatusSignal<Double>' needs a 'signal' to collect, we gave it the option to collect the signal of the gyrscope yaw //
-    yawRotations = gyro.getYaw();
+    yawDegrees = gyro.getYaw();
 
     // This line is neccessary to do as you are setting how often the signal you want to be updated //
-    // Here it is 50ms //
-    yawRotations.setUpdateFrequency(50);
+    // Here it is 50hz //
+    yawDegrees.setUpdateFrequency(50);
 
     // Optimize bus utlization helps us save some processing power //
-    // The only way to get values from the gyroscope now is from this 'StatusSignal<Double> yawRotations' //
+    // The only way to get values from the gyroscope now is from this 'StatusSignal<Double> yawDegrees' //
     // Also whenver you use this method all of the signals pulled from the certain device are optimized //
     gyro.optimizeBusUtilization();
   }
@@ -63,7 +63,7 @@ public class GyroSensor extends SubsystemBase {
 
     // This helps us check constatly if the gryscope is still connected or not //
     // The refreshAll lets us see if we ecan update the signal, and if the Status Code is Okay that means that the Gyro is still connected // 
-    Logger.recordOutput("/Gyroscope/Device Connected", BaseStatusSignal.refreshAll(yawRotations).equals(StatusCode.OK));
+    Logger.recordOutput("/Gyroscope/Device Connected", BaseStatusSignal.refreshAll(yawDegrees).equals(StatusCode.OK));
   }
 
   // This getter method helps us pull the value from the Status Singal of the Gyroscope //
@@ -72,7 +72,7 @@ public class GyroSensor extends SubsystemBase {
   // We keep this inside of a Rotation2d so that we can preserve our units
   // Read more about Rotation2d and pose here -> https://docs.wpilib.org/en/stable/docs/software/advanced-controls/geometry/pose.html //
   public Rotation2d getYaw(){
-    return (GyroConstants.gyroFlipped) ? Rotation2d.fromDegrees(360 - yawRotations.getValueAsDouble()) : Rotation2d.fromDegrees(yawRotations.getValueAsDouble());
+    return (GyroConstants.isFlipped) ? Rotation2d.fromDegrees(360 - yawDegrees.getValueAsDouble()) : Rotation2d.fromDegrees(yawDegrees.getValueAsDouble());
   }
 
   // This method is pretty simple, just sets the yaw //
