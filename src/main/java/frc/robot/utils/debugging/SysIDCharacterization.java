@@ -3,8 +3,10 @@ package frc.robot.utils.debugging;
 import com.ctre.phoenix6.SignalLogger;
 
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -13,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 // import static frc.robot.subsystems.drive.DriveConstants.kRadiusMeters;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -90,38 +93,40 @@ public class SysIDCharacterization {
         Logger.recordOutput(key, state);
     }
 
-    // public static Command MOISYSid(Consumer<Double> voltSetter, Supplier<double[]> motorAmps, Subsystem requirement) {
-    //     double totalTimeSeconds = 15.0;
-    //     double rampTimeSeconds = 10.0;
-    //     double maxVoltage = 4.0;
-    //     double voltageOverTime = maxVoltage / rampTimeSeconds;
-    //     double neoTorqueConstantNmPerAmp = 0.1495;
+    // Untested
+    public static Command MOISYSid(
+        Consumer<Double> voltSetter, Supplier<double[]> motorAmps, 
+        double kDrivebaseRadiusMeters, double kWheelRadiusMeters, Subsystem requirement) {
+        double totalTimeSeconds = 15.0;
+        double rampTimeSeconds = 10.0;
+        double maxVoltage = 4.0;
+        double voltageOverTime = maxVoltage / rampTimeSeconds;
+        double neoTorqueConstantNmPerAmp = 0.1495;
 
-    //     Timer timer = new Timer();
+        Timer timer = new Timer();
 
-
-    //     return new SequentialCommandGroup(
-    //         startCTRELoggingRoutine(),
-    //         Commands.waitSeconds(3.0),
-    //         new FunctionalCommand(
-    //             () -> timer.start(),
-    //             () -> {
-    //                 double driveBaseTorque = 0.0;
-    //                 voltSetter.accept(Math.min(voltageOverTime * timer.get(), maxVoltage));
-    //                 SignalLogger.writeString("Test Running", "RUN");
-    //                 for(int i = 0; i < motorAmps.get().length; i++ ) {
-    //                     driveBaseTorque +=  ((neoTorqueConstantNmPerAmp * motorAmps.get()[i]) 
-    //                         / kRadiusMeters) * kDrivebaseRadiusMeters;
-    //                 }
-    //                 SignalLogger.writeDouble("DriveBaseTorque", driveBaseTorque);
-    //                 Logger.recordOutput("MOIingTime", timer.get());
-    //             }, 
-    //             (interrupted) -> {
-    //                 SignalLogger.writeString("Test Not Running", "NO RUN");
-    //             }, 
-    //             () -> false, 
-    //             requirement).withTimeout(totalTimeSeconds),
-    //         Commands.waitSeconds(3.0),
-    //         stopCTRELoggingRoutine());
-    // }
+        return new SequentialCommandGroup(
+            startCTRELoggingRoutine(),
+            Commands.waitSeconds(3.0),
+            new FunctionalCommand(
+                () -> timer.start(),
+                () -> {
+                    double driveBaseTorque = 0.0;
+                    voltSetter.accept(Math.min(voltageOverTime * timer.get(), maxVoltage));
+                    SignalLogger.writeString("Test Running", "RUN");
+                    for(int i = 0; i < motorAmps.get().length; i++ ) {
+                        driveBaseTorque +=  ((neoTorqueConstantNmPerAmp * motorAmps.get()[i]) 
+                            / kWheelRadiusMeters) * kDrivebaseRadiusMeters;
+                    }
+                    SignalLogger.writeDouble("DriveBaseTorque", driveBaseTorque);
+                    Logger.recordOutput("MOIingTime", timer.get());
+                }, 
+                (interrupted) -> {
+                    SignalLogger.writeString("Test Not Running", "NO RUN");
+                }, 
+                () -> false, 
+                requirement).withTimeout(totalTimeSeconds),
+            Commands.waitSeconds(3.0),
+            stopCTRELoggingRoutine());
+    }
 }
