@@ -70,7 +70,7 @@ public class Robot extends LoggedRobot {
         if (mAutonomousCommand != null) {
             mAutonomousCommand.cancel();
         }
-        mTeleopCommand = robotContainer.getTeleopCommand()
+        mTeleopCommand = mRobotContainer.getTeleopCommand();
         if (mTeleopCommand != null) {
             mTeleopCommand.schedule();
         }
