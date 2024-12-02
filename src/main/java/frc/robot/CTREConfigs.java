@@ -8,9 +8,9 @@ import com.ctre.phoenix6.signals.SensorDirectionValue;
 import frc.robot.subsystems.swervedrive.SwerveConstants;
 
 public final class CTREConfigs {
-    public TalonFXConfiguration swerveAngleFXConfig;
-    public TalonFXConfiguration swerveDriveFXConfig;
-    public CANcoderConfiguration swerveCanCoderConfig;
+    public final TalonFXConfiguration swerveAngleFXConfig;
+    public final TalonFXConfiguration swerveDriveFXConfig;
+    public final CANcoderConfiguration swerveCanCoderConfig;
 
     public CTREConfigs(int CANcoderID){
         swerveAngleFXConfig = new TalonFXConfiguration();
@@ -20,41 +20,41 @@ public final class CTREConfigs {
         //Angle
         CurrentLimitsConfigs angleSupplyLimit = new CurrentLimitsConfigs();
 
-        angleSupplyLimit.StatorCurrentLimit = SwerveConstants.Swerve.angleStatorCurrentLimit;
-        angleSupplyLimit.SupplyCurrentLimit = SwerveConstants.Swerve.angleSupplyCurrentLimit;
-        angleSupplyLimit.StatorCurrentLimitEnable = SwerveConstants.Swerve.angleEnableStatorLimit;
-        angleSupplyLimit.SupplyCurrentLimitEnable = SwerveConstants.Swerve.angleEnableSupplyLimit;
+        angleSupplyLimit.StatorCurrentLimit = SwerveConstants.kAzimuthStatorCurrentLimit;
+        angleSupplyLimit.SupplyCurrentLimit = SwerveConstants.kAzimtuhSupplyCurrentLimit;
+        angleSupplyLimit.StatorCurrentLimitEnable = SwerveConstants.kAzimuthEnableStatorLimit;
+        angleSupplyLimit.SupplyCurrentLimitEnable = SwerveConstants.kAzimuthEnableSupplyLimit;
         swerveAngleFXConfig.CurrentLimits = angleSupplyLimit;
 
-        swerveAngleFXConfig.Slot0.kP = SwerveConstants.Swerve.angleKP;
-        swerveAngleFXConfig.Slot0.kI = SwerveConstants.Swerve.angleKI;
-        swerveAngleFXConfig.Slot0.kD = SwerveConstants.Swerve.angleKD;
-        swerveAngleFXConfig.Slot0.kS = SwerveConstants.Swerve.angleKF;
+        swerveAngleFXConfig.Slot0.kP = SwerveConstants.kAzimuthP;
+        swerveAngleFXConfig.Slot0.kI = 0.0;
+        swerveAngleFXConfig.Slot0.kD = SwerveConstants.kAzimuthD;
+        swerveAngleFXConfig.Slot0.kS = SwerveConstants.KAzimuthS;
         swerveAngleFXConfig.ClosedLoopGeneral.ContinuousWrap = true;
 
         // swerveAngleFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
         // swerveAngleFXConfig.Feedback.FeedbackRemoteSensorID = CANcoderID;
-        swerveAngleFXConfig.Feedback.SensorToMechanismRatio = SwerveConstants.Swerve.angleGearRatio;
+        swerveAngleFXConfig.Feedback.SensorToMechanismRatio = SwerveConstants.kAngleGearRatio;
     
         //Drive
         CurrentLimitsConfigs driveSupplyLimit = new CurrentLimitsConfigs();
-        driveSupplyLimit.StatorCurrentLimit = SwerveConstants.Swerve.driveStatorCurrentLimit;
-        driveSupplyLimit.SupplyCurrentLimit = SwerveConstants.Swerve.driveSupplyCurrentLimit;
-        driveSupplyLimit.StatorCurrentLimitEnable = SwerveConstants.Swerve.driveEnableStatorLimit;
-        driveSupplyLimit.SupplyCurrentLimitEnable = SwerveConstants.Swerve.driveEnableSupplyLimit;
+        driveSupplyLimit.StatorCurrentLimit = SwerveConstants.kDriveStatorCurrentLimit;
+        driveSupplyLimit.SupplyCurrentLimit = SwerveConstants.kDriveSupplyCurrentLimit;
+        driveSupplyLimit.StatorCurrentLimitEnable = SwerveConstants.kDriveEnableStatorLimit;
+        driveSupplyLimit.SupplyCurrentLimitEnable = SwerveConstants.kDriveEnableSupplyLimit;
         swerveDriveFXConfig.CurrentLimits = driveSupplyLimit;
 
-        swerveDriveFXConfig.Slot0.kP = SwerveConstants.Swerve.driveKP;
-        swerveDriveFXConfig.Slot0.kI = SwerveConstants.Swerve.driveKI;
-        swerveDriveFXConfig.Slot0.kD = SwerveConstants.Swerve.driveKD;
-        swerveDriveFXConfig.Slot0.kS = SwerveConstants.Swerve.driveKF;
+        swerveDriveFXConfig.Slot0.kP = SwerveConstants.kDriveP;
+        swerveDriveFXConfig.Slot0.kI = 0.0;
+        swerveDriveFXConfig.Slot0.kD = SwerveConstants.kDriveD;
+        swerveDriveFXConfig.Slot0.kS = SwerveConstants.kDriveS;
 
-        swerveDriveFXConfig.Feedback.SensorToMechanismRatio = SwerveConstants.Swerve.driveGearRatio;
+        swerveDriveFXConfig.Feedback.SensorToMechanismRatio = SwerveConstants.kDriveGearRatio;
 
-        swerveDriveFXConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = SwerveConstants.Swerve.openLoopRamp;
-        swerveDriveFXConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = SwerveConstants.Swerve.openLoopRamp;
-        swerveDriveFXConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = SwerveConstants.Swerve.closedLoopRamp;
-        swerveDriveFXConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = SwerveConstants.Swerve.closedLoopRamp;
+        swerveDriveFXConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = SwerveConstants.kOpenLoopRamp;
+        swerveDriveFXConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = SwerveConstants.kOpenLoopRamp;
+        swerveDriveFXConfig.ClosedLoopRamps.DutyCycleClosedLoopRampPeriod = SwerveConstants.kClosedLoopRamp;
+        swerveDriveFXConfig.ClosedLoopRamps.VoltageClosedLoopRampPeriod = SwerveConstants.kClosedLoopRamp;
 
         //Cancoder
         swerveCanCoderConfig.MagnetSensor.SensorDirection = SensorDirectionValue.CounterClockwise_Positive;

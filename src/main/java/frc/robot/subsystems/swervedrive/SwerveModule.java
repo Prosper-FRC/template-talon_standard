@@ -7,8 +7,8 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.lib.math.Conversions;
-import frc.lib.util.SwerveModuleConstants;
 import frc.robot.CTREConfigs;
+import frc.robot.subsystems.swervedrive.SwerveConstants.ModuleConstants;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -17,6 +17,8 @@ import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import static frc.robot.subsystems.swervedrive.SwerveConstants.*;
 
 /**
  * Comments everything in detail
@@ -37,7 +39,7 @@ public class SwerveModule extends SubsystemBase {
     public CTREConfigs ctreConfigs;  // Configuration object for motor and encoder settings
     
     // Feedforward control for motor speed adjustments based on constants
-    SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(SwerveConstants.Swerve.driveKS, SwerveConstants.Swerve.driveKV, SwerveConstants.Swerve.driveKA);
+    SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(kDriveS, kDriveV, kDriveA);
   
     /**
      * Constructs a new SwerveModule, initializing motor, encoder, and configuration.
@@ -45,23 +47,23 @@ public class SwerveModule extends SubsystemBase {
      * @param moduleNumber   Unique identifier for this swerve module.
      * @param moduleConstants Module-specific constants for configuration.
      */
-    public SwerveModule(int moduleNumber, SwerveModuleConstants moduleConstants) {
+    public SwerveModule(int moduleNumber, ModuleConstants moduleConstants) {
         this.moduleNumber = moduleNumber;
-        angleOffset = moduleConstants.angleOffset;  // Set angle offset for calibration
-        modName = moduleConstants.name;  // Assign name to module
+        angleOffset = moduleConstants.kOffset();  // Set angle offset for calibration
+        modName = moduleConstants.kName();  // Assign name to module
 
-        ctreConfigs = new CTREConfigs(moduleConstants.cancoderID);  // Configuration setup for encoder and motor
+        ctreConfigs = new CTREConfigs(moduleConstants.kCanCoderID());  // Configuration setup for encoder and motor
         
         /* Angle Encoder Config */
-        angleEncoder = new CANcoder(moduleConstants.cancoderID, "drivebase");  // Initialize encoder
+        angleEncoder = new CANcoder(moduleConstants.kCanCoderID(), "drivebase");  // Initialize encoder
         configAngleEncoder();  // Apply configuration to angle encoder
 
         /* Angle Motor Config */
-        angleMotor = new TalonFX(moduleConstants.angleMotorID, "drivebase");  // Initialize angle motor
+        angleMotor = new TalonFX(moduleConstants.kAzimuthID(), "drivebase");  // Initialize angle motor
         configAngleMotor();  // Configure angle motor settings
 
         /* Drive Motor Config */
-        driveMotor = new TalonFX(moduleConstants.driveMotorID, "drivebase");  // Initialize drive motor
+        driveMotor = new TalonFX(moduleConstants.kDriveId(), "drivebase");  // Initialize drive motor
         configDriveMotor();  // Configure drive motor settings
     }
 
@@ -73,7 +75,7 @@ public class SwerveModule extends SubsystemBase {
         SmartDashboard.putNumber(modName + "/ Drive / Stator Current", driveMotor.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putNumber(modName + "/ Drive / Supply Current", driveMotor.getSupplyCurrent().getValueAsDouble());
         SmartDashboard.putNumber(modName + "/ Drive / Temperature(C*)", driveMotor.getDeviceTemp().getValueAsDouble());
-        SmartDashboard.putNumber(modName + "/ Drive / Velocity(MPS)", (driveMotor.getVelocity().getValueAsDouble() * SwerveConstants.Swerve.wheelCircumference) / (60.0 * SwerveConstants.Swerve.driveGearRatio));
+        SmartDashboard.putNumber(modName + "/ Drive / Velocity(MPS)", (driveMotor.getVelocity().getValueAsDouble() * kWheelCircumference) / (60.0 * kDriveGearRatio));
 
         SmartDashboard.putNumber(modName + "/ Azimuth / Stator Current", angleMotor.getStatorCurrent().getValueAsDouble());
         SmartDashboard.putNumber(modName + "/ Azimuth / Supply Current", angleMotor.getSupplyCurrent().getValueAsDouble());
@@ -91,10 +93,10 @@ public class SwerveModule extends SubsystemBase {
      */
     public void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop) {
         if (isOpenLoop) {
-            double percentOutput = desiredState.speedMetersPerSecond / SwerveConstants.Swerve.maxSpeed;
+            double percentOutput = desiredState.speedMetersPerSecond / kMaxSpeed;
             driveMotor.set(percentOutput);  // Open-loop speed control as percent output
         } else {
-            double velocity = Conversions.MPSToFalcon(desiredState.speedMetersPerSecond, SwerveConstants.Swerve.wheelCircumference, SwerveConstants.Swerve.driveGearRatio);
+            double velocity = Conversions.MPSToFalcon(desiredState.speedMetersPerSecond, kWheelCircumference, kDriveGearRatio);
             driveMotor.setControl(velocityControl.withVelocity(velocity).withFeedForward(0.00008));  // Closed-loop velocity control
         }
     }
@@ -133,7 +135,7 @@ public class SwerveModule extends SubsystemBase {
     private void configAngleMotor() {
         angleMotor.getConfigurator().apply(new TalonFXConfiguration());  // Apply default config
         angleMotor.getConfigurator().apply(ctreConfigs.swerveAngleFXConfig);  // Apply angle-specific config
-        angleMotor.setInverted(SwerveConstants.Swerve.angleMotorInvert);  // Set inversion if required
+        angleMotor.setInverted(kAngleMotorInvert);  // Set inversion if required
         angleMotor.setNeutralMode(NeutralModeValue.Brake);  // Set motor brake mode
         resetToAbsolute();  // Align motor position with encoder
     }
@@ -153,7 +155,7 @@ public class SwerveModule extends SubsystemBase {
     private void configDriveMotor() {
         driveMotor.getConfigurator().apply(new TalonFXConfiguration());  // Apply default config
         driveMotor.getConfigurator().apply(ctreConfigs.swerveDriveFXConfig);  // Apply drive-specific config
-        driveMotor.setInverted(SwerveConstants.Swerve.driveMotorInvert);  // Set inversion if required
+        driveMotor.setInverted(kDriveMotorInvert);  // Set inversion if required
         driveMotor.setNeutralMode(NeutralModeValue.Brake);  // Set motor brake mode
         driveMotor.setPosition(0);  // Initialize position to zero
     }
@@ -181,7 +183,7 @@ public class SwerveModule extends SubsystemBase {
      * @return Current state as a SwerveModuleState.
      */
     public SwerveModuleState getState() {
-        double velocity = Conversions.RPSToMPS(driveMotor.getVelocity().getValueAsDouble(), SwerveConstants.Swerve.wheelCircumference);
+        double velocity = Conversions.RPSToMPS(driveMotor.getVelocity().getValueAsDouble(), kWheelCircumference);
         Rotation2d angle = Rotation2d.fromRotations(angleMotor.getPosition().getValueAsDouble());
         return new SwerveModuleState(velocity, angle);
     }
@@ -193,19 +195,7 @@ public class SwerveModule extends SubsystemBase {
      */
     public SwerveModulePosition getPosition() {
         return new SwerveModulePosition(
-            Conversions.rotationsToMeters(driveMotor.getPosition().getValueAsDouble(), SwerveConstants.Swerve.wheelCircumference),
-            getAngle()
-        );
-    }
-
-    /**
-     * Returns the inverted position of this swerve module.
-     *
-     * @return Inverted position as a SwerveModulePosition.
-     */
-    public SwerveModulePosition getPositionInverted() {
-        return new SwerveModulePosition(
-            Conversions.rotationsToMeters(-driveMotor.getPosition().getValueAsDouble(), SwerveConstants.Swerve.wheelCircumference),
+            Conversions.rotationsToMeters(driveMotor.getPosition().getValueAsDouble(), kWheelCircumference),
             getAngle()
         );
     }
