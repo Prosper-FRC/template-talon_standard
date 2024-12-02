@@ -27,13 +27,13 @@ import static frc.robot.subsystems.drive.SwerveConstants.*;
  */
 public class Swerve extends SubsystemBase {
     // Swerve drive odometry, managing robot's position based on movement data
-    public SwerveDriveOdometry swerveOdometry;
+    private SwerveDriveOdometry swerveOdometry;
     // Array of SwerveModule objects, one for each wheel/module on the robot
-    public SwerveModule[] modules;
+    private SwerveModule[] modules;
     // Gyro sensor for tracking robot orientation
-    public Pigeon2 gyro;
+    private Pigeon2 gyro;
     // Pose estimator for managing robot's estimated position on the field
-    public SwerveDrivePoseEstimator poseEstimator;
+    private SwerveDrivePoseEstimator poseEstimator;
     
     /**
      * Constructs a new Swerve subsystem, initializing swerve modules, gyro, odometry,
@@ -81,6 +81,17 @@ public class Swerve extends SubsystemBase {
             this // Reference to this subsystem for setting command requirements
         );
     }
+
+    /**
+     * Periodically updates the SmartDashboard with the current yaw angle.
+     */
+    @Override
+    public void periodic() {
+        SmartDashboard.putNumber("Drive/Yaw", getYaw().getDegrees());
+        for(int i = 0; i < 4; i++) {
+            modules[i].periodic();
+        }
+    }
     
     /**
      * Drives the robot using translation, rotation, and an open-loop option.
@@ -97,8 +108,7 @@ public class Swerve extends SubsystemBase {
 
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(continousChassisSpeeds, 0.02);
         // Convert field-relative speeds to module-relative speeds
-        SwerveModuleState[] swerveModuleStates = 
-        kSwerveKinematics.toSwerveModuleStates(discreteSpeeds);
+        SwerveModuleState[] swerveModuleStates = kSwerveKinematics.toSwerveModuleStates(discreteSpeeds);
 
         // Adjust wheel speeds to avoid exceeding max speed
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
@@ -112,8 +122,7 @@ public class Swerve extends SubsystemBase {
     public void autoDrive(ChassisSpeeds speeds) {
         ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
         // Convert field-relative speeds to module-relative speeds
-        SwerveModuleState[] swerveModuleStates = 
-        kSwerveKinematics.toSwerveModuleStates(discreteSpeeds);
+        SwerveModuleState[] swerveModuleStates = kSwerveKinematics.toSwerveModuleStates(discreteSpeeds);
 
         // Adjust wheel speeds to avoid exceeding max speed
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
@@ -173,10 +182,7 @@ public class Swerve extends SubsystemBase {
      * Retrieves the robot's current chassis speeds.
      */
     public ChassisSpeeds getChassisSpeeds() {
-        SwerveModuleState[] states = getStates();
-        return kSwerveKinematics.toChassisSpeeds(
-            states[0], states[1], states[2], states[3]
-        );
+        return kSwerveKinematics.toChassisSpeeds(getStates());
     }
     
     /**
@@ -216,13 +222,5 @@ public class Swerve extends SubsystemBase {
      */
     public void resetAllMotors() {
         for(int i = 0; i < 4; i++) modules[i].resetToAbsolute();
-    }
-
-    /**
-     * Periodically updates the SmartDashboard with the current yaw angle.
-     */
-    @Override
-    public void periodic() {
-        SmartDashboard.putNumber("Drive / Yaw", getYaw().getDegrees());
     }
 }

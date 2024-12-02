@@ -27,7 +27,6 @@ public final class CTREConfigs {
         swerveAngleFXConfig.Slot0.kP = SwerveConstants.kAzimuthP;
         swerveAngleFXConfig.Slot0.kI = 0.0;
         swerveAngleFXConfig.Slot0.kD = SwerveConstants.kAzimuthD;
-        swerveAngleFXConfig.Slot0.kS = SwerveConstants.KAzimuthS;
         swerveAngleFXConfig.ClosedLoopGeneral.ContinuousWrap = true;
 
         // swerveAngleFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
@@ -45,9 +44,8 @@ public final class CTREConfigs {
         swerveDriveFXConfig.Slot0.kP = SwerveConstants.kDriveP;
         swerveDriveFXConfig.Slot0.kI = 0.0;
         swerveDriveFXConfig.Slot0.kD = SwerveConstants.kDriveD;
-        swerveDriveFXConfig.Slot0.kS = SwerveConstants.kDriveS;
 
-        swerveDriveFXConfig.Feedback.SensorToMechanismRatio = SwerveConstants.kDriveGearRatio;
+        swerveDriveFXConfig.Feedback.SensorToMechanismRatio = SwerveConstants.kDriveGearRatio / SwerveConstants.kWheelCircumference;
 
         swerveDriveFXConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = SwerveConstants.kOpenLoopRamp;
         swerveDriveFXConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = SwerveConstants.kOpenLoopRamp;
