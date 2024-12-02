@@ -1,4 +1,4 @@
-package frc.robot.subsystems.swervedrive;
+package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import static frc.robot.subsystems.swervedrive.SwerveConstants.*;
+import static frc.robot.subsystems.drive.SwerveConstants.*;
 
 /**
  * Represents the Swerve drive subsystem, managing the kinematics, odometry, and
@@ -29,7 +29,7 @@ public class Swerve extends SubsystemBase {
     // Swerve drive odometry, managing robot's position based on movement data
     public SwerveDriveOdometry swerveOdometry;
     // Array of SwerveModule objects, one for each wheel/module on the robot
-    public SwerveModule[] mSwerveMods;
+    public SwerveModule[] modules;
     // Gyro sensor for tracking robot orientation
     public Pigeon2 gyro;
     // Pose estimator for managing robot's estimated position on the field
@@ -46,7 +46,7 @@ public class Swerve extends SubsystemBase {
         zeroGyro();  // Set initial yaw angle to 0
         
         // Initialize swerve modules with unique identifiers and constants
-        mSwerveMods = new SwerveModule[] {
+        modules = new SwerveModule[] {
             new SwerveModule(0, Mod1),
             new SwerveModule(1, Mod2),
             new SwerveModule(2, Mod3),
@@ -62,7 +62,7 @@ public class Swerve extends SubsystemBase {
             this::getPose, // Supplier for current robot pose
             this::resetOdometry, // Method to reset odometry with starting pose in auto
             this::getChassisSpeeds, // Supplier for chassis speeds relative to the robot
-            this::setModuleSpeeds, // Method to set module speeds for the robot
+            this::autoDrive, // Method to set module speeds for the robot
             new HolonomicPathFollowerConfig( // Config for path following
                     new PIDConstants(kDriveP, 0.0, 0.0), // PID for drive translation
                     new PIDConstants(kAzimuthP, 0.0, 0.0), // PID for rotation control
@@ -86,24 +86,43 @@ public class Swerve extends SubsystemBase {
      * Drives the robot using translation, rotation, and an open-loop option.
      * Calculates the desired states for each swerve module.
      */
-    public void drive(Translation2d translation, double rotation, boolean isOpenLoop) {
+    public void drive(Translation2d translation, double rotation, boolean isOpenLoop, boolean isFieldRelative) {
+        ChassisSpeeds continousChassisSpeeds =
+            (isFieldRelative) ?
+            new ChassisSpeeds(
+                translation.getX(), translation.getY(), rotation) :
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                translation.getX(), translation.getY(), 
+                rotation, getYaw());
+
+        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(continousChassisSpeeds, 0.02);
         // Convert field-relative speeds to module-relative speeds
         SwerveModuleState[] swerveModuleStates = 
-        kSwerveKinematics.toSwerveModuleStates(
-            ChassisSpeeds.fromFieldRelativeSpeeds(
-                translation.getX(), 
-                translation.getY(), 
-                rotation, 
-                getYaw()));
+        kSwerveKinematics.toSwerveModuleStates(discreteSpeeds);
 
         // Adjust wheel speeds to avoid exceeding max speed
         SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
-        
+
         // Set desired states for each swerve module based on open/closed-loop control
-        for(SwerveModule mod : mSwerveMods) {
-            mod.setDesiredState(swerveModuleStates[mod.moduleNumber], isOpenLoop);
+        for(int i = 0; i < modules.length; i++) {
+            modules[i].setDesiredState(swerveModuleStates[i], isOpenLoop);
         }
     } 
+
+    public void autoDrive(ChassisSpeeds speeds) {
+        ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
+        // Convert field-relative speeds to module-relative speeds
+        SwerveModuleState[] swerveModuleStates = 
+        kSwerveKinematics.toSwerveModuleStates(discreteSpeeds);
+
+        // Adjust wheel speeds to avoid exceeding max speed
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
+
+        // Set desired states for each swerve module based on open/closed-loop control
+        for(int i = 0; i < modules.length; i++) {
+            modules[i].setDesiredState(swerveModuleStates[i], false);
+        }
+    }
     
     /**
      * Directly sets the states for each swerve module with closed-loop control.
@@ -113,24 +132,10 @@ public class Swerve extends SubsystemBase {
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, kMaxSpeed);
         
         // Apply desired state to each module
-        for(SwerveModule mod : mSwerveMods){
-            mod.setDesiredState(desiredStates[mod.moduleNumber], false);
+        for(int i = 0; i < modules.length; i++){
+            modules[i].setDesiredState(desiredStates[i], false);
         }
     }    
-
-    /**
-     * Sets the speeds for each swerve module based on chassis speeds.
-     */
-    public void setModuleSpeeds(ChassisSpeeds desiredSpeeds){
-        SwerveDriveKinematics.desaturateWheelSpeeds(kSwerveKinematics.toSwerveModuleStates(desiredSpeeds), kMaxSpeed);
-
-        int i = 0;
-        // Set module speeds based on chassis speeds for each module
-        for(SwerveModule mod : mSwerveMods){
-            mod.setDesiredState(kSwerveKinematics.toSwerveModuleStates(desiredSpeeds)[i], false);
-            i += 1;
-        }
-    }
 
     /**
      * Resets the gyro yaw to 0.
@@ -158,8 +163,8 @@ public class Swerve extends SubsystemBase {
      */
     public SwerveModuleState[] getStates() {
         SwerveModuleState[] states = new SwerveModuleState[4];
-        for(SwerveModule mod : mSwerveMods) {
-            states[mod.moduleNumber] = mod.getState();
+        for(int i = 0; i < modules.length; i++) {
+            states[i] = modules[i].getState();
         }
         return states;
     }
@@ -179,8 +184,8 @@ public class Swerve extends SubsystemBase {
      */
     public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] positions = new SwerveModulePosition[4];
-        for (SwerveModule mod : mSwerveMods){
-            positions[mod.moduleNumber] = mod.getPosition();
+        for (int i = 0; i < 4; i++) {
+            positions[i] = modules[i].getPosition();
         }
         return positions;
     }
@@ -210,7 +215,7 @@ public class Swerve extends SubsystemBase {
      * Resets each module's motor position to its absolute encoder value.
      */
     public void resetAllMotors() {
-        for(int i = 0; i < 4; i++) mSwerveMods[i].resetToAbsolute();
+        for(int i = 0; i < 4; i++) modules[i].resetToAbsolute();
     }
 
     /**

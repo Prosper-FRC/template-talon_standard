@@ -1,11 +1,9 @@
-package frc.robot;
+package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
-
-import frc.robot.subsystems.swervedrive.SwerveConstants;
 
 public final class CTREConfigs {
     public final TalonFXConfiguration swerveAngleFXConfig;

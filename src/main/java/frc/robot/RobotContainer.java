@@ -13,15 +13,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.commands.drive.TeleopDrive;
-import frc.robot.subsystems.swervedrive.Swerve;
+import frc.robot.subsystems.drive.Swerve;
 
 public class RobotContainer {
 
     private final CommandXboxController DriverController = new CommandXboxController(0);
     private final CommandXboxController OperatorController = new CommandXboxController(1);
 	  public static Swerve swerve = new Swerve();
-
-    
 
     public static SendableChooser<Command> autoChooser;
 

@@ -1,7 +1,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.swervedrive;
+package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -45,10 +45,11 @@ public final class SwerveConstants {
     public static final double kAngleGearRatio = 21.428571428571427; //12.8:1
 
     public static final SwerveDriveKinematics kSwerveKinematics = new SwerveDriveKinematics(
-            new Translation2d(kWheelBase / 2.0, kTrackWidth / 2.0),
-            new Translation2d(kWheelBase / 2.0, -kTrackWidth / 2.0),
-            new Translation2d(-kWheelBase / 2.0, kTrackWidth / 2.0),
-            new Translation2d(-kWheelBase / 2.0, -kTrackWidth / 2.0));
+        new Translation2d(kWheelBase / 2.0, kTrackWidth / 2.0),
+        new Translation2d(kWheelBase / 2.0, -kTrackWidth / 2.0),
+        new Translation2d(-kWheelBase / 2.0, kTrackWidth / 2.0),
+        new Translation2d(-kWheelBase / 2.0, -kTrackWidth / 2.0)
+    );
 
     /* Swerve Current Limiting */
     public static final int kAzimuthStatorCurrentLimit = 35;
@@ -90,16 +91,40 @@ public final class SwerveConstants {
     /* Motor Inverts */
     public static final boolean kDriveMotorInvert = false;
     // When using inverted modules for SDS, this value is true
-    public static final boolean kAngleMotorInvert = true;
+    public static final boolean kAzimuthMotorInvert = true;
 
     // /* Module Specific Constants */
-    public static final ModuleConstants Mod1 = new ModuleConstants(11, 21, 31, Rotation2d.fromRotations(-0.333252), "Front Left");
+    public static final ModuleConstants Mod1 = new ModuleConstants(
+        11, // Drive ID 
+        21, // Azimuth ID
+        31, // CANCoder ID
+        Rotation2d.fromRotations(-0.333252), 
+        "Front Left"
+    );
 
-    public static final ModuleConstants Mod2 = new ModuleConstants(12, 22, 32, Rotation2d.fromRotations(0.316406), "Front Right");
+    public static final ModuleConstants Mod2 = new ModuleConstants(
+        12, // Drive ID 
+        22, // Azimuth ID
+        32, // CANCoder ID
+        Rotation2d.fromRotations(0.316406), 
+        "Front Right"
+    );
 
-    public static final ModuleConstants Mod3 = new ModuleConstants(13, 23, 33, Rotation2d.fromRotations(-0.164307), "Back Left");
+    public static final ModuleConstants Mod3 = new ModuleConstants(
+        13, // Drive ID 
+        23, // Azimuth ID
+        33, // CANCoder ID
+        Rotation2d.fromRotations(-0.164307), 
+        "Back Left"
+        );
 
-    public static final ModuleConstants Mod4 = new ModuleConstants(14, 24, 34, Rotation2d.fromRotations(-0.390137), "Back Right");
+    public static final ModuleConstants Mod4 = new ModuleConstants(
+        14, // Drive ID 
+        24, // Azimuth ID
+        34, // CANCoder ID
+        Rotation2d.fromRotations(-0.390137), 
+        "Back Right"
+        );
 
     public static final double kMaxSpeedMetersPerSecond = 3;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;

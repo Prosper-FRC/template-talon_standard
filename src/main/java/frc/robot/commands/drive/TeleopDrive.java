@@ -3,15 +3,15 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands.drive;
-import static frc.robot.subsystems.swervedrive.SwerveConstants.kRotationMultiplier;
-import static frc.robot.subsystems.swervedrive.SwerveConstants.kTranslationMultiplier;
+import static frc.robot.subsystems.drive.SwerveConstants.kRotationMultiplier;
+import static frc.robot.subsystems.drive.SwerveConstants.kTranslationMultiplier;
 
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.swervedrive.Swerve;
-import frc.robot.subsystems.swervedrive.SwerveConstants;
+import frc.robot.subsystems.drive.Swerve;
+import frc.robot.subsystems.drive.SwerveConstants;
 
 public class TeleopDrive extends Command {
   private Swerve drive;
@@ -51,7 +51,8 @@ public class TeleopDrive extends Command {
       // Multiplying by the max speed helps finding the real demand that was applied //
       new Translation2d(xVal, yVal).times(SwerveConstants.kMaxSpeed * kTranslationMultiplier), 
       thetaVal * SwerveConstants.kMaxAngularVelocity * kRotationMultiplier, 
-      false
+      false, // Open loop or not
+      true // Field relative
       );
   }
 

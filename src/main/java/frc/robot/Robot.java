@@ -4,30 +4,14 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.util.Color;
+import org.littletonrobotics.junction.LoggedRobot;
 
-
-
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   public static RobotContainer m_robotContainer;
-
-  private static AddressableLED m_led;
-  private static AddressableLEDBuffer m_ledBuffer;
-  private double lastChange;
-  private boolean on = true;
-  private Color m_EyeColor = Color.kCrimson;
-  private Color m_BackgroundColor = Color.kAliceBlue;
-  private int m_eyePosition = 0;
-  private int m_scanDirection = 1;
 
   @Override
   public void robotInit() {
