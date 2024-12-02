@@ -21,9 +21,9 @@ public class LED implements ILED {
         m_led.start();
     }
 
-    public void setPattern(int length){
+    public void setPattern(int length, int r, int g, int b){
         for(int index = 0; index<length; index++){
-            setRGB(index,0,0,0);
+            setRGB(index,r,g,b);
         }
     }
 
