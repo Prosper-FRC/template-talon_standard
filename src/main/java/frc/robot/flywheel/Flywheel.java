@@ -10,11 +10,15 @@ import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.configs.VoltageConfigs;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
   // WARNING Do not use this code as a reference for creating an actual subsystem. This is merely a
@@ -39,7 +43,10 @@ public class Flywheel extends SubsystemBase {
                   .withInverted(InvertedValue.CounterClockwise_Positive))
           .withFeedback(
               new FeedbackConfigs().withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor))
-          .withSlot0(new Slot0Configs().withKP(0.147)); // Value from old code
+          .withSlot0(new Slot0Configs().withKP(0.147)); // Value from old code; TODO Test
+
+  private VoltageOut voltageControl = new VoltageOut(0.0);
+  private VelocityVoltage velocityControl = new VelocityVoltage(0.0);
 
   /** Creates a new Flywheel. */
   public Flywheel() {
@@ -48,6 +55,27 @@ public class Flywheel extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // We are logging whatever value is returned by the getMotorSupplyVoltage() method. We will be
+    // able to locate this value by navigating to the Voltage topic that will be nested under
+    // Flywheel. Note that for the information in this topic to be up to date, you must call this
+    // method periodically. The topic will only be updated as often as you call the method.
+    Logger.recordOutput("Flywheel/Voltage", getMotorSupplyVoltage());
+  }
+
+  public void setVoltage(double voltage) {
+    voltage = MathUtil.clamp(voltage, -12.0, 12.0);
+    voltageControl.withOutput(voltage);
+
+    motor.setControl(voltageControl);
+  }
+
+  public void setVelocity(double velocityRotationsPerMinute) {
+    velocityControl.withVelocity(velocityRotationsPerMinute);
+
+    motor.setControl(velocityControl);
+  }
+
+  public double getMotorSupplyVoltage() {
+    return motor.getSupplyVoltage().getValueAsDouble();
   }
 }
