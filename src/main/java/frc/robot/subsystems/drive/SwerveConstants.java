@@ -31,19 +31,19 @@ public final class SwerveConstants {
   public static final String kCanbusName = "drivetrain";
 
   /* Drivetrain Constants */
-  public static final double kTrackWidth = Units.inchesToMeters(20.5);
-  public static final double kWheelBase = Units.inchesToMeters(21);
+  public static final double kTrackWidth = Units.inchesToMeters(21);
+  public static final double kWheelBase = Units.inchesToMeters(20.5);
   public static final double kWheelDiameter = Units.inchesToMeters(4);
   public static final double kWheelCircumference = kWheelDiameter * Math.PI;
 
-  public static final double kTranslationMultiplier = 1.0;
+  public static final double kTranslationMultiplier = 1.25;
   public static final double kRotationMultiplier = 1.0;
 
   public static final double kOpenLoopRamp = 0.25;
   public static final double kClosedLoopRamp = 0.0;
 
   public static final double kDriveGearRatio = 6.75; // 6.86:1
-  public static final double kAngleGearRatio = 21.428571428571427; // 12.8:1
+  public static final double kAngleGearRatio = 12.8; // 12.8:1
 
   public static final SwerveDriveKinematics kSwerveKinematics =
       new SwerveDriveKinematics(
@@ -64,7 +64,7 @@ public final class SwerveConstants {
   public static final boolean kDriveEnableSupplyLimit = true;
 
   /* Angle Motor PID Values */
-  public static final double kAzimuthP = 1;
+  public static final double kAzimuthP = 1.5;
   public static final double kAzimuthD = 0.0;
   public static final double KAzimuthS = 0.0;
 
@@ -127,22 +127,4 @@ public final class SwerveConstants {
           7, // CANCoder ID
           Rotation2d.fromRotations(-0.289),
           "Back Right");
-
-  public static final double kMaxSpeedMetersPerSecond = 3;
-  public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-  public static final double kMaxSpeedMetersPerSecondfast = 5;
-  public static final double kMaxAccelerationMetersPerSecondSquaredfast = 5;
-  public static final double kMaxAngularSpeedRadiansPerSecond = Math.PI;
-  public static final double kMaxAngularSpeedRadiansPerSecondSquared = Math.PI;
-
-  public static final double kPXController = 1;
-  public static final double kPYController = 1;
-  public static final double kPXControllerfast = 9;
-  public static final double kPYControllerfast = 9;
-  public static final double kPThetaController = 3.6;
-
-  // Constraint for the motion profilied robot angle controller
-  public static final TrapezoidProfile.Constraints kThetaControllerConstraints =
-      new TrapezoidProfile.Constraints(
-          kMaxAngularSpeedRadiansPerSecond, kMaxAngularSpeedRadiansPerSecondSquared);
 }

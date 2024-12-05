@@ -31,7 +31,9 @@ public final class CTREConfigs {
 
     // swerveAngleFXConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RemoteCANcoder;
     // swerveAngleFXConfig.Feedback.FeedbackRemoteSensorID = CANcoderID;
-    swerveAngleFXConfig.Feedback.SensorToMechanismRatio = SwerveConstants.kAngleGearRatio;
+
+    // TODO: I think this might be the souce of error //
+    // swerveAngleFXConfig.Feedback.SensorToMechanismRatio = SwerveConstants.kAngleGearRatio;
 
     // Drive
     CurrentLimitsConfigs driveSupplyLimit = new CurrentLimitsConfigs();
@@ -45,8 +47,9 @@ public final class CTREConfigs {
     swerveDriveFXConfig.Slot0.kI = 0.0;
     swerveDriveFXConfig.Slot0.kD = SwerveConstants.kDriveD;
 
-    swerveDriveFXConfig.Feedback.SensorToMechanismRatio =
-        SwerveConstants.kDriveGearRatio / SwerveConstants.kWheelCircumference;
+    // TODO: I think that these were wrong
+    // swerveDriveFXConfig.Feedback.SensorToMechanismRatio =
+    //     SwerveConstants.kDriveGearRatio / SwerveConstants.kWheelCircumference;
 
     swerveDriveFXConfig.OpenLoopRamps.DutyCycleOpenLoopRampPeriod = SwerveConstants.kOpenLoopRamp;
     swerveDriveFXConfig.OpenLoopRamps.VoltageOpenLoopRampPeriod = SwerveConstants.kOpenLoopRamp;
