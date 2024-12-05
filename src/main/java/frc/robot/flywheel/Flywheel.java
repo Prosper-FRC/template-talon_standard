@@ -18,6 +18,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.debugging.LoggedTunableNumber;
 import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
@@ -48,6 +49,10 @@ public class Flywheel extends SubsystemBase {
   private VoltageOut voltageControl = new VoltageOut(0.0);
   private VelocityVoltage velocityControl = new VelocityVoltage(0.0);
 
+  private LoggedTunableNumber kP = new LoggedTunableNumber("Flywheel/Gains/P", 0.147);
+  private LoggedTunableNumber kI = new LoggedTunableNumber("Flywheel/Gains/I", 0.0);
+  private LoggedTunableNumber kD = new LoggedTunableNumber("Flywheel/Gains/D", 0.0);
+
   /** Creates a new Flywheel. */
   public Flywheel() {
     motor.getConfigurator().apply(configuration);
@@ -60,6 +65,19 @@ public class Flywheel extends SubsystemBase {
     // Flywheel. Note that for the information in this topic to be up to date, you must call this
     // method periodically. The topic will only be updated as often as you call the method.
     Logger.recordOutput("Flywheel/Voltage", getMotorSupplyVoltage());
+
+    // NOTE This method MUST be called periodically for it to update all of the gains
+    // Update feedback, feedforward, and motion magic gains if we change them from network tables
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          // Grab NT values and set the motor's control slot configs
+          setControlGains(kP.get(), kI.get(), kD.get());
+        },
+        // All tunable numbers we wish to check this cycle
+        kP,
+        kI,
+        kD);
   }
 
   public void setVoltage(double voltage) {
@@ -69,10 +87,19 @@ public class Flywheel extends SubsystemBase {
     motor.setControl(voltageControl);
   }
 
+  /**
+   * @param velocityRotationsPerMinute
+   */
   public void setVelocity(double velocityRotationsPerMinute) {
     velocityControl.withVelocity(velocityRotationsPerMinute);
 
     motor.setControl(velocityControl);
+  }
+
+  public void setControlGains(double p, double i, double d) {
+    Slot0Configs controlGains = new Slot0Configs().withKP(p).withKI(i).withKD(d);
+
+    motor.getConfigurator().apply(controlGains);
   }
 
   public double getMotorSupplyVoltage() {
