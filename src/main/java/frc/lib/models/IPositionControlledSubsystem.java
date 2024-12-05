@@ -2,18 +2,18 @@ package frc.lib.models;
 
 public interface IPositionControlledSubsystem {
 
-	public double targetPosition = 0;
-	public double onTargetThreshold = 0;
+  public double targetPosition = 0;
+  public double onTargetThreshold = 0;
 
-	public boolean setTargetPosition(double targetPosition);
+  public boolean setTargetPosition(double targetPosition);
 
-	public double getTargetPosition();
+  public double getTargetPosition();
 
-	public double getCurrentPosition();
+  public double getCurrentPosition();
 
-	public double getCurrentVelocity();
+  public double getCurrentVelocity();
 
-	public void motionMagicControl();
+  public void motionMagicControl();
 
-	public boolean isInPosition(double targetPosition);
+  public boolean isInPosition(double targetPosition);
 }

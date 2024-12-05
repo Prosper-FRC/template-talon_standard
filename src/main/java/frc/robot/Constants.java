@@ -14,24 +14,23 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-	// public static final String Canivore1 = "Canivore1";
+  // public static final String Canivore1 = "Canivore1";
 
-	public static final class Field {
-		public static final double fieldLength = 16.452;
-		public static final double fieldWidth = 8.211;
-		public static final double subwooferLength = Units.inchesToMeters(36.125);
-	}
+  public static final class Field {
+    public static final double fieldLength = 16.452;
+    public static final double fieldWidth = 8.211;
+    public static final double subwooferLength = Units.inchesToMeters(36.125);
+  }
 
-	public static final class Setpoints {
-		public static final double subwooferAngle = -45;
-		public static final double passingAngle = 25.0;
-		public static final double podiumAngle = 0;
-		public static final double overheadSubwooferAngle = 60.0;
+  public static final class Setpoints {
+    public static final double subwooferAngle = -45;
+    public static final double passingAngle = 25.0;
+    public static final double podiumAngle = 0;
+    public static final double overheadSubwooferAngle = 60.0;
 
-		public static final double ampAngle = 55.2;
-		public static final double idleAngle = -89.0;
-		public static final double intakeAngle = 5.0;
-		public static final double zero = 0.0;
-	}
-	
+    public static final double ampAngle = 55.2;
+    public static final double idleAngle = -89.0;
+    public static final double intakeAngle = 5.0;
+    public static final double zero = 0.0;
+  }
 }

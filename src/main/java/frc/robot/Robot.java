@@ -4,9 +4,12 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -15,22 +18,22 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
+    SignalLogger.stop();
+    Logger.addDataReceiver(new NT4Publisher());
+    Logger.start();
     m_robotContainer = new RobotContainer();
   }
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
-
+    CommandScheduler.getInstance().run();
   }
 
   @Override
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {
-    
-  }
+  public void disabledPeriodic() {}
 
   @Override
   public void disabledExit() {}
@@ -39,7 +42,7 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     Command command = RobotContainer.getAutonomousCommand();
 
-    if(command != null){
+    if (command != null) {
       command.schedule();
     }
   }
