@@ -15,15 +15,16 @@ public class RobotContainer {
   LED mainLED;
 
   public RobotContainer() {
-    mainLED = new LED(0,0);
+    mainLED = new LED(0,26);
     driverController = new CommandXboxController(0);
     configureBindings();
 
   }
 
   private void configureBindings() {
-    driverController.leftTrigger().onTrue(new InstantCommand(() -> mainLED.setPattern(0,0,0,0)));
-  }
+    driverController.y().toggleOnTrue(new InstantCommand(() -> mainLED.setPattern(50,205,50)));
+    driverController.y().toggleOnFalse(new InstantCommand(() -> mainLED.off())); 
+   }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");

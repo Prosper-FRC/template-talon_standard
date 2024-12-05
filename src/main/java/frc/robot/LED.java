@@ -11,23 +11,26 @@ public class LED implements ILED {
     public LED(int id,int bufferLength){
         m_led = new AddressableLED(id);
         m_ledBuffer = new AddressableLEDBuffer(bufferLength);
+        m_led.setLength(m_ledBuffer.getLength());
+        setPattern(0, 0, 0);
+        m_led.start();
     }
 
     public void setRGB(int index, int r, int g, int b){
         //set colors
         m_ledBuffer.setRGB(index,r,g,b);
-        // Set the data
-        m_led.setData(m_ledBuffer);
-        m_led.start();
     }
 
-    public void setPattern(int length, int r, int g, int b){
-        for(int index = 0; index<length; index++){
+    public void setPattern(int r, int g, int b){
+        for(int index = 0; index<m_ledBuffer.getLength(); index++){
             setRGB(index,r,g,b);
         }
+        // Set the data
+        m_led.setData(m_ledBuffer);
     }
 
-    public void stop(){
-        m_led.stop();
+    public void off(){
+        setPattern(0, 0, 0);
     }
+
 }
