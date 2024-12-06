@@ -3,12 +3,12 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands.drive;
-import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.swervedrive.Swerve;
 import frc.robot.subsystems.swervedrive.SwerveConstants;
+import java.util.function.DoubleSupplier;
 
 public class TeleopDrive extends Command {
   private Swerve drive;
@@ -17,8 +17,10 @@ public class TeleopDrive extends Command {
   private DoubleSupplier theta;
 
   /**
-   * This method will take in the raw inputs of the xbox controller and process and pass them into the drive method of the Swerve subsystem 
-   * Then the needed velocity and posistion for the drive and azimuth respecitvely are calcauted and applied
+   * This method will take in the raw inputs of the xbox controller and process and pass them into
+   * the drive method of the Swerve subsystem Then the needed velocity and posistion for the drive
+   * and azimuth respecitvely are calcauted and applied
+   *
    * @param drive Swerve subsystem that needs to be passed in
    * @param x Xbox controller 'x' demand or Left Y joystickto move back and forth
    * @param y Xbox controller 'y' demand or Left X joystick to move right and left
@@ -44,12 +46,11 @@ public class TeleopDrive extends Command {
     double thetaVal = theta.getAsDouble();
 
     drive.drive(
-      // The value as of now is between 0 and 1 // 
-      // Multiplying by the max speed helps finding the real demand that was applied //
-      new Translation2d(xVal, yVal).times(SwerveConstants.Swerve.maxSpeed), 
-      thetaVal * SwerveConstants.Swerve.maxAngularVelocity * 2, 
-      false
-      );
+        // The value as of now is between 0 and 1 //
+        // Multiplying by the max speed helps finding the real demand that was applied //
+        new Translation2d(xVal, yVal).times(SwerveConstants.Swerve.maxSpeed),
+        thetaVal * SwerveConstants.Swerve.maxAngularVelocity * 2,
+        false);
   }
 
   // Called once the command ends or is interrupted.
