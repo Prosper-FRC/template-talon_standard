@@ -40,7 +40,7 @@ public class Swerve extends SubsystemBase {
    */
   public Swerve() {
     // Initialize gyro with ID and device name
-    gyro = new Pigeon2(kPigeonID, "drivetrain");
+    gyro = new Pigeon2(kPigeonID);
     gyro.getConfigurator(); // Retrieve gyro configuration settings
     zeroGyro(); // Set initial yaw angle to 0
 
@@ -100,9 +100,10 @@ public class Swerve extends SubsystemBase {
       Translation2d translation, double rotation, boolean isOpenLoop, boolean isFieldRelative) {
     ChassisSpeeds continousChassisSpeeds =
         (isFieldRelative)
-            ? new ChassisSpeeds(translation.getX(), translation.getY(), rotation)
-            : ChassisSpeeds.fromFieldRelativeSpeeds(
-                translation.getX(), translation.getY(), rotation, getYaw());
+            ? 
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                translation.getX(), translation.getY(), rotation, getYaw())
+            : new ChassisSpeeds(translation.getX(), translation.getY(), rotation);
 
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(continousChassisSpeeds, 0.02);
     // Convert field-relative speeds to module-relative speeds
@@ -110,7 +111,7 @@ public class Swerve extends SubsystemBase {
 
     // Adjust wheel speeds to avoid exceeding max speed
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxSpeed);
-
+    Logger.recordOutput("Drive/DesiredStates", swerveModuleStates);
     // Set desired states for each swerve module based on open/closed-loop control
     for (int i = 0; i < modules.length; i++) {
       modules[i].setDesiredState(swerveModuleStates[i], isOpenLoop);

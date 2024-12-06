@@ -8,9 +8,13 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.drive.Swerve;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.drive.TeleopDrive;
 
 public class RobotContainer {
 
@@ -28,6 +32,8 @@ public class RobotContainer {
 
     private final boolean useCompetitionBindings = true;
 
+    private final Swerve robotDrive;
+
     public RobotContainer() {
 
         // If using AdvantageKit, perform mode-specific instantiation of subsystems.
@@ -43,6 +49,7 @@ public class RobotContainer {
                 break;
         }
 
+        robotDrive = new Swerve();
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
 
@@ -51,6 +58,14 @@ public class RobotContainer {
         autonCommands = new AutonCommands(/* pass subsystems here */);
         autoChooser = new LoggedDashboardChooser<>("Auton Program", autonCommands.getAutoChooser());
 
+        robotDrive.setDefaultCommand(
+            new TeleopDrive(
+                robotDrive,
+                ()-> driverController.getLeftX(),
+                ()-> driverController.getLeftY(),
+                ()-> driverController.getRightX()
+            )
+        );
 
         // Pass subsystems to classes that need them for configuration
 
@@ -79,7 +94,8 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-
+        driverController.a()
+          .onTrue(Commands.runOnce(()-> robotDrive.resetGyro()));
     }
 
 }

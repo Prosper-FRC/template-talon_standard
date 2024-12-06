@@ -26,15 +26,15 @@ public final class SwerveConstants {
   public static final double kFieldWidth = 8.211;
   public static final double kSubwooferLength = Units.inchesToMeters(36.125);
 
-  public static final int kPigeonID = 3;
+  public static final int kPigeonID = 10;
   public static final boolean kInvertGyro = false; // Always ensure Gyro is CCW+ CW-
-  public static final String kCanbusName = "drivetrain";
+  public static final String kCanbusName = "drivebase";
 
   /* Drivetrain Constants */
   public static final double kTrackWidth = Units.inchesToMeters(21);
   public static final double kWheelBase = Units.inchesToMeters(20.5);
   public static final double kWheelDiameter = Units.inchesToMeters(4);
-  public static final double kWheelCircumference = kWheelDiameter * Math.PI;
+  public static final double kWheelCircumference = 0.0508 * 2 * Math.PI;
 
   public static final double kTranslationMultiplier = 1.25;
   public static final double kRotationMultiplier = 1.0;
@@ -43,7 +43,7 @@ public final class SwerveConstants {
   public static final double kClosedLoopRamp = 0.0;
 
   public static final double kDriveGearRatio = 6.75; // 6.86:1
-  public static final double kAngleGearRatio = 12.8; // 12.8:1
+  public static final double kAngleGearRatio = 150.0 / 7.0; // 12.8:1
 
   public static final SwerveDriveKinematics kSwerveKinematics =
       new SwerveDriveKinematics(
@@ -69,7 +69,7 @@ public final class SwerveConstants {
   public static final double KAzimuthS = 0.0;
 
   /* Drive Motor PID Values */
-  public static final double kDriveP = 0;
+  public static final double kDriveP = 1.0;
   public static final double kDriveD = 0.0;
 
   /* Drive Motor Characterization Values */
@@ -79,7 +79,7 @@ public final class SwerveConstants {
   // public static final double driveKA = (0.27 / 12);
   // Use characterization data when possible
   public static final double kDriveS = (0);
-  public static final double kDriveV = (0);
+  public static final double kDriveV = (0.75);
   public static final double kDriveA = (0);
 
   /* Swerve Profiling Values */
@@ -93,38 +93,38 @@ public final class SwerveConstants {
   /* Motor Inverts */
   public static final boolean kDriveMotorInvert = false;
   // When using inverted modules for SDS, this value is true
-  public static final boolean kAzimuthMotorInvert = false;
+  public static final boolean kAzimuthMotorInvert = true;
 
   // /* Module Specific Constants */
   public static final ModuleConstants Mod1 =
       new ModuleConstants(
           11, // Drive ID
           21, // Azimuth ID
-          4, // CANCoder ID
-          Rotation2d.fromRotations(-0.128),
+          31, // CANCoder ID
+          Rotation2d.fromRotations(-0.333252),
           "Front Left");
 
   public static final ModuleConstants Mod2 =
       new ModuleConstants(
           12, // Drive ID
           22, // Azimuth ID
-          5, // CANCoder ID
-          Rotation2d.fromRotations(0.187),
+          32, // CANCoder ID
+          Rotation2d.fromRotations(0.316406),
           "Front Right");
 
   public static final ModuleConstants Mod3 =
       new ModuleConstants(
           13, // Drive ID
           23, // Azimuth ID
-          6, // CANCoder ID
-          Rotation2d.fromRotations(-0.369),
+          33, // CANCoder ID
+          Rotation2d.fromRotations(-0.164307),
           "Back Left");
 
   public static final ModuleConstants Mod4 =
       new ModuleConstants(
           14, // Drive ID
           24, // Azimuth ID
-          7, // CANCoder ID
-          Rotation2d.fromRotations(-0.289),
+          34, // CANCoder ID
+          Rotation2d.fromRotations(-0.390137),
           "Back Right");
 }

@@ -4,6 +4,7 @@ import static frc.robot.subsystems.drive.SwerveConstants.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.VelocityVoltage;
@@ -16,6 +17,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import frc.robot.subsystems.drive.SwerveConstants.ModuleConstants;
+import frc.robot.utils.debugging.LoggedTunableNumber;
+
 import org.littletonrobotics.junction.AutoLog;
 import org.littletonrobotics.junction.Logger;
 
@@ -101,14 +104,14 @@ public class SwerveModule {
 
     /* Angle Encoder Config */
     azimuthEncoder =
-        new CANcoder(moduleConstants.kCanCoderID(), "drivetrain"); // Initialize encoder
+        new CANcoder(moduleConstants.kCanCoderID(), kCanbusName); // Initialize encoder
     absolutePositionSignal = azimuthEncoder.getAbsolutePosition();
     absoluteEncoderOffset = moduleConstants.kOffset();
     configAngleEncoder(); // Apply configuration to angle encoder
 
     /* Angle Motor Config */
     azimuthMotor =
-        new TalonFX(moduleConstants.kAzimuthID(), "drivetrain"); // Initialize angle motor
+        new TalonFX(moduleConstants.kAzimuthID(), kCanbusName); // Initialize angle motor
     configAzimuthMotor(); // Configure angle motor settings
 
     azimuthPosition = azimuthMotor.getPosition();
@@ -119,7 +122,7 @@ public class SwerveModule {
     azimuthTemp = azimuthMotor.getDeviceTemp();
 
     /* Drive Motor Config */
-    driveMotor = new TalonFX(moduleConstants.kDriveId(), "drivetrain"); // Initialize drive motor
+    driveMotor = new TalonFX(moduleConstants.kDriveId(), kCanbusName); // Initialize drive motor
     configDriveMotor(); // Configure drive motor settings
 
     drivePosition = driveMotor.getPosition();
@@ -135,7 +138,7 @@ public class SwerveModule {
   public void periodic() {
     updateInputs();
     Logger.processInputs("Module/" + modName, inputs);
-  }
+    }
 
   /** updates data */
   public void updateInputs() {
@@ -144,9 +147,9 @@ public class SwerveModule {
                 driveVelocity, driveVoltage, driveSupplyCurrent, driveStatorCurrent, driveTemp)
             .isOK();
     inputs.drivePositionM =
-        (drivePosition.getValueAsDouble() * kWheelCircumference) / kDriveGearRatio;
+        drivePosition.getValueAsDouble();
     inputs.driveVelocityMPS =
-        (driveVelocity.getValueAsDouble() * kWheelCircumference) / kDriveGearRatio;
+        driveVelocity.getValueAsDouble();
     inputs.driveMotorVolts = driveVoltage.getValueAsDouble();
     inputs.driveSupplyCurrentAmps = new double[] {driveSupplyCurrent.getValueAsDouble()};
     inputs.driveStatorCurrentAmps = new double[] {driveStatorCurrent.getValueAsDouble()};
@@ -200,6 +203,7 @@ public class SwerveModule {
                   * (desiredState.speedMetersPerSecond
                       / kMaxSpeed))); // Open-loop speed control as percent output
     } else {
+      Logger.recordOutput("Drive/Speed/"+modName, desiredState.speedMetersPerSecond);
       driveMotor.setControl(
           velocityControl
               .withVelocity(desiredState.speedMetersPerSecond)
