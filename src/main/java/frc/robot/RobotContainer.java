@@ -8,44 +8,78 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.commands.drive.TeleopDrive;
-import frc.robot.subsystems.drive.Swerve;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class RobotContainer {
 
-  private final CommandXboxController DriverController = new CommandXboxController(0);
-  private final CommandXboxController OperatorController = new CommandXboxController(1);
-  public static Swerve swerve = new Swerve();
+    private final CommandXboxController driverController = new CommandXboxController(0);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
-  public static SendableChooser<Command> autoChooser;
+    // Define subsystems
+    // ex: private final LEDSubsystem LEDs;
 
-  public RobotContainer() {
-    swerve.setDefaultCommand(
-        new TeleopDrive(
-            swerve,
-            () -> (DriverController.getLeftY()),
-            () -> (DriverController.getLeftX()),
-            () -> (DriverController.getRightX())));
+    // Define other utility classes
+    private final AutonCommands autonCommands;
+    private final TeleopCommands telopCommands;
 
-    try {
-      autoChooser = AutoBuilder.buildAutoChooser();
-    } catch (Exception e) {
-      autoChooser = new SendableChooser<Command>();
+    private final LoggedDashboardChooser<Command> autoChooser;
+
+    private final boolean useCompetitionBindings = true;
+
+    public RobotContainer() {
+
+        // If using AdvantageKit, perform mode-specific instantiation of subsystems.
+        switch (Constants.kCurrentMode) {
+            case REAL:
+                // Instantiate subsystems that operate actual hardware (Hardware controller based modules)
+                break;
+            case SIM:
+                // Instantiate subsystems that simulate actual hardware (IOSim modules)
+                break;
+            default:
+                // Instantiate subsystems that are driven by playback of recorded sessions. (IO modules)
+                break;
+        }
+
+        // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
+        // ex: LEDs = new LEDSubsystem();
+
+        // Instantiate your TeleopCommands and AutonCommands classes
+        telopCommands = new TeleopCommands(/* pass subsystems here */);
+        autonCommands = new AutonCommands(/* pass subsystems here */);
+        autoChooser = new LoggedDashboardChooser<>("Auton Program", autonCommands.getAutoChooser());
+
+
+        // Pass subsystems to classes that need them for configuration
+
+
+        // Create any Dashboard choosers (LoggedDashboardChooser, etc)
+
+        // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
+
+        configureStateTriggers();
+        configureButtonBindings();
     }
 
-    Shuffleboard.getTab("Autonomous:").add(autoChooser);
+    public Command getTeleopCommand() {
+        return new SequentialCommandGroup(
+            // Commands to run on teleop go here.
+        );
+    }
 
-    configureBindings();
-  }
+    public Command getAutonomousCommand() {
+        return autoChooser.get();
+    }
 
-  private void configureBindings() {
-    // Driver Bindings
-    DriverController.x().onTrue(new InstantCommand(() -> swerve.resetGyro()));
-  }
+    private void configureStateTriggers() {
 
-  public static Command getAutonomousCommand() {
-    return autoChooser.getSelected();
-  }
+
+    }
+
+    private void configureButtonBindings() {
+
+    }
+
 }
