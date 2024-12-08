@@ -24,7 +24,7 @@ import org.littletonrobotics.junction.Logger;
 // For talon logs extract using phoenix tuner x:
 // https://pro.docs.ctr-electronics.com/en/latest/docs/tuner/tools/log-extractor.html
 public class SysIDCharacterization {
-    public static Command runShooterSysIDTests(Consumer<Double> voltageSetter, Subsystem subsystem) {
+    public static Command runFlywheelSysIDTests(Consumer<Double> voltageSetter, Subsystem subsystem) {
         SysIdRoutine sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
                 Units.Volts.of(1).per(Units.Seconds.of(1)),
