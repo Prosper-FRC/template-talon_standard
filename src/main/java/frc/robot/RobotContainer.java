@@ -61,8 +61,8 @@ public class RobotContainer {
         robotDrive.setDefaultCommand(
             new TeleopDrive(
                 robotDrive,
-                ()-> driverController.getLeftX(),
-                ()-> driverController.getLeftY(),
+                ()-> -driverController.getLeftY(),
+                ()-> -driverController.getLeftX(),
                 ()-> driverController.getRightX()
             )
         );

@@ -89,6 +89,12 @@ public class Swerve extends SubsystemBase {
         for (int i = 0; i < 4; i++) {
             modules[i].periodic();
         }
+
+        // The velocity and rotation of the modules
+        Logger.recordOutput("Drive/ModuleStates", getStates());
+
+        // The drive position and rotation of the modules
+        Logger.recordOutput("Drive/ModuleStates", getStates());
     }
 
     /**
