@@ -63,7 +63,7 @@ public class RobotContainer {
                 robotDrive,
                 ()-> -driverController.getLeftY(),
                 ()-> -driverController.getLeftX(),
-                ()-> driverController.getRightX()
+                ()-> -driverController.getRightX()
             )
         );
 
