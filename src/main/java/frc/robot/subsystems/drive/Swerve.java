@@ -40,7 +40,7 @@ public class Swerve extends SubsystemBase {
    */
     public Swerve() {
         // Initialize gyro with ID and device name
-        gyro = new Pigeon2(kPigeonID);
+        gyro = new Pigeon2(kPigeonID, kCanbusName);
         gyro.getConfigurator(); // Retrieve gyro configuration settings
         zeroGyro(); // Set initial yaw angle to 0
 
@@ -64,8 +64,8 @@ public class Swerve extends SubsystemBase {
             this::getChassisSpeeds, // Supplier for chassis speeds relative to the robot
             this::autoDrive, // Method to set module speeds for the robot
             new HolonomicPathFollowerConfig( // Config for path following
-                new PIDConstants(kDriveP, 0.0, 0.0), // PID for drive translation
-                new PIDConstants(kAzimuthP, 0.0, 0.0), // PID for rotation control
+                new PIDConstants(kPathplanerDriveP, kPathplanerDriveI, kPathplanerDriveD), // PID for drive translation
+                new PIDConstants(kPathplanerRotationP, kPathplanerRotationI, kPathplanerRotationD), // PID for rotation control
                 kMaxSpeed, // Max speed for swerve modules
                 kWheelBase, // Radius of the drivebase (center to module distance)
                 new ReplanningConfig(true, true) // Path replanning settings

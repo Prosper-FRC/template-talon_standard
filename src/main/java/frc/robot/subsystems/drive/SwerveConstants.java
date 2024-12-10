@@ -42,7 +42,7 @@ public final class SwerveConstants {
     public static final double kClosedLoopRamp = 0.0;
 
     public static final double kDriveGearRatio = 6.75; // 6.86:1
-    public static final double kAngleGearRatio = 150.0 / 7.0; // 12.8:1
+    public static final double kAngleGearRatio = 12.8; // 12.8:1
 
     public static final SwerveDriveKinematics kSwerveKinematics =
         new SwerveDriveKinematics(
@@ -81,6 +81,14 @@ public final class SwerveConstants {
     public static final double kDriveV = (0.75);
     public static final double kDriveA = (0);
 
+    public static final double kPathplanerDriveP = 1.0;
+    public static final double kPathplanerDriveI = 1.0;
+    public static final double kPathplanerDriveD = 1.0;
+
+    public static final double kPathplanerRotationP = 1.0;
+    public static final double kPathplanerRotationI = 1.0;
+    public static final double kPathplanerRotationD = 1.0;
+
     /* Swerve Profiling Values */
     public static final double kMaxSpeed = 4.72;
     public static final double kMaxAngularVelocity = kMaxSpeed / Math.hypot(kTrackWidth, kWheelBase);
@@ -92,7 +100,7 @@ public final class SwerveConstants {
     /* Motor Inverts */
     public static final boolean kDriveMotorInvert = false;
     // When using inverted modules for SDS, this value is true
-    public static final boolean kAzimuthMotorInvert = true;
+    public static final boolean kAzimuthMotorInvert = false;
 
     // /* Module Specific Constants */
     public static final ModuleConstants Mod1 =
@@ -100,7 +108,7 @@ public final class SwerveConstants {
           11, // Drive ID
           21, // Azimuth ID
           31, // CANCoder ID
-          Rotation2d.fromRotations(-0.333252).plus(Rotation2d.fromRotations(0.5)),
+          Rotation2d.fromRotations(0.374023),
           "Front Left");
 
     public static final ModuleConstants Mod2 =
@@ -108,7 +116,7 @@ public final class SwerveConstants {
           12, // Drive ID
           22, // Azimuth ID
           32, // CANCoder ID
-          Rotation2d.fromRotations(0.316406).plus(Rotation2d.fromRotations(0.5)),
+          Rotation2d.fromRotations(-0.312744),
           "Front Right");
 
     public static final ModuleConstants Mod3 =
@@ -116,7 +124,7 @@ public final class SwerveConstants {
           13, // Drive ID
           23, // Azimuth ID
           33, // CANCoder ID
-          Rotation2d.fromRotations(-0.164307).plus(Rotation2d.fromRotations(0.5)),
+          Rotation2d.fromRotations(0.126709),
           "Back Left");
 
     public static final ModuleConstants Mod4 =
@@ -124,6 +132,6 @@ public final class SwerveConstants {
           14, // Drive ID
           24, // Azimuth ID
           34, // CANCoder ID
-          Rotation2d.fromRotations(-0.390137).plus(Rotation2d.fromRotations(0.5)),
+          Rotation2d.fromRotations(0.217041),
           "Back Right");
 }
