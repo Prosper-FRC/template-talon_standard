@@ -78,7 +78,7 @@ public final class SwerveConstants {
     // public static final double driveKA = (0.27 / 12);
     // Use characterization data when possible
     public static final double kDriveS = (0);
-    public static final double kDriveV = (0.75);
+    public static final double kDriveV = (2.4287);
     public static final double kDriveA = (0);
 
     public static final double kPathplanerDriveP = 1.0;

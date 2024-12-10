@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.Swerve;
 
@@ -96,6 +97,10 @@ public class RobotContainer {
     private void configureButtonBindings() {
         driverController.a()
           .onTrue(Commands.runOnce(()-> robotDrive.resetGyro()));
+
+        driverController.b()
+            .onTrue(robotDrive.driveSysIDTest())
+            .onFalse(new InstantCommand(()->{}, robotDrive));
     }
 
 }

@@ -17,7 +17,10 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.debugging.SysIDCharacterization;
+
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -204,5 +207,14 @@ public class Swerve extends SubsystemBase {
     /** Resets each module's motor position to its absolute encoder value. */
     public void resetAllMotors() {
         for (int i = 0; i < 4; i++) modules[i].resetToAbsolute();
+    }
+
+    public Command driveSysIDTest() {
+        return SysIDCharacterization.runDriveSysIDTests((voltage) -> {
+            for(int i = 0; i < 4; i++) {
+                modules[i].setTurnRotation(Rotation2d.fromDegrees(0.0));
+                modules[i].setDriveVolts(voltage);
+            }
+        }, this);
     }
 }

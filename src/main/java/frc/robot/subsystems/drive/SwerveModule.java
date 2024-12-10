@@ -210,6 +210,10 @@ public class SwerveModule {
         }
     }
 
+    public void setDriveVolts(double volts) {
+        driveMotor.setControl(driveVoltageControl.withOutput(volts));
+    }
+
     public void setTurnRotation(Rotation2d rotation) {
         azimuthMotor.setControl(turnControl.withPosition(rotation.getRotations())); // Set target angle
     }

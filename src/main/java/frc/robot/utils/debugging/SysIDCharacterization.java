@@ -55,15 +55,15 @@ public class SysIDCharacterization {
     public static Command runDriveSysIDTests(Consumer<Double> voltageSetter, Subsystem subsystem) {
         SysIdRoutine sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
-                Units.Volts.of(1).per(Units.Seconds.of(1)),
+                Units.Volts.of(0.75).per(Units.Seconds.of(1)),
                 Units.Volts.of(3),
                 Units.Seconds.of(5),
-                (state) -> sysIDREVStateLogger("SysID/Drive", state.toString())),
+                (state) -> sysIDCTREStateLogger("SysID/Drive", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> voltageSetter.accept(voltage.magnitude()), null, subsystem));
 
         return new SequentialCommandGroup(
-            // startCTRELoggingRoutine(),
+            startCTRELoggingRoutine(),
             Commands.waitSeconds(3.0),
             sysIdRoutine.quasistatic(SysIdRoutine.Direction.kForward),
             Commands.waitSeconds(3.0),
@@ -72,8 +72,8 @@ public class SysIDCharacterization {
             sysIdRoutine.dynamic(SysIdRoutine.Direction.kForward),
             Commands.waitSeconds(3.0),
             sysIdRoutine.dynamic(SysIdRoutine.Direction.kReverse),
-            Commands.waitSeconds(3.0)
-            // stopCTRELoggingRoutine()
+            Commands.waitSeconds(3.0),
+            stopCTRELoggingRoutine()
         );
     }
 
