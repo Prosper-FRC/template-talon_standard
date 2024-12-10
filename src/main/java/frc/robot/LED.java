@@ -2,35 +2,38 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
+import frc.robot.utils.Sensors.ExampleSensor;
 
 public class LED implements ILED {
 
     AddressableLED m_led;
     AddressableLEDBuffer m_ledBuffer;
+    ExampleSensor intakeSensor;
 
     public LED(int id,int bufferLength){
         m_led = new AddressableLED(id);
         m_ledBuffer = new AddressableLEDBuffer(bufferLength);
+        intakeSensor = new ExampleSensor(1);
         m_led.setLength(m_ledBuffer.getLength());
-        setPattern(0, 0, 0);
+        setRGB(0, 0, 0);
         m_led.start();
     }
 
-    public void setRGB(int index, int r, int g, int b){
-        //set colors
+    public void setSingleRGB(int index, int r, int g, int b){
         m_ledBuffer.setRGB(index,r,g,b);
     }
 
-    public void setPattern(int r, int g, int b){
-        for(int index = 0; index<m_ledBuffer.getLength(); index++){
-            setRGB(index,r,g,b);
+    public void setRGB(int r, int g, int b){
+        if(intakeSensor.getValue()){
+            for(int index = 0; index<m_ledBuffer.getLength(); index++){
+                setSingleRGB(index,r,g,b);
+            }
+            m_led.setData(m_ledBuffer);
         }
-        // Set the data
-        m_led.setData(m_ledBuffer);
     }
 
     public void off(){
-        setPattern(0, 0, 0);
+        setRGB(0, 0, 0);
     }
 
 }

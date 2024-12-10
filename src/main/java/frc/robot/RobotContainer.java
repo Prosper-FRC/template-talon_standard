@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.utils.Sensors.ExampleSensor;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -80,7 +82,7 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-        driverController.y().toggleOnTrue(new InstantCommand(() -> mainLED.setPattern(50,205,50)));
+        driverController.y().toggleOnTrue(new InstantCommand(() -> mainLED.setRGB(50,205,50)));
         driverController.y().toggleOnFalse(new InstantCommand(() -> mainLED.off()));
     }
 
