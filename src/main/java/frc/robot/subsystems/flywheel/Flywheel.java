@@ -86,6 +86,11 @@ public class Flywheel extends SubsystemBase {
     Logger.recordOutput("Flywheel/Goal", currentGoal);
   }
 
+  /** Run velocity control based off of the current goal */
+  public void setGoal(FlywheelGoal goal) {
+    currentGoal = goal;
+  }
+
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
     io.setVoltage(volts);
@@ -102,6 +107,8 @@ public class Flywheel extends SubsystemBase {
 
   /** Stops the flywheel. */
   public void stop() {
+    // Set currentGoal to null to stop running the velocity controller in periodic
+    currentGoal = null;
     io.stop();
   }
 
