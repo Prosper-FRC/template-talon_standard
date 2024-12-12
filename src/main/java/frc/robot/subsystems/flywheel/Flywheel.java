@@ -16,6 +16,7 @@ package frc.robot.subsystems.flywheel;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.debugging.LoggedTunableNumber;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -50,6 +51,13 @@ public class Flywheel extends SubsystemBase {
 
   private final SimpleMotorFeedforward feedforward;
 
+  private LoggedTunableNumber feedbackP =
+      new LoggedTunableNumber("Flywheel/P", FlywheelConstants.flywheelGains.kP());
+  private LoggedTunableNumber feedbackI =
+      new LoggedTunableNumber("Flywheel/I", FlywheelConstants.flywheelGains.kI());
+  private LoggedTunableNumber feedbackD =
+      new LoggedTunableNumber("Flywheel/D", FlywheelConstants.flywheelGains.kD());
+
   private FlywheelGoal currentGoal = FlywheelGoal.SLOW;
 
   /** Creates a new Flywheel. */
@@ -60,10 +68,8 @@ public class Flywheel extends SubsystemBase {
     feedforward =
         new SimpleMotorFeedforward(
             FlywheelConstants.flywheelGains.kS(), FlywheelConstants.flywheelGains.kV());
-    io.configurePID(
-        FlywheelConstants.flywheelGains.kP(),
-        FlywheelConstants.flywheelGains.kI(),
-        FlywheelConstants.flywheelGains.kD());
+    // Fetch PID gains from tunables since we initialize tunables with default value from constants
+    io.configurePID(feedbackP.get(), feedbackI.get(), feedbackD.get());
   }
 
   @Override
@@ -84,6 +90,19 @@ public class Flywheel extends SubsystemBase {
 
     // We may want to see what the goal is for this loop cycle, so let's log it
     Logger.recordOutput("Flywheel/Goal", currentGoal);
+
+    // For more information on LoggedTunableNumber - reference the L2 slideshow
+    LoggedTunableNumber.ifChanged(
+      // Tunable unique identifier
+        hashCode(),
+        () -> {
+          // Update if the tunables have changed
+          io.configurePID(feedbackP.get(), feedbackI.get(), feedbackD.get());
+        },
+        // Tunables to check
+        feedbackP,
+        feedbackI,
+        feedbackD);
   }
 
   /** Run velocity control based off of the current goal */
