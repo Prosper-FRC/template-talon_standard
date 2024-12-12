@@ -4,11 +4,15 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
@@ -17,8 +21,33 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotInit() {
-    Logger.addDataReceiver(new NT4Publisher());
+    switch (Constants.kRobotMode) {
+      case REAL:
+        // Running on a REAL robot, setup AK to publish data to NT and write to a log file
+        Logger.addDataReceiver(new NT4Publisher());
+        // Comment out or remove this line if you do not wish to write to a log file
+        Logger.addDataReceiver(
+            new WPILOGWriter()); // Log file stored on usb stick by default ("U/Logs")
+        break;
+      case SIM:
+        // Running on a SIM robot, setup AK to publish data to NT
+        Logger.addDataReceiver(new NT4Publisher());
+        // If you wish to also write simulated data to a log file, then uncomment this line
+        // Logger.addDataReceiver(new WPILOGWriter());
+        // We may not have joysticks connected when using the simulator, so tell DriverStation to
+        // not warn us about it
+        DriverStation.silenceJoystickConnectionWarning(true);
+        break;
+      default:
+        // Replaying a log file, setup AK to find a log file to pull input data from
+        setUseTiming(false);
+        String logPath = LogFileUtil.findReplayLog();
+        Logger.setReplaySource(new WPILOGReader(logPath));
+        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
+        break;
+    }
 
+    // Start the AK Logger
     Logger.start();
 
     m_robotContainer = new RobotContainer();

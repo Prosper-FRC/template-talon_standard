@@ -58,7 +58,7 @@ public class Flywheel extends SubsystemBase {
   private LoggedTunableNumber feedbackD =
       new LoggedTunableNumber("Flywheel/D", FlywheelConstants.flywheelGains.kD());
 
-  private FlywheelGoal currentGoal = FlywheelGoal.SLOW;
+  private FlywheelGoal currentGoal = null;
 
   /** Creates a new Flywheel. */
   public Flywheel(FlywheelIO io) {
@@ -86,14 +86,16 @@ public class Flywheel extends SubsystemBase {
     // been changed and run the controller based off of that goal
     if (currentGoal != null) {
       runVelocity(currentGoal.getFlywheelGoalRotationsPerMinute());
+      // We may want to know the current goal, so let's log it
+      Logger.recordOutput("Flywheel/Goal", currentGoal);
+    } else {
+      // If our goal is null, log the goal as NONE
+      Logger.recordOutput("Flywheel/Goal", "NONE");
     }
-
-    // We may want to see what the goal is for this loop cycle, so let's log it
-    Logger.recordOutput("Flywheel/Goal", currentGoal);
 
     // For more information on LoggedTunableNumber - reference the L2 slideshow
     LoggedTunableNumber.ifChanged(
-      // Tunable unique identifier
+        // Tunable unique identifier
         hashCode(),
         () -> {
           // Update if the tunables have changed
