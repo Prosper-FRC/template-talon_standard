@@ -17,42 +17,54 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import frc.robot.subsystems.flywheel.FlywheelConstants.SimulationConfiguration;
 
 public class FlywheelIOSim implements FlywheelIO {
-  private FlywheelSim sim = new FlywheelSim(DCMotor.getNEO(1), 1.5, 0.004);
-  private PIDController pid = new PIDController(0.0, 0.0, 0.0);
+  private final FlywheelSim kMotor;
+  private PIDController feedback = new PIDController(0.0, 0.0, 0.0);
 
-  private boolean closedLoop = false;
   private double ffVolts = 0.0;
+  private boolean closedLoop = false;
   private double appliedVolts = 0.0;
+
+  public FlywheelIOSim(SimulationConfiguration simulationConfiguration) {
+    kMotor =
+        new FlywheelSim(
+            DCMotor.getFalcon500(1),
+            simulationConfiguration.gearRatio(),
+            simulationConfiguration.momentOfInertiaJKgMetersSquared());
+  }
 
   @Override
   public void updateInputs(FlywheelIOInputs inputs) {
     if (closedLoop) {
       appliedVolts =
-          MathUtil.clamp(pid.calculate(sim.getAngularVelocityRadPerSec()) + ffVolts, -12.0, 12.0);
-      sim.setInputVoltage(appliedVolts);
+          MathUtil.clamp(
+              feedback.calculate(kMotor.getAngularVelocityRadPerSec()) + ffVolts, -12.0, 12.0);
+      kMotor.setInputVoltage(appliedVolts);
     }
 
-    sim.update(0.02);
+    kMotor.update(0.02);
 
-    inputs.positionRad = 0.0;
-    inputs.velocityRadPerSec = sim.getAngularVelocityRadPerSec();
+    inputs.positionRad =
+        0.0; // Position does not matter with flywheels (since we just want velocity) - could
+    // honestly just remove it
+    inputs.velocityRadPerSec = kMotor.getAngularVelocityRadPerSec();
     inputs.appliedVolts = appliedVolts;
-    inputs.currentAmps = new double[] {sim.getCurrentDrawAmps()};
+    inputs.currentAmps = new double[] {kMotor.getCurrentDrawAmps()};
   }
 
   @Override
   public void setVoltage(double volts) {
     closedLoop = false;
     appliedVolts = volts;
-    sim.setInputVoltage(volts);
+    kMotor.setInputVoltage(volts);
   }
 
   @Override
   public void setVelocity(double velocityRadPerSec, double ffVolts) {
     closedLoop = true;
-    pid.setSetpoint(velocityRadPerSec);
+    feedback.setSetpoint(velocityRadPerSec);
     this.ffVolts = ffVolts;
   }
 
@@ -63,6 +75,6 @@ public class FlywheelIOSim implements FlywheelIO {
 
   @Override
   public void configurePID(double kP, double kI, double kD) {
-    pid.setPID(kP, kI, kD);
+    feedback.setPID(kP, kI, kD);
   }
 }

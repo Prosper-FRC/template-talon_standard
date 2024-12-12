@@ -25,8 +25,7 @@ public class FlywheelConstants {
       MotorOutputConfigs motorOutputConfigs,
       FeedbackConfigs feedbackConfigs) {}
 
-  public record SimulationConfiguration(
-      double gearing, double momentOfInertiaJKgMetersSquared, double feedforwardVolts) {}
+  public record SimulationConfiguration(double gearRatio, double momentOfInertiaJKgMetersSquared) {}
 
   public record FlywheelGains(double kP, double kI, double kD, double kS, double kV) {}
 
@@ -34,7 +33,7 @@ public class FlywheelConstants {
   // what is is. Consult your electrical lead if you are unsure if your team
   // is using a CANivore. The name can be configured using Phoenix Tuner.
   public static final boolean kUseCANivore = true;
-  public static final String kCANBusName = "drivetrain";
+  public static final String kCANBusName = "drivebase";
 
   // The gearing between your motor shaft and output shaft, consult the
   // mechanical team for this value
@@ -74,7 +73,7 @@ public class FlywheelConstants {
           new FeedbackConfigs().withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor));
 
   public SimulationConfiguration simulationConfiguration =
-      new SimulationConfiguration(kGearRatio, 0.001, 0.0);
+      new SimulationConfiguration(kGearRatio, 0.001);
 
   public FlywheelGains flywheelGains =
       switch (Constants.kRobotMode) {
