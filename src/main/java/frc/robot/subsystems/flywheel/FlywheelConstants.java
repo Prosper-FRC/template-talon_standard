@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems.flywheel;
 
-import frc.robot.Constants;
-
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -13,6 +11,7 @@ import com.ctre.phoenix6.configs.VoltageConfigs;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import frc.robot.Constants;
 
 /** Constants for a flywheel */
 public class FlywheelConstants {
@@ -77,9 +76,10 @@ public class FlywheelConstants {
   public SimulationConfiguration simulationConfiguration =
       new SimulationConfiguration(kGearRatio, 0.001, 0.0);
 
-  public FlywheelGains flywheelGains = switch (Constants.kRobotMode) {
-    case REAL -> new FlywheelGains(0.0, 0.0, 0.0, 0.0, 0.0);
-    case SIM -> new FlywheelGains(0.0, 0.0, 0.0, 0.0, 0.0);
-    default -> new FlywheelGains(0.0, 0.0, 0.0, 0.0, 0.0);
-  };
+  public FlywheelGains flywheelGains =
+      switch (Constants.kRobotMode) {
+        case REAL -> new FlywheelGains(0.0, 0.0, 0.0, 0.0, 0.0);
+        case SIM -> new FlywheelGains(0.0, 0.0, 0.0, 0.0, 0.0);
+        default -> new FlywheelGains(0.0, 0.0, 0.0, 0.0, 0.0);
+      };
 }
