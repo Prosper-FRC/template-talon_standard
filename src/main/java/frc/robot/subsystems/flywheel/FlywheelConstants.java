@@ -42,7 +42,7 @@ public class FlywheelConstants {
   /** The frequency that telemetry form the motor is pushed to the CANBus */
   public static final double kStatusSignalUpdateFrequencyHz = 100.0;
 
-  public MotorConfiguration topMotorConfiguration =
+  public static MotorConfiguration topMotorConfiguration =
       new MotorConfiguration(
           46,
           new CurrentLimitsConfigs()
@@ -57,7 +57,7 @@ public class FlywheelConstants {
               .withInverted(InvertedValue.CounterClockwise_Positive),
           new FeedbackConfigs().withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor));
 
-  public MotorConfiguration bottomMotorConfiguration =
+  public static MotorConfiguration bottomMotorConfiguration =
       new MotorConfiguration(
           47,
           new CurrentLimitsConfigs()
@@ -72,10 +72,12 @@ public class FlywheelConstants {
               .withInverted(InvertedValue.Clockwise_Positive),
           new FeedbackConfigs().withFeedbackSensorSource(FeedbackSensorSourceValue.RotorSensor));
 
-  public SimulationConfiguration simulationConfiguration =
+  public static SimulationConfiguration simulationConfiguration =
       new SimulationConfiguration(kGearRatio, 0.001);
 
-  public FlywheelGains flywheelGains =
+  // Switch constants based on mode (the physics simulator is treated as a
+  // separate robot with different tuning)
+  public static FlywheelGains flywheelGains =
       switch (Constants.kRobotMode) {
         case REAL -> new FlywheelGains(0.0, 0.0, 0.0, 0.0, 0.0);
         case SIM -> new FlywheelGains(0.0, 0.0, 0.0, 0.0, 0.0);
