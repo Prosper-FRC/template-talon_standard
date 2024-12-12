@@ -79,7 +79,7 @@ public class LoggedTunableNumber implements DoubleSupplier {
   /**
    * Checks whether the number has changed since our last check
    *
-   * @param id Unique identifier for the caller to avoid conflicts when shared between multiple
+   * @param id Unique idenbtifier for the caller to avoid conflicts when shared between multiple
    *     objects. Recommended approach is to pass the result of "hashCode()"
    * @return True if the number has changed since the last time this method was called, false
    *     otherwise.
