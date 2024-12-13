@@ -13,18 +13,18 @@ public class FlywheelsConstants {
     public static final double kToleranceMPS = 1.0;
 
     public static final FlywheelHardwareConfig kTopConfig = 
-        new FlywheelHardwareConfig(34, InvertedValue.CounterClockwise_Positive);
+        new FlywheelHardwareConfig(46, InvertedValue.CounterClockwise_Positive);
     
     public static final FlywheelHardwareConfig kBottomConfig = 
-        new FlywheelHardwareConfig(35, InvertedValue.CounterClockwise_Positive);
+        new FlywheelHardwareConfig(47, InvertedValue.CounterClockwise_Positive);
 
     // You tune these. The more you increase your max accleration, the higher the amperage is
     // Make the amperage reach the current limit
     public static final double kMaxAccelerationMPSS = 53.0;
 
     public static final FlywheelControllerconfig kControllerConfig = (RobotBase.isReal()) ?
-        new FlywheelControllerconfig(0.147, 0.16422, 0.108, 0.054) :
-        new FlywheelControllerconfig(0.1, 0.0, 0.281, 0.03);
+        new FlywheelControllerconfig(0.061075, 0.1, 0.05197, 0.016583) :
+        new FlywheelControllerconfig(0.061075, 0.1, 0.05197, 0.016583);
 
     public static record FlywheelHardwareConfig(int motorID, InvertedValue motorInvert) {}
 

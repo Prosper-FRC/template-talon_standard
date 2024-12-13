@@ -14,13 +14,13 @@ import frc.robot.subsystems.flywheels.Flywheels.FlywheelSetpoint;
 
 public class RobotContainer {
   private final Flywheels robotFlywheels;
-  private final Elevator robotElevator;
+//   private final Elevator robotElevator;
 
   private CommandXboxController controller = new CommandXboxController(0);
 
   public RobotContainer() {
     robotFlywheels = new Flywheels();
-    robotElevator = new Elevator();
+    // robotElevator = new Elevator();
 
     configureBindings();
   }
@@ -35,14 +35,18 @@ public class RobotContainer {
       .onFalse(robotFlywheels.setGoalCommand(FlywheelSetpoint.STOP));
 
     controller.b()
-      .onTrue(robotElevator.setGoalCommand(ElevatorGoal.UP))
-      .onFalse(robotElevator.setGoalCommand(ElevatorGoal.IDLE));
+      .onTrue(robotFlywheels.characterizeShooter())
+      .onFalse(robotFlywheels.setGoalCommand(FlywheelSetpoint.STOP));
 
-    controller.y()
-      .onTrue(robotElevator.setGoalCommand(ElevatorGoal.DEBUGGING_VOLTS));
+    // controller.b()
+    //   .onTrue(robotElevator.setGoalCommand(ElevatorGoal.UP))
+    //   .onFalse(robotElevator.setGoalCommand(ElevatorGoal.IDLE));
 
-    controller.povDown()
-      .onTrue(robotElevator.setGoalCommand(ElevatorGoal.IDLE));
+    // controller.y()
+    //   .onTrue(robotElevator.setGoalCommand(ElevatorGoal.DEBUGGING_VOLTS));
+
+    // controller.povDown()
+    //   .onTrue(robotElevator.setGoalCommand(ElevatorGoal.IDLE));
   }
 
   public Command getAutonomousCommand() {

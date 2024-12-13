@@ -41,7 +41,7 @@ public class FlywheelsKrakenHardware {
     private StatusSignal<Double> motorTemp;
 
     public FlywheelsKrakenHardware(FlywheelHardwareConfig hardConfig) {
-        motor = new TalonFX(hardConfig.motorID(), Constants.kCanbusName);
+        motor = new TalonFX(hardConfig.motorID());
 
         // SPECIFIC TO SYSTEM. 
         // https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/improving-performance-with-current-limits.html
