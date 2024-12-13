@@ -16,7 +16,9 @@ public class Pivot extends SubsystemBase {
   public enum PivotGoal {
     // NOTE These setpoints must be updated per robot, "DEMO" is merely an example setpoint.
 
-    DEMO(() -> Rotation2d.fromDegrees(10.0));
+    DEMO(() -> Rotation2d.fromDegrees(90.0)),
+    /** We get the setpoint in degrees from the LoggedTunableNumber */
+    CUSTOM(() -> Rotation2d.fromDegrees(new LoggedTunableNumber("Pivot/Custom", 0.0).get()));
 
     // Suppliers are used to keep in line with this team's programming convention. In some
     // instances, we may need to have a goal that dynamically changes based on a state from another
@@ -81,6 +83,10 @@ public class Pivot extends SubsystemBase {
     if (currentPivotGoal != null) {
       currentPivotGoalPosition = currentPivotGoal.getGoal();
       setPosition(currentPivotGoalPosition.getRadians());
+
+      Logger.recordOutput("Pivot/Goal", currentPivotGoal);
+    } else {
+      Logger.recordOutput("Pivot/Goal", "NONE");
     }
 
     // Update feedback, feedforward, and motion magic gains if we change them from network tables
@@ -122,13 +128,25 @@ public class Pivot extends SubsystemBase {
    * @param voltage The voltage to set the motor to
    */
   public void setVoltage(double voltage) {
-    kPivotHardware.setVoltage(voltage);
+    if (getPosition().getDegrees() > PivotConstants.kUpperPositionLimit.getDegrees()
+        && voltage > 0.0) {
+      // do nothing
+    } else if (getPosition().getDegrees() < PivotConstants.kLowerPositionLimit.getDegrees()
+        && voltage < 0.0) {
+      // do nothing
+    } else {
+      kPivotHardware.setVoltage(voltage);
+    }
   }
 
   /** Sets the motor control to neutral, then switching to the default neutral control mode */
   public void stop() {
     currentPivotGoal = null;
     kPivotHardware.stop();
+  }
+
+  public void resetPosition() {
+    kPivotHardware.resetEncoder();
   }
 
   /**

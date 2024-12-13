@@ -37,7 +37,7 @@ public class PivotConstants {
   // If using a CANivore, set this boolean to true and set the CANivore name to
   // what is is. Consult your electrical lead if you are unsure if your team
   // is using a CANivore. The name can be configured using Phoenix Tuner.
-  public static final boolean kUseCANivore = true;
+  public static final boolean kUseCANivore = false;
   public static final String kCANBusName = "drivebase";
 
   // The gearing between your motor shaft and output shaft, consult the
@@ -66,8 +66,8 @@ public class PivotConstants {
   public static final double kStatusSignalUpdateFrequencyHz = 100.0;
 
   // Soft positions limits to prevent the arm from breaking itself
-  public static final Rotation2d kUpperPositionLimit = new Rotation2d();
-  public static final Rotation2d kLowerPositionLimit = new Rotation2d();
+  public static final Rotation2d kUpperPositionLimit = Rotation2d.fromDegrees(275.0);
+  public static final Rotation2d kLowerPositionLimit = Rotation2d.fromDegrees(0.0);
 
   // NOTE The configuration only needs to be applied to the leader-motor. The
   // follower-motor MUST obey the configuration of the leader-motor.
@@ -75,5 +75,5 @@ public class PivotConstants {
       new KrakenConfiguration(true, true, 80.0, 30.0, NeutralModeValue.Brake, false, 12.0, -12.0);
 
   public static final PivotGains kPivotGains =
-      new PivotGains(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+      new PivotGains(75.0, 0.0, 0.0, 0.24, 0.3, 0.0, 0.0, 10.0, 20.0);
 }
