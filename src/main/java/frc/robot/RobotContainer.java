@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.utils.Sensors.ExampleSensor;
+import subsystems.LED.LED;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -21,6 +22,7 @@ public class RobotContainer {
     // Define subsystems
     // ex: private final LEDSubsystem LEDs;
     LED mainLED;
+    ExampleSensor sensor;
 
     // Define other utility classes
     private final AutonCommands autonCommands;
@@ -29,6 +31,8 @@ public class RobotContainer {
     private final LoggedDashboardChooser<Command> autoChooser;
 
     private final boolean useCompetitionBindings = true;
+
+    private boolean sensorValue;
 
     public RobotContainer() {
 
@@ -48,6 +52,7 @@ public class RobotContainer {
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
         mainLED = new LED(0,26);
+        sensor = new ExampleSensor(1);
 
         // Instantiate your TeleopCommands and AutonCommands classes
         telopCommands = new TeleopCommands(/* pass subsystems here */);
@@ -81,8 +86,16 @@ public class RobotContainer {
 
     }
 
+    public void robotPeriodic(){
+        sensorValue = sensor.getValue();
+    }
+
     private void configureButtonBindings() {
-        driverController.y().toggleOnTrue(new InstantCommand(() -> mainLED.setRGB(50,205,50)));
+        driverController.y().toggleOnTrue(new InstantCommand(() -> { 
+            if (sensorValue) {mainLED.setRGB(50,205,50);} 
+            else {mainLED.setRGB(0, 0, 0);};
+            }
+        ));
         driverController.y().toggleOnFalse(new InstantCommand(() -> mainLED.off()));
     }
 
