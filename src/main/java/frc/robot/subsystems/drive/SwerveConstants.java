@@ -37,6 +37,7 @@ public final class SwerveConstants {
 
     public static final double kTranslationMultiplier = 1.25;
     public static final double kRotationMultiplier = 1.0;
+    public static final double deadband = 0.1;
 
     public static final double kOpenLoopRamp = 0.25;
     public static final double kClosedLoopRamp = 0.0;
@@ -134,4 +135,5 @@ public final class SwerveConstants {
           34, // CANCoder ID
           Rotation2d.fromRotations(-0.390137+0.5),
           "Back Right");
+
 }
