@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -12,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.Swerve;
+
+import static frc.robot.subsystems.drive.SwerveConstants.deadband;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -62,9 +66,9 @@ public class RobotContainer {
         robotDrive.setDefaultCommand(
             new TeleopDrive(
                 robotDrive,
-                ()-> -driverController.getLeftY(),
-                ()-> -driverController.getLeftX(),
-                ()-> -driverController.getRightX()
+                ()-> MathUtil.applyDeadband(-driverController.getLeftY(),deadband),
+                ()-> MathUtil.applyDeadband(-driverController.getLeftX(),deadband),
+                ()-> MathUtil.applyDeadband(-driverController.getRightX(),deadband)
             )
         );
 
