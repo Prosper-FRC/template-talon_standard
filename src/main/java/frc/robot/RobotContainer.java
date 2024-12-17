@@ -66,6 +66,8 @@ public class RobotContainer {
 
         autoChooser = AutoBuilder.buildAutoChooser();
 
+        Shuffleboard.getTab("Auton").add(autoChooser);
+
 
 
         robotDrive.setDefaultCommand(
