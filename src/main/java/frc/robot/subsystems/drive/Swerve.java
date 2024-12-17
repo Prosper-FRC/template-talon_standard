@@ -71,7 +71,7 @@ public class Swerve extends SubsystemBase {
                 new PIDConstants(kPathplanerRotationP, kPathplanerRotationI, kPathplanerRotationD), // PID for rotation control
                 kMaxSpeed, // Max speed for swerve modules
                 kWheelBase, // Radius of the drivebase (center to module distance)
-                new ReplanningConfig(true, true) // Path replanning settings
+                new ReplanningConfig(false, false) // Path replanning settings
             ),
             () -> {
                 // Determines if the path will be mirrored for the red alliance
@@ -212,7 +212,7 @@ public class Swerve extends SubsystemBase {
     public Command driveSysIDTest() {
         return SysIDCharacterization.runDriveSysIDTests((voltage) -> {
             for(int i = 0; i < 4; i++) {
-                modules[i].setTurnRotation(Rotation2d.fromDegrees(0.0));
+                modules[i].setTurnRotation(Rotation2d.fromRotations(0.0));
                 modules[i].setDriveVolts(voltage);
             }
         }, this);

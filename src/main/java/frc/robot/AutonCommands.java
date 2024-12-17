@@ -2,8 +2,13 @@ package frc.robot;
 
 import org.littletonrobotics.junction.AutoLogOutput;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.drive.Swerve;
 
 public class AutonCommands {
 
@@ -20,22 +25,22 @@ public class AutonCommands {
 
     @AutoLogOutput
     private AutonState autoState = AutonState.ALLIANCE;
+    private Swerve swerve;
+    private PathPlannerPath path;
 
     private SendableChooser<Command> autoChooser;
 
-    public AutonCommands(/* pass subsystems */) {
+    public AutonCommands(Swerve swerve) {
         // store subsystems
-        // ex: this.robotDrive = robotDrive;
+        ex: this.swerve = swerve;
 
-        autoChooser = new SendableChooser<>();
+        autoChooser = AutoBuilder.buildAutoChooser();
 
-        // Define Auton choices for the dashboard.  Add a named option, and give it a method of this class to run.
+        // Define Auton choices for the dashboard.  Add a named option, and give it a method of this class to run
 
-        /* Example:
-        autoChooser.setDefaultOption("SpeakerShot", runDefaultCommand());
+    }
 
-        autoChooser.addOption("S2C3-5piece", runS2C35Piece());
-        */
+    private void runDefaultCommandf(){
 
     }
 
