@@ -33,7 +33,8 @@ public class RobotContainer {
     private final AutonCommands autonCommands;
     private final TeleopCommands telopCommands;
 
-    private final LoggedDashboardChooser<Command> autoChooser;
+    public static SendableChooser<Command> autoChooser;
+
 
     private final boolean useCompetitionBindings = true;
 
@@ -61,7 +62,11 @@ public class RobotContainer {
         // Instantiate your TeleopCommands and AutonCommands classes
         telopCommands = new TeleopCommands(/* pass subsystems here */);
         autonCommands = new AutonCommands(robotDrive);
-        autoChooser = new LoggedDashboardChooser<>("Auton Program", autonCommands.getAutoChooser());
+        // autoChooser = new SendableChooser<>("Auton Program", autonCommands.getAutoChooser());
+
+        autoChooser = AutoBuilder.buildAutoChooser();
+
+
 
         robotDrive.setDefaultCommand(
             new TeleopDrive(
@@ -90,7 +95,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        return autoChooser.getSelected();
     }
 
     private void configureStateTriggers() {
