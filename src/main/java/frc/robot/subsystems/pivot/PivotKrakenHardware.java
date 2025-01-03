@@ -41,6 +41,7 @@ public class PivotKrakenHardware {
     public double velocityRadsPerSec = 0.0;
     public double[] appliedVolts = new double[] {};
     public double[] supplyCurrentAmps = new double[] {};
+    public double[] statorCurrentAmps = new double[] {};
     public double[] temperatureCelsius = new double[] {};
   }
 
@@ -62,6 +63,7 @@ public class PivotKrakenHardware {
   private StatusSignal<Double> velocityRotationsPerSec;
   private List<StatusSignal<Double>> appliedVolts;
   private List<StatusSignal<Double>> supplyCurrentAmps;
+  private List<StatusSignal<Double>> statorCurrentAmps;
   private List<StatusSignal<Double>> temperatureCelsius;
 
   // Control modes
@@ -92,6 +94,9 @@ public class PivotKrakenHardware {
     motorConfiguration.Voltage.PeakForwardVoltage = configuration.kPeakForwardVoltage();
     motorConfiguration.Voltage.PeakReverseVoltage = configuration.kPeakReverseVoltage();
 
+    // Reset encoder on startup
+    kLeadMotor.setPosition(0.0);
+
     // Setup feedback sensor for position control
     if (PivotConstants.kUseThroughBore) {
       throughBoreEncoder = new DutyCycleEncoder(PivotConstants.kThroughBoreEncoderPort);
@@ -110,6 +115,7 @@ public class PivotKrakenHardware {
     velocityRotationsPerSec = kLeadMotor.getVelocity();
     appliedVolts = List.of(kLeadMotor.getMotorVoltage(), kFollowMotor.getMotorVoltage());
     supplyCurrentAmps = List.of(kLeadMotor.getSupplyCurrent(), kFollowMotor.getSupplyCurrent());
+    statorCurrentAmps = List.of(kLeadMotor.getStatorCurrent(), kFollowMotor.getStatorCurrent());
     temperatureCelsius = List.of(kLeadMotor.getDeviceTemp(), kFollowMotor.getDeviceTemp());
 
     BaseStatusSignal.setUpdateFrequencyForAll(
@@ -120,6 +126,8 @@ public class PivotKrakenHardware {
         appliedVolts.get(1),
         supplyCurrentAmps.get(0),
         supplyCurrentAmps.get(1),
+        statorCurrentAmps.get(0),
+        statorCurrentAmps.get(1),
         temperatureCelsius.get(0),
         temperatureCelsius.get(1));
 
@@ -141,11 +149,15 @@ public class PivotKrakenHardware {
                 velocityRotationsPerSec,
                 appliedVolts.get(0),
                 supplyCurrentAmps.get(0),
+                statorCurrentAmps.get(0),
                 temperatureCelsius.get(0))
             .isOK();
     inputs.followerMotorConnected =
         BaseStatusSignal.refreshAll(
-                appliedVolts.get(1), supplyCurrentAmps.get(1), temperatureCelsius.get(1))
+                appliedVolts.get(1),
+                supplyCurrentAmps.get(1),
+                statorCurrentAmps.get(1),
+                temperatureCelsius.get(1))
             .isOK();
 
     inputs.inteneralPosition =
@@ -156,6 +168,8 @@ public class PivotKrakenHardware {
         appliedVolts.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
     inputs.supplyCurrentAmps =
         supplyCurrentAmps.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
+    inputs.statorCurrentAmps =
+        statorCurrentAmps.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
     inputs.temperatureCelsius =
         temperatureCelsius.stream().mapToDouble(StatusSignal::getValueAsDouble).toArray();
   }
@@ -176,7 +190,8 @@ public class PivotKrakenHardware {
    * @param feedforwardOutput Feedforward that will also be applied to the control effort
    */
   public void setPosition(double positionRads) {
-    kLeadMotor.setControl(kPositionVoltage.withPosition(positionRads).withSlot(0));
+    kLeadMotor.setControl(
+        kPositionVoltage.withPosition(Units.radiansToRotations(positionRads)).withSlot(0));
   }
 
   /** Sets the motor control to neutral, then switching to the default neutral control mode */
@@ -220,7 +235,13 @@ public class PivotKrakenHardware {
 
     motionMagicConfiguration.MotionMagicCruiseVelocity = maxVelocity;
     motionMagicConfiguration.MotionMagicAcceleration = maxAcceleration;
+    motionMagicConfiguration.MotionMagicJerk = 10.0 * maxAcceleration;
 
     kLeadMotor.getConfigurator().apply(motionMagicConfiguration);
+  }
+
+  /** Reset the relative encoder used for position calculations */
+  public void resetEncoder() {
+    kLeadMotor.setPosition(0.0);
   }
 }
