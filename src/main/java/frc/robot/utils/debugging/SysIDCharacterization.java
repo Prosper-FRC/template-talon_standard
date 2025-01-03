@@ -27,7 +27,7 @@ public class SysIDCharacterization {
     public static Command runFlywheelSysIDTests(Consumer<Double> voltageSetter, Subsystem subsystem) {
         SysIdRoutine sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
-                Units.Volts.of(1).per(Units.Seconds.of(1)),
+                Units.Volts.of(1).per(Units.Second),
                 Units.Volts.of(4),
                 Units.Seconds.of(15),
                 (state) -> sysIDCTREStateLogger("SysID/Shooter", state.toString())),
@@ -55,7 +55,7 @@ public class SysIDCharacterization {
     public static Command runDriveSysIDTests(Consumer<Double> voltageSetter, Subsystem subsystem) {
         SysIdRoutine sysIdRoutine = new SysIdRoutine(
             new SysIdRoutine.Config(
-                Units.Volts.of(1).per(Units.Seconds.of(1)),
+                Units.Volts.of(1).per(Units.Second),
                 Units.Volts.of(3),
                 Units.Seconds.of(5),
                 (state) -> sysIDCTREStateLogger("SysID/Drive", state.toString())),
