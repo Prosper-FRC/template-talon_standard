@@ -30,7 +30,7 @@ public class AllianceFlipUtil {
 */
   public static Translation2d apply(Translation2d translation) {
     if (shouldFlip()) {
-      return new Translation2d(apply(translation.getX()), translation.getY());
+      return new Translation2d(apply(translation.getX()), Constants.kFieldWidth - translation.getY());
     } else {
       return translation;
     }
