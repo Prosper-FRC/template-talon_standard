@@ -46,6 +46,7 @@ import frc.robot.subsystems.vision.Vision.VisionObservation;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import frc.robot.utils.debugging.SysIDCharacterization;
 import frc.robot.utils.math.AllianceFlipUtil;
+import frc.robot.utils.math.EqualsUtil;
 import frc.robot.utils.swerve.LocalADStarAK;
 
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -56,6 +57,8 @@ public class Drive extends SubsystemBase {
         TELEOP,
         AUTO_HEADING,
         SHOOT_ON_MOVE,
+        DRIFT_TEST,
+        ACCEL_TEST,
         AUTON,
         AUTO_ALIGN_AMP,
         SYSID_CHARACTERIZATION,
@@ -105,6 +108,8 @@ public class Drive extends SubsystemBase {
 
     private ManualTeleopController teleopController = new ManualTeleopController();
     private HeadingController headingController = new HeadingController();
+
+    private LoggedTunableNumber kRotationDriftTestSpeed = new LoggedTunableNumber("Drive/DriftRotationTest", 180);
 
     public Drive(Module[] modules, GyroIO gyro, Vision vision) {
         this.modules = modules;
@@ -215,6 +220,13 @@ public class Drive extends SubsystemBase {
             case POV_LEFT:
                 desiredSpeeds = new ChassisSpeeds(0.0, -0.5, 
                     0.0);
+                break;
+            case DRIFT_TEST:
+                desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(1.0, 0.0, 
+                Math.toRadians(kRotationDriftTestSpeed.get())), robotRotation);
+                break;
+            case ACCEL_TEST:
+                desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(4.5, 0.0, 0.0), robotRotation);
                 break;
             case AUTO_HEADING:
                 headingGoal = getToSpeakerAngle();
@@ -375,13 +387,13 @@ public class Drive extends SubsystemBase {
         desiredSpeeds = discretize(speeds);
         Logger.recordOutput("Drive/Swerve/Running", true);
         // FOR LOGGING
-        SwerveModuleState[] unoptimizedSetpointStates = kKinematics.toSwerveModuleStates(desiredSpeeds);
+        SwerveModuleState[] unOptimizedSetpointStates = kKinematics.toSwerveModuleStates(desiredSpeeds);
 
 
         SwerveModuleState[] setpointStates = kKinematics.toSwerveModuleStates(desiredSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(unoptimizedSetpointStates, kMaxLinearSpeedMPS);
+        SwerveDriveKinematics.desaturateWheelSpeeds(unOptimizedSetpointStates, kMaxLinearSpeedMPS);
         SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, kMaxLinearSpeedMPS);
-        Logger.recordOutput("Drive/Swerve/Setpoints", setpointStates);
+        // Logger.recordOutput("Drive/Swerve/Setpoints", setpointStates);
 
         SwerveModuleState[] optimizedSetpointStates = new SwerveModuleState[4];
 
@@ -395,39 +407,45 @@ public class Drive extends SubsystemBase {
                     Math.abs(previousSetpoint.moduleStates()[i].speedMetersPerSecond / kMaxLinearSpeedMPS) < 0.01 ?
                     modules[i].getCurrentState().angle : previousSetpoint.moduleStates()[i].angle);
 
+                unOptimizedSetpointStates[i] = new SwerveModuleState(setpointStates[i].speedMetersPerSecond, setpointStates[i].angle);
+
                 Logger.recordOutput("Drive/Swerve/Feedforward/"+i+"/Acceleration", previousSetpoint.feedforwards().accelerationsMPSSq()[i]);
                 Logger.recordOutput("Drive/Swerve/Feedforward/"+i+"/Force", previousSetpoint.feedforwards().linearForcesNewtons()[i]);
                 Logger.recordOutput("Drive/Swerve/Feedforward/"+i+"/Current", previousSetpoint.feedforwards().torqueCurrentsAmps()[i]);
 
-                SwerveModuleState preOptimizedSetpointState = setpointStates[i];
                 setpointStates[i].optimize(modules[i].getCurrentState().angle);
-                boolean isModuleSpeedOptimized = isSpeedOptimized(preOptimizedSetpointState, setpointStates[i]);
+                boolean isModuleSpeedOptimized = isSpeedOptimized(unOptimizedSetpointStates[i], setpointStates[i]);
                 Logger.recordOutput("Drive/Swerve/Feedforward/"+i+"/optimalInvert", isModuleSpeedOptimized);
-                optimizedSetpointStates[i] = modules[i].setDesiredStateWithAmperage(
-                    setpointStates[i], 
-                    (isModuleSpeedOptimized) ?
-                        - previousSetpoint.feedforwards().torqueCurrentsAmps()[i]
-                        : previousSetpoint.feedforwards().torqueCurrentsAmps()[i]);
+                if(driveState.equals(DriveState.AUTON)) {
+                    optimizedSetpointStates[i] = modules[i].setDesiredStateWithAmperage(
+                        setpointStates[i], // previousSetpoint.feedforwards().torqueCurrentsAmps()[i]);
+                        (isModuleSpeedOptimized) ?
+                            - previousSetpoint.feedforwards().torqueCurrentsAmps()[i]
+                            : previousSetpoint.feedforwards().torqueCurrentsAmps()[i]);
+                } else {
+                    optimizedSetpointStates[i] = modules[i].setDesiredStateWithAmperage(
+                        setpointStates[i], 0.0);
+                }
 
                 optimizedSetpointStates[i].cosineScale(modules[i].getCurrentState().angle);
             } else {
                 setpointStates[i] = new SwerveModuleState(
-                    previousSetpoint.moduleStates()[i].speedMetersPerSecond,
-                    Math.abs(previousSetpoint.moduleStates()[i].speedMetersPerSecond / kMaxLinearSpeedMPS) < 0.01 ?
-                    modules[i].getCurrentState().angle : previousSetpoint.moduleStates()[i].angle);
+                    setpointStates[i].speedMetersPerSecond,
+                    Math.abs(setpointStates[i].speedMetersPerSecond / kMaxLinearSpeedMPS) < 0.01 ?
+                    modules[i].getCurrentState().angle : setpointStates[i].angle);
 
-                unoptimizedSetpointStates[i].optimize( modules[i].getCurrentState().angle);
-                optimizedSetpointStates[i] = unoptimizedSetpointStates[i];
+                setpointStates[i].optimize(modules[i].getCurrentState().angle);
+                optimizedSetpointStates[i] = modules[i].setDesiredState(setpointStates[i]);
             }
         }
         
-        // Logger.recordOutput("Drive/Swerve/Setpoints", unoptimizedSetpointStates);
+        Logger.recordOutput("Drive/Swerve/Setpoints", unOptimizedSetpointStates);
         Logger.recordOutput("Drive/Swerve/SetpointsOptimized", optimizedSetpointStates);
         Logger.recordOutput("Drive/Swerve/SetpointsChassisSpeeds", kKinematics.toChassisSpeeds(optimizedSetpointStates));
     }
 
     public boolean isSpeedOptimized(SwerveModuleState state, SwerveModuleState optimizedState) {
-        return state.speedMetersPerSecond != optimizedState.speedMetersPerSecond;
+        return !EqualsUtil.epsilonEquals(state.speedMetersPerSecond, optimizedState.speedMetersPerSecond);
     }
 
     public void setAmperagesForAllModules(double amps) {

@@ -52,7 +52,7 @@ public class DriveConstants {
         new ModuleLimits(kMaxLinearSpeedMPS, kMaxLinearAccelerationMPSS, Math.toRadians(660.0));
 
     public static final double kAzimuthGearing = 150.0 / 7.0;
-    public static final double kDriveGearing = 6.12 / 1.0;
+    public static final double kDriveGearing = 6.75 / 1.0;
     public static final double kRadiusMeters = 5.08 / 100.0;
     public static final double kCircumferenceMeters = 2 * Math.PI * kRadiusMeters;
 
@@ -75,8 +75,8 @@ public class DriveConstants {
 
     public static final ModuleControlConfig kModuleControllerConfigs = RobotBase.isReal() ? 
         new ModuleControlConfig(
-            new PIDController(1.0000, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.5),
-            new PIDController(1.5, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
+            new PIDController(100, 0.0, 0.0), new SimpleMotorFeedforward(6, 0.0, 0.01),
+            new PIDController(15, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
         new ModuleControlConfig(
             new PIDController(0.1, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.36, 0.0), 
             new PIDController(4.5, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0));

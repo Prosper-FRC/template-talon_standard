@@ -46,8 +46,7 @@ public class AutonCommands {
         Command firstTest = 
             firstPath("FirstTest", Rotation2d.fromRadians(0.6747),
                 ()->!PathPlannerAuto.currentPathName.equals("FirstTest"), 
-                new PrintCommand("Guys auton logic be like that"), 
-            nextPath("SecondTest", ()->false, Commands.runOnce(()->Logger.recordOutput("Auton/Finished", true)), null));
+                new PrintCommand("Guys auton logic be like that"), null);
 
         autoChooser.addOption("FirstTest", firstTest);
         // Define Auton choices for the dashboard.  Add a named option, and give it a method of this class to run.

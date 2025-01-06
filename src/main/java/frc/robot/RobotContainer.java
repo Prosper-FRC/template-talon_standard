@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.Drive;
@@ -16,6 +17,8 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.drive.Module;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.Drive.DriveState;
+
 import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
@@ -111,7 +114,7 @@ public class RobotContainer {
 
     public Command getTeleopCommand() {
         return new SequentialCommandGroup(
-            // Commands to run on teleop go here.
+            robotDrive.setDriveStateCommand(DriveState.TELEOP)
         );
     }
 
@@ -125,7 +128,11 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-
+        driverController.y().onTrue(Commands.runOnce(() -> robotDrive.resetGyro()));
+    
+        driverController.leftBumper()
+            .onTrue(robotDrive.setDriveStateCommand(DriveState.ACCEL_TEST))
+            .onFalse(robotDrive.setDriveStateCommand(DriveState.TELEOP));
     }
 
 }
