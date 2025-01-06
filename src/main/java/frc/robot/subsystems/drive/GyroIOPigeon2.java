@@ -7,12 +7,14 @@ import com.ctre.phoenix6.configs.Pigeon2Configuration;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 
 public class GyroIOPigeon2 implements GyroIO {
-    private Pigeon2 gyro = new Pigeon2(10);
+    private Pigeon2 gyro = new Pigeon2(10, "drivebase");
 
-    private StatusSignal<Double> yaw = gyro.getYaw();
-    private StatusSignal<Double> yawVelocity = gyro.getAngularVelocityXWorld();
+    private StatusSignal<Angle> yaw = gyro.getYaw();
+    private StatusSignal<AngularVelocity> yawVelocity = gyro.getAngularVelocityXWorld();
 
     public GyroIOPigeon2() {
         gyro.getConfigurator().apply(new Pigeon2Configuration());

@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -23,7 +24,8 @@ public final class Constants {
     // ROBOT SEPCIFIC
     public static final String kCanbusName = "sigma";
 
-    public static final double kFieldLength = 16.54;
+    public static final double kFieldLength = 16.54 + 0.9144;
+    public static final double kFieldWidth = 8.11;
 
     public static final double kLoopPeriod = 0.02;
 }

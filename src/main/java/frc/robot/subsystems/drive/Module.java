@@ -14,24 +14,25 @@ public class Module {
     public static final LoggedTunableNumber kDriveD = new LoggedTunableNumber(
         "Module/Drive/kD", kModuleControllerConfigs.driveController().getD());
     public static final LoggedTunableNumber kDriveS = new LoggedTunableNumber(
-        "Module/Drive/kS", kModuleControllerConfigs.driveFF().ks);
+        "Module/Drive/kS", kModuleControllerConfigs.driveFF().getKs());
     public static final LoggedTunableNumber kDriveV = new LoggedTunableNumber(
-        "Module/Drive/kV", kModuleControllerConfigs.driveFF().kv);
+        "Module/Drive/kV", kModuleControllerConfigs.driveFF().getKv());
     public static final LoggedTunableNumber kDriveA = new LoggedTunableNumber(
-        "Module/Drive/kA", kModuleControllerConfigs.driveFF().ka);
+        "Module/Drive/kA", kModuleControllerConfigs.driveFF().getKa());
 
     public static final LoggedTunableNumber kTurnP = new LoggedTunableNumber(
         "Module/AzimuthP", kModuleControllerConfigs.azimuthController().getP());
     public static final LoggedTunableNumber kTurnD = new LoggedTunableNumber(
         "Module/AzimuthD", kModuleControllerConfigs.azimuthController().getD());
     public static final LoggedTunableNumber kTurnS = new LoggedTunableNumber(
-        "Module/AzimuthS", kModuleControllerConfigs.azimuthFF().ks);
+        "Module/AzimuthS", kModuleControllerConfigs.azimuthFF().getKs());
 
     private ModuleIO io;
     private ModuleInputsAutoLogged inputs = new ModuleInputsAutoLogged();
 
     private Double velocitySetpointMPS = null;
     private Double accelerationSetpointMPSS = null;
+    // kDriveA ACTS AS A FUDGE FACTOR, NOT ACTUAL CONSTANT FOR AMPERAGE TUNING
     private Double amperageSetpoint = null;
 
     private Rotation2d azimuthSetpointAngle = null;
@@ -57,8 +58,10 @@ public class Module {
         currentPosition = new SwerveModulePosition(inputs.drivePositionM, inputs.azimuthPosition);
 
         if (velocitySetpointMPS != null) {
+            Logger.recordOutput("Drive/"+kLogKey+"/velocitySepointMPS", velocitySetpointMPS);
             if(amperageSetpoint != null) {
-                io.setDriveVelocity(velocitySetpointMPS, amperageSetpoint);
+                double ffOutput = driveFF.calculate(velocitySetpointMPS, amperageSetpoint);
+                io.setDriveVelocity(velocitySetpointMPS, ffOutput);
                 Logger.recordOutput("Drive/"+kLogKey+"/AmperageFeedforward", amperageSetpoint);
             } else if(accelerationSetpointMPSS != null) {
                 double ffOutput = driveFF.calculate(velocitySetpointMPS, accelerationSetpointMPSS);
@@ -114,7 +117,8 @@ public class Module {
     }
 
     public SwerveModuleState setDesiredStateWithAmperage(SwerveModuleState state, Double desiredAmperage) {
-        setDesiredAmperage(desiredAmperage);
+        // kDriveA ACTS AS A FUDGE FACTOR, NOT ACTUAL CONSTANT FOR AMPERAGE TUNING
+        setDesiredAmperage(kDriveA.get() * desiredAmperage);
         setDesiredVelocity(state.speedMetersPerSecond);
         setDesiredRotation(state.angle);
         return getDesiredState();

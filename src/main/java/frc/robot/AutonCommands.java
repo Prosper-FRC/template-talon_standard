@@ -1,9 +1,19 @@
 package frc.robot;
 
-import org.littletonrobotics.junction.AutoLogOutput;
+import java.util.function.BooleanSupplier;
 
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.commands.PathPlannerAuto;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
+import frc.robot.subsystems.drive.Drive;
 
 public class AutonCommands {
 
@@ -18,17 +28,28 @@ public class AutonCommands {
         CENTERLINE
     }
 
+    private BooleanSupplier isPathRunning = () -> false;
+
     @AutoLogOutput
     private AutonState autoState = AutonState.ALLIANCE;
 
     private SendableChooser<Command> autoChooser;
 
-    public AutonCommands(/* pass subsystems */) {
+    private Drive robotDrive;
+
+    public AutonCommands(Drive robotDrive) {
         // store subsystems
-        // ex: this.robotDrive = robotDrive;
+        this.robotDrive = robotDrive;
 
         autoChooser = new SendableChooser<>();
+        
+        Command firstTest = 
+            firstPath("FirstTest", Rotation2d.fromRadians(0.6747),
+                ()->!PathPlannerAuto.currentPathName.equals("FirstTest"), 
+                new PrintCommand("Guys auton logic be like that"), 
+            nextPath("SecondTest", ()->false, Commands.runOnce(()->Logger.recordOutput("Auton/Finished", true)), null));
 
+        autoChooser.addOption("FirstTest", firstTest);
         // Define Auton choices for the dashboard.  Add a named option, and give it a method of this class to run.
 
         /* Example:
@@ -43,73 +64,24 @@ public class AutonCommands {
         return autoChooser;
     }
 
-    // Write a method for each atomic action the robot might take.
-    // Also write methods that string these actions together into larger actions with SequentialCommandGroup, etc.
+    public PathPlannerAuto firstPath(String name, Rotation2d startingRotation, BooleanSupplier conditionSupplier, Command nextCommand, PathPlannerAuto nextAuto) {
+        PathPlannerAuto firstAuto = new PathPlannerAuto(robotDrive.followFirstChoreoPath(name, startingRotation));
 
-    /* Examples:
-    public Command runS2C35Piece() {
-        return new SequentialCommandGroup(
-            runS24Piece(),
-            runA3ToC3(),
-            runC3ToF2()
-        );
+        firstAuto.condition(conditionSupplier)
+            .onTrue(nextCommand.andThen(nextAutoChecker(nextAuto)));
+
+        return firstAuto;
     }
 
-    public Command runA3ToC3() {
-        return generalCenterLine("A3-C3");
+    public PathPlannerAuto nextPath(String name, BooleanSupplier conditionSupplier, Command nextCommand, PathPlannerAuto nextAuto) {
+        PathPlannerAuto auto = new PathPlannerAuto(robotDrive.followChoreoPath(name));
+
+        auto.condition(conditionSupplier).onTrue(nextCommand.andThen(nextAutoChecker(nextAuto)));
+
+        return auto;
     }
 
-    public Command shoot() {
-        return new SequentialCommandGroup(
-            new ParallelCommandGroup(
-                robotArm.setGoalCommand(ArmGoal.AUTO_AIM),
-                robotDrive.setDriveStateCommandContinued(DriveState.AUTO_HEADING),
-                robotFlywheels.setGoalCommand(FlywheelSetpoint.SHOOT))
-                    .deadlineWith(Commands.waitUntil(()->
-                robotArm.inTolerance() && robotFlywheels.inTolerance() && robotDrive.inHeadingTolerance()))
-                    .withTimeout(0.75),
-            robotIntake.setGoalCommand(IndexerIntakeVoltageGoal.SHOOT)
-        );
+    public Command nextAutoChecker(PathPlannerAuto auto) {
+        return (auto == null) ? robotDrive.setDriveStateCommand(Drive.DriveState.STOP) : auto;
     }
-
-    */
-
-    // Helper functions can be written to make defining commands easier, and to avoid code duplication.
-    /* Example
-    public Command generalStartAuton(String path, Rotation2d startingRotation) {
-        return new SequentialCommandGroup(
-            speakerShoot(),
-            //new PrintCommand("\n\n\n\n\n\n\n\n\n4?\n\n\n\n\n\n\n\n\n"),
-            Commands.waitSeconds(0.2),
-            //new PrintCommand("\n\n\n\n\n\n\n\n\n5?\n\n\n\n\n\n\n\n\n"),
-            pickup().withTimeout(0.1),
-            // new PrintCommand("\n\n\n\n\n\n\n\n\n3?\n\n\n\n\n\n\n\n\n"),
-            robotDrive.followFirstChoreoPath(path, startingRotation),
-            Commands.waitUntil(()->hasNoteInIndexer().getAsBoolean()).withTimeout(0.5),
-            shoot(),
-            Commands.waitSeconds(0.25),
-            pickup());
-    }
-
-    public Command generalCenterLine(String path) {
-        return new SequentialCommandGroup(
-            pickup(),
-            robotDrive.followChoreoPath(path),
-            Commands.waitUntil(()->hasNoteInIndexer().getAsBoolean()).withTimeout(0.5),
-            pickup());
-    }
-
-    public Command generalCenterToShoot(String path) {
-        return new SequentialCommandGroup(
-            robotDrive.followChoreoPath(path),
-            shoot(), Commands.waitSeconds(0.25), pickup());
-    }
-
-    public Trigger hasNoteInIndexer() {
-        return new Trigger(robotIntake::getHasPiece);
-    }
-    */
-
-
-
 }

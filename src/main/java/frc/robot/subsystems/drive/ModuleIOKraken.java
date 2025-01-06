@@ -4,7 +4,7 @@ import static frc.robot.subsystems.drive.DriveConstants.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
+import com.ctre.phoenix6.controls.PositionDutyCycle;
 import com.ctre.phoenix6.controls.TorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VelocityTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.VoltageOut;
@@ -14,6 +14,12 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularAcceleration;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.subsystems.drive.DriveConstants.ModuleHardwareConfig;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -26,27 +32,30 @@ public class ModuleIOKraken implements ModuleIO {
     private VoltageOut driveVoltageControl = new VoltageOut(0.0);
     private double driveAppliedVolts = 0.0;
 
-    private StatusSignal<Double> drivePosition;
-    private StatusSignal<Double> driveVelocity;
-    private StatusSignal<Double> driveVoltage;
-    private StatusSignal<Double> driveCurrent;
-    private StatusSignal<Double> driveTemp;
+    private StatusSignal<Angle> drivePositionM;
+    private StatusSignal<AngularVelocity> driveVelocityMPS;
+    private StatusSignal<Voltage> driveVoltage;
+    private StatusSignal<Current> driveSupplyCurrent;
+    private StatusSignal<Current> driveStatorCurrent;
+    private StatusSignal<Current> driveTorqueCurrent;
+    private StatusSignal<Temperature> driveTempCelsius;
+    private StatusSignal<AngularAcceleration> driveAccelerationMPSS;
 
     private TalonFX azimuthMotor;
-    private PositionTorqueCurrentFOC azimuthControl = new PositionTorqueCurrentFOC(0.0);
+    private PositionDutyCycle azimuthControl = new PositionDutyCycle(0.0);
     private VoltageOut azimuthVoltageControl = new VoltageOut(0.0);
     private double azimuthAppliedVolts = 0.0;
 
-    private StatusSignal<Double> azimuthPosition;
-    private StatusSignal<Double> azimuthVelocity;
-    private StatusSignal<Double> azimuthVoltage;
-    private StatusSignal<Double> azimuthStatorCurrent;
-    private StatusSignal<Double> azimuthSupplyCurrent;
-    private StatusSignal<Double> azimuthTorqueCurrent;
-    private StatusSignal<Double> azimuthTemp;
+    private StatusSignal<Angle> azimuthPosition;
+    private StatusSignal<AngularVelocity> azimuthVelocity;
+    private StatusSignal<Voltage> azimuthVoltage;
+    private StatusSignal<Current> azimuthStatorCurrent;
+    private StatusSignal<Current> azimuthSupplyCurrent;
+    private StatusSignal<Current> azimuthTorqueCurrent;
+    private StatusSignal<Temperature> azimuthTemp;
 
     private CANcoder absoluteEncoder;
-    private StatusSignal<Double> absolutePositionSignal;
+    private StatusSignal<Angle> absolutePositionSignal;
     private Rotation2d absoluteEncoderOffset;
 
     public ModuleIOKraken(ModuleHardwareConfig config) {
@@ -58,12 +67,13 @@ public class ModuleIOKraken implements ModuleIO {
         driveConfig.CurrentLimits.StatorCurrentLimit = 80;
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfig.CurrentLimits.SupplyCurrentLimit = 45;
-        driveConfig.CurrentLimits.SupplyTimeThreshold = 0.5;
-        driveConfig.CurrentLimits.SupplyCurrentThreshold = 60;
+        driveConfig.CurrentLimits.SupplyCurrentLowerTime = 0.5;
+        driveConfig.CurrentLimits.SupplyCurrentLowerLimit = 60;
 
         // FOC LIMITS
         driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
         driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = 60.0;
+        driveConfig.ClosedLoopRamps.TorqueClosedLoopRampPeriod = 0.02;
 
         driveConfig.Voltage.PeakForwardVoltage = 12.0;
         driveConfig.Voltage.PeakReverseVoltage = -12.0;
@@ -75,11 +85,14 @@ public class ModuleIOKraken implements ModuleIO {
         driveConfig.Slot0.kP = kModuleControllerConfigs.driveController().getP();
         driveConfig.Slot0.kI = kModuleControllerConfigs.driveController().getI();
         driveConfig.Slot0.kD = kModuleControllerConfigs.driveController().getD();
-        drivePosition = driveMotor.getPosition();
-        driveVelocity = driveMotor.getVelocity();
+        drivePositionM = driveMotor.getPosition();
+        driveVelocityMPS = driveMotor.getVelocity();
         driveVoltage = driveMotor.getMotorVoltage();
-        driveCurrent = driveMotor.getSupplyCurrent();
-        driveTemp = driveMotor.getDeviceTemp();
+        driveSupplyCurrent = driveMotor.getSupplyCurrent();
+        driveStatorCurrent = driveMotor.getStatorCurrent();
+        driveTorqueCurrent = driveMotor.getTorqueCurrent();
+        driveTempCelsius = driveMotor.getDeviceTemp();
+        driveAccelerationMPSS = driveMotor.getAcceleration();
 
         driveMotor.getConfigurator().apply(driveConfig);
 
@@ -102,16 +115,12 @@ public class ModuleIOKraken implements ModuleIO {
         turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         turnConfig.CurrentLimits.SupplyCurrentLimit = 30;
 
-        // FOC LIMITS
-        driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = 60.0;
-        driveConfig.TorqueCurrent.PeakReverseTorqueCurrent = 60.0;
-
         turnConfig.Voltage.PeakForwardVoltage = 12.0;
         turnConfig.Voltage.PeakReverseVoltage = -12.0;
         turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         turnConfig.MotorOutput.Inverted = kTurnMotorInvert ? 
-            InvertedValue.CounterClockwise_Positive : 
-            InvertedValue.Clockwise_Positive;
+            InvertedValue.Clockwise_Positive : 
+            InvertedValue.CounterClockwise_Positive;
         turnConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
         turnConfig.Feedback.SensorToMechanismRatio = kAzimuthGearing;
         turnConfig.Slot0.kP = kModuleControllerConfigs.azimuthController().getP();
@@ -137,16 +146,21 @@ public class ModuleIOKraken implements ModuleIO {
     @Override
     public void updateInputs(ModuleInputs inputs) {
         inputs.isDriveConnected = BaseStatusSignal.refreshAll(
-                driveVelocity,
+                driveVelocityMPS,
                 driveVoltage,
-                driveCurrent,
-                driveTemp).isOK();
-        inputs.drivePositionM = (drivePosition.getValueAsDouble());
-        inputs.driveVelocityMPS = (driveVelocity.getValueAsDouble());
+                driveSupplyCurrent,
+                driveStatorCurrent,
+                driveTorqueCurrent,
+                driveTempCelsius).isOK();
+        inputs.drivePositionM = (drivePositionM.getValueAsDouble());
+        inputs.driveVelocityMPS = (driveVelocityMPS.getValueAsDouble());
         inputs.driveAppliedVolts = driveAppliedVolts;
         inputs.driveMotorVolts = driveVoltage.getValueAsDouble();
-        inputs.driveStatorCurrentAmps = new double[] {driveCurrent.getValueAsDouble()};
-        inputs.driveTemperatureCelsius = new double[] {driveTemp.getValueAsDouble()};
+        inputs.driveSupplyCurrentAmps = new double[] {driveSupplyCurrent.getValueAsDouble()};
+        inputs.driveStatorCurrentAmps = new double[] {driveStatorCurrent.getValueAsDouble()};
+        inputs.driveTorqueCurrentAmps = new double[] {driveTorqueCurrent.getValueAsDouble()};
+        inputs.driveTemperatureCelsius = new double[] {driveTempCelsius.getValueAsDouble()};
+        inputs.driveAccelerationMPSS = driveAccelerationMPSS.getValueAsDouble();
 
         inputs.isAzimuthConnected = BaseStatusSignal.refreshAll(
             azimuthVelocity,
@@ -182,6 +196,7 @@ public class ModuleIOKraken implements ModuleIO {
 
     @Override
     public void setDriveVelocity(double velocityMPS, double feedforward) {
+        org.littletonrobotics.junction.Logger.recordOutput("Drive/Sigma", velocityMPS);
         driveMotor.setControl(driveControl
             .withVelocity(velocityMPS)
             .withFeedForward(feedforward));

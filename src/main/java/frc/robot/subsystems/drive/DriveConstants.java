@@ -26,7 +26,7 @@ public class DriveConstants {
 
     public static final double kDrivebaseRadiusMeters =
         Math.hypot(kTrackWidthXMeters / 2.0, kTrackWidthYMeters / 2.0);
-    public static final double kMaxLinearSpeedMPS = 4.8;
+    public static final double kMaxLinearSpeedMPS = 5.0;
     public static final double kMaxLinearAccelerationMPSS = 9.6;
     public static final double kMaxAzimuthAngularRadiansPS = Math.toRadians(1320);
     public static final double kDriftRate = RobotBase.isReal() ? 2.5 : 4.8;
@@ -52,7 +52,7 @@ public class DriveConstants {
         new ModuleLimits(kMaxLinearSpeedMPS, kMaxLinearAccelerationMPSS, Math.toRadians(660.0));
 
     public static final double kAzimuthGearing = 150.0 / 7.0;
-    public static final double kDriveGearing = 6.75 / 1.0;
+    public static final double kDriveGearing = 6.12 / 1.0;
     public static final double kRadiusMeters = 5.08 / 100.0;
     public static final double kCircumferenceMeters = 2 * Math.PI * kRadiusMeters;
 
@@ -63,6 +63,7 @@ public class DriveConstants {
     public static final ModuleHardwareConfig kFrontRightHardware =
         new ModuleHardwareConfig(12, 22, 32, 
             Rotation2d.fromRotations(-0.180420));
+            // .plus(Rotation2d.fromRotations(0.5)));
 
     public static final ModuleHardwareConfig kBackLeftHardware =
         new ModuleHardwareConfig(13, 23, 33,
@@ -74,11 +75,11 @@ public class DriveConstants {
 
     public static final ModuleControlConfig kModuleControllerConfigs = RobotBase.isReal() ? 
         new ModuleControlConfig(
-            new PIDController(0.0000, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0),
-            new PIDController(0.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
+            new PIDController(1.0000, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.5),
+            new PIDController(1.5, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
         new ModuleControlConfig(
-            new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.1, 0.015), 
-            new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0));
+            new PIDController(0.1, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.36, 0.0), 
+            new PIDController(4.5, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0));
 
     public static record ModuleHardwareConfig(
         int driveID, int azimuthID, int encoderID, Rotation2d offset) {}
