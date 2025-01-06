@@ -409,6 +409,7 @@ public class Drive extends SubsystemBase {
                         - previousSetpoint.feedforwards().torqueCurrentsAmps()[i]
                         : previousSetpoint.feedforwards().torqueCurrentsAmps()[i]);
 
+                optimizedSetpointStates[i].cosineScale(modules[i].getCurrentState().angle);
             } else {
                 setpointStates[i] = new SwerveModuleState(
                     previousSetpoint.moduleStates()[i].speedMetersPerSecond,
