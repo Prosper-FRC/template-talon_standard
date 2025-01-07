@@ -4,9 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.utils.Sensors.ExampleSensor;
 import subsystems.LED.LED;
@@ -28,7 +28,7 @@ public class RobotContainer {
     private final AutonCommands autonCommands;
     private final TeleopCommands telopCommands;
 
-    private final LoggedDashboardChooser<Command> autoChooser;
+    private LoggedDashboardChooser<Command> autoChooser;
 
     private final boolean useCompetitionBindings = true;
 
@@ -57,7 +57,15 @@ public class RobotContainer {
         // Instantiate your TeleopCommands and AutonCommands classes
         telopCommands = new TeleopCommands(/* pass subsystems here */);
         autonCommands = new AutonCommands(/* pass subsystems here */);
-        autoChooser = new LoggedDashboardChooser<>("Auton Program", autonCommands.getAutoChooser());
+        try {
+            autoChooser = new LoggedDashboardChooser<>("Auton Program", autonCommands.getAutoChooser());
+            // Fill instant command with whatever your initial action is
+            autoChooser.addDefaultOption("initActionZeroPath", new InstantCommand());
+        } catch (Exception e) {
+            autoChooser = new LoggedDashboardChooser<Command>("Auton Program");
+            // Fill instant command with whatever your initial action is, to prepare for the case of failure
+            autoChooser.addDefaultOption("initActionZeroPath", new InstantCommand());
+        }
 
 
         // Pass subsystems to classes that need them for configuration
@@ -91,8 +99,8 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-        driverController.y().toggleOnTrue(new InstantCommand(() -> { 
-            if (sensorValue) {mainLED.setRGB(50,205,50);} 
+        driverController.y().toggleOnTrue(new InstantCommand(() -> {
+            if (sensorValue) {mainLED.setRGB(50,205,50);}
             else {mainLED.setRGB(0, 0, 0);};
             }
         ));
