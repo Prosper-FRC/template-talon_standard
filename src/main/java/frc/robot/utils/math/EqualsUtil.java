@@ -7,6 +7,7 @@ public class EqualsUtil {
     return (a - epsilon <= b) && (a + epsilon >= b);
   }
 
+  /* Really small epsilon, just a reminder */
   public static boolean epsilonEquals(double a, double b) {
     return epsilonEquals(a, b, 1e-9);
   }
