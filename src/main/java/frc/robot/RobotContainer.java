@@ -6,8 +6,14 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.pivot.Pivot;
+import frc.robot.subsystems.pivot.Pivot.PivotGoal;
+import frc.robot.subsystems.pivot.PivotConstants;
+import frc.robot.subsystems.pivot.PivotKrakenHardware;
+import frc.robot.utils.debugging.LoggedTunableNumber;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -18,6 +24,7 @@ public class RobotContainer {
 
     // Define subsystems
     // ex: private final LEDSubsystem LEDs;
+    private final Pivot pivot;
 
     // Define other utility classes
     private final AutonCommands autonCommands;
@@ -44,6 +51,7 @@ public class RobotContainer {
 
         // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
         // ex: LEDs = new LEDSubsystem();
+        pivot = new Pivot(new PivotKrakenHardware(PivotConstants.kMotorConfiguration));
 
         // Instantiate your TeleopCommands and AutonCommands classes
         telopCommands = new TeleopCommands(/* pass subsystems here */);
@@ -86,6 +94,36 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+      operatorController
+          .a()
+          .whileTrue(Commands.runOnce(() -> pivot.setGoal(PivotGoal.CUSTOM), pivot))
+          .whileFalse(Commands.runOnce(() -> pivot.stop(), pivot));
+
+      operatorController
+          .x()
+          .whileTrue(Commands.runOnce(() -> pivot.setGoal(PivotGoal.DEMO), pivot))
+          .whileFalse(Commands.runOnce(() -> pivot.stop(), pivot));
+
+      operatorController
+          .y()
+          .whileTrue(
+              Commands.runOnce(
+                  // Get the desired voltage from the LoggedTunableNumber
+                  () -> pivot.setVoltage(new LoggedTunableNumber("Flywheel/Voltage", 0.0).get()),
+                  pivot))
+          .whileFalse(Commands.runOnce(() -> pivot.stop(), pivot));
+
+      // Reset the arm position to zero
+      operatorController.b().onTrue(Commands.runOnce(() -> pivot.resetPosition(), pivot));
+
+      operatorController
+          .povUp()
+          .whileTrue(Commands.runOnce(() -> pivot.setVoltage(3.0), pivot))
+          .whileFalse(Commands.runOnce(() -> pivot.stop(), pivot));
+      operatorController
+          .povDown()
+          .whileTrue(Commands.runOnce(() -> pivot.setVoltage(-3.0), pivot))
+          .whileFalse(Commands.runOnce(() -> pivot.stop(), pivot));
 
     }
 

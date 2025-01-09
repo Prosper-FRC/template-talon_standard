@@ -20,6 +20,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
  * value not in dashboard.
  */
 public class LoggedTunableNumber implements DoubleSupplier {
+
     private static final String tableKey = "TunableNumbers";
 
     private final String key;
