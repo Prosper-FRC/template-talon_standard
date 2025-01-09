@@ -4,25 +4,93 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.pneumatics.Pneumatics;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class RobotContainer {
-  private final CommandXboxController driveController = new CommandXboxController(Constants.kPilotControllerPort);
-  private final Pneumatics pneumatics;
 
-  public RobotContainer() {
-    pneumatics = new Pneumatics();
-    configureBindings();
-  }
+    private final CommandXboxController driverController = new CommandXboxController(0);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
-  private void configureBindings() {
-    driveController.rightTrigger().onTrue(pneumatics.toggleSolenoids());
-  }
+    // Define subsystems
+    // ex: private final LEDSubsystem LEDs;
+    private final Pneumatics pneumatics;
 
-  public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
-  }
+    // Define other utility classes
+    private final AutonCommands autonCommands;
+    private final TeleopCommands telopCommands;
+
+    private LoggedDashboardChooser<Command> autoChooser;
+
+    private final boolean useCompetitionBindings = true;
+
+    public RobotContainer() {
+
+        // If using AdvantageKit, perform mode-specific instantiation of subsystems.
+        switch (Constants.kCurrentMode) {
+            case REAL:
+                // Instantiate subsystems that operate actual hardware (Hardware controller based modules)
+                break;
+            case SIM:
+                // Instantiate subsystems that simulate actual hardware (IOSim modules)
+                break;
+            default:
+                // Instantiate subsystems that are driven by playback of recorded sessions. (IO modules)
+                break;
+        }
+
+        // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
+        // ex: LEDs = new LEDSubsystem();
+        pneumatics = new Pneumatics();
+
+        // Instantiate your TeleopCommands and AutonCommands classes
+        telopCommands = new TeleopCommands(/* pass subsystems here */);
+        autonCommands = new AutonCommands(/* pass subsystems here */);
+        try {
+            autoChooser = new LoggedDashboardChooser<>("Auton Program", autonCommands.getAutoChooser());
+            // Fill instant command with whatever your initial action is
+            autoChooser.addDefaultOption("initActionZeroPath", new InstantCommand());
+        } catch (Exception e) {
+            autoChooser = new LoggedDashboardChooser<Command>("Auton Program");
+            // Fill instant command with whatever your initial action is, to prepare for the case of failure
+            autoChooser.addDefaultOption("initActionZeroPath", new InstantCommand());
+        }
+
+
+        // Pass subsystems to classes that need them for configuration
+
+
+        // Create any Dashboard choosers (LoggedDashboardChooser, etc)
+
+        // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
+
+        configureStateTriggers();
+        configureButtonBindings();
+    }
+
+    public Command getTeleopCommand() {
+        return new SequentialCommandGroup(
+            // Commands to run on teleop go here.
+        );
+    }
+
+    public Command getAutonomousCommand() {
+        return autoChooser.get();
+    }
+
+    private void configureStateTriggers() {
+
+
+    }
+
+    private void configureButtonBindings() {
+        driverController.rightTrigger().onTrue(pneumatics.toggleSolenoids());
+
+    }
+
 }
