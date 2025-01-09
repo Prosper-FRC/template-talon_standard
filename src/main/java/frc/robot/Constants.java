@@ -1,10 +1,29 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
-/** This class may be used for static (non-changing) global variables */
-public class Constants {
-  public static final int kPilotControllerPort = 0; // Standard joystick port
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+
+public final class Constants {
+
+    // AdvantageKit modes
+    public static enum Mode {
+        REAL,
+        SIM,
+        REPLAY
+    }
+
+    public static final Mode kCurrentMode = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
+    // Set Tuning to true during development, false during competition
+    public static final boolean kTuningMode = true;
+
+    public static final Alliance kAlliance = DriverStation.getAlliance().isPresent() &&
+        DriverStation.getAlliance().get() == Alliance.Red ? Alliance.Red : Alliance.Blue;
+
+    // ROBOT SEPCIFIC
+    public static final String kCanbusName = "sigma";
+
+    public static final double kFieldLength = 16.54;
+
+    public static final double kLoopPeriod = 0.02;
 }
