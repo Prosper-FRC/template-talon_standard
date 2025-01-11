@@ -4,10 +4,14 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.drive.TeleopDrive;
+import frc.robot.subsystems.swervedrive.Swerve;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -18,6 +22,7 @@ public class RobotContainer {
 
     // Define subsystems
     // ex: private final LEDSubsystem LEDs;
+    public static Swerve swerve = new Swerve();
 
     // Define other utility classes
     private final AutonCommands autonCommands;
@@ -48,6 +53,15 @@ public class RobotContainer {
         // Instantiate your TeleopCommands and AutonCommands classes
         telopCommands = new TeleopCommands(/* pass subsystems here */);
         autonCommands = new AutonCommands(/* pass subsystems here */);
+
+        swerve.setDefaultCommand(
+          new TeleopDrive(
+              swerve,
+              () -> (DriverController.getLeftY()),
+              () -> (DriverController.getLeftX()),
+              () -> (DriverController.getRightX())));
+  
+
         try {
             autoChooser = new LoggedDashboardChooser<>("Auton Program", autonCommands.getAutoChooser());
             // Fill instant command with whatever your initial action is
@@ -86,6 +100,7 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
+        DriverController.x().onTrue(new InstantCommand(() -> swerve.resetGyro()));
 
     }
 
