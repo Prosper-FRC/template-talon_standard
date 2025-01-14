@@ -6,13 +6,22 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 
 
 public class ModuleIOSim implements ModuleIO {
 
-    private DCMotorSim driveMotor = new DCMotorSim(null, DCMotor.getKrakenX60(1), 0.025);
-    private DCMotorSim azimuthMotor = new DCMotorSim(null, DCMotor.getKrakenX60(1), 0.04);
+    private DCMotorSim driveMotor = 
+    new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.004, kDriveGearRatio), 
+        DCMotor.getKrakenX60Foc(1), 0.0, 0.0);
+
+        private DCMotorSim azimuthMotor = 
+    new DCMotorSim(
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.025, kAzimuthGearRatio), 
+        DCMotor.getKrakenX60Foc(1), 0.0, 0.0);
+
 
     private double driveAppliedVolts = 0.0;
     private double azimuthAppliedVolts = 0.0;

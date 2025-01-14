@@ -77,7 +77,7 @@ public class RobotContainer {
 
         // Instantiate your TeleopCommands and AutonCommands classes
         telopCommands = new TeleopCommands(/* pass subsystems here */);
-        autonCommands = new AutonCommands(/* pass subsystems here */);
+        autonCommands = new AutonCommands(drive);
         try {
             autoChooser = new LoggedDashboardChooser<>("Auton Program", autonCommands.getAutoChooser());
             // Fill instant command with whatever your initial action is
@@ -112,7 +112,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return drive.setDriveStateCommand(DriveState.AUTON).andThen(autoChooser.get());
+        return autoChooser.get();
     }
 
     private void configureStateTriggers() {

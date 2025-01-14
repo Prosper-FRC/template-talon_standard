@@ -33,7 +33,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.drive.controllers.HeadingController;
 import frc.robot.drive.controllers.TeleopController;
-import frc.robot.drive.gyro.GyroInputsAutoLogged;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import frc.robot.utils.debugging.SysIDCharacterization;
 import frc.robot.utils.swerve.LocalADStarAK;
@@ -96,6 +95,7 @@ public class Drive extends SubsystemBase{
             robotConfig = RobotConfig.fromGUISettings();
         } catch(Exception e) {
             e.printStackTrace();
+            System.out.println("HELP ME I CANT CATCH ROBOTCONFIG");
         }
 
         generator = new SwerveSetpointGenerator(robotConfig, DriveConstants.kMaxRadiansPS);
