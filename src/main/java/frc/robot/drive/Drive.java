@@ -69,8 +69,8 @@ public class Drive extends SubsystemBase{
     private RobotConfig robotConfig;
     private SwerveSetpointGenerator generator;
     private SwerveSetpoint previousSetpoint;
-    private PIDConstants translationPathplannerConstants = new PIDConstants(0.0, 0.0, 0.0);
-    private PIDConstants rotationPathplannerConstants = new PIDConstants(0.0, 0.0, 0.0);
+    private PIDConstants translationPathplannerConstants = new PIDConstants(1.5, 0.0, 0.0);
+    private PIDConstants rotationPathplannerConstants = new PIDConstants(1.5, 0.0, 0.0);
     private boolean useGenerator = false;
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.kModuleTranslations);

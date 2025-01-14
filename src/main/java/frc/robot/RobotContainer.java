@@ -91,7 +91,7 @@ public class RobotContainer {
 
         // Pass subsystems to classes that need them for configuration
         drive.acceptJoystickInputs(
-            () -> driverController.getLeftY(),
+            () -> -driverController.getLeftY(),
             () -> driverController.getLeftX(),
             () -> driverController.getRightX());
 
@@ -119,18 +119,18 @@ public class RobotContainer {
         new Trigger(DriverStation::isEnabled).onTrue(Commands.runOnce(() -> drive.resetAllEncoders()));
     }
 
-  private void configureButtonBindings() {
-    driverController.x().onTrue(Commands.runOnce(() -> {drive.resetGyro();}));
+    private void configureButtonBindings() {
+        driverController.x().onTrue(Commands.runOnce(() -> {drive.resetGyro();}));
 
-    driverController.povUp().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_UP)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
-        
-    driverController.povRight().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_RIGHT)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+        driverController.povUp().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_UP)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+            
+        driverController.povRight().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_RIGHT)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
 
-    driverController.povDown().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_DOWN)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+        driverController.povDown().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_DOWN)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
 
-    driverController.povLeft().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_LEFT)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+        driverController.povLeft().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_LEFT)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
 
-    driverController.a().onTrue(drive.characterizeDriveMotors()).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
-  }
+        driverController.a().onTrue(drive.characterizeDriveMotors()).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+    }
 
 }
