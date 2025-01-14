@@ -1,0 +1,43 @@
+package frc.robot.swerve.SwerveModule;
+
+import edu.wpi.first.math.geometry.Rotation2d;
+import org.littletonrobotics.junction.AutoLog;
+
+public interface SwerveModuleIO {
+    @AutoLog
+    public static class SwerveModuleInputs {
+        public boolean driveConnected = true;
+        public double drivePosistionM = 0.0;
+        public double driveVelocityMPS = 0.0;
+        public double[] driveStatorAmps = new double[] {0.0};
+        public double[] driveTempC = new double[] {0.0};
+        public double driveMotorVolts = 0.0;
+
+        public boolean azimuthConnected = true;
+        public Rotation2d azimuthPosistion = new Rotation2d();
+        public Rotation2d azimuthAbsolutePosistion = new Rotation2d();
+        public double[] azimuthStatorAmps = new double[] {0.0};
+        public double[] azimuthTempC = new double[] {0.0};
+        public double azimuthMotorVolts = 0.0;
+    }
+    
+    public default void updateInputs(SwerveModuleInputs inputs) {}
+
+    public default void setDriveVelocity(double velocityMPS, double feedforward) {}
+
+    public default void setDriveVolts(double volts) {}
+
+    public default void setDrivePID(double kP, double kI, double kD) {}
+
+    public default void setDriveFF(double kS, double kV, double kA) {}
+
+    public default void setAzimuthVolts(double votls) {}
+
+    public default void setAzimuthPosition(Rotation2d rotation) {}
+
+    public default void resetAzimuthEncoder() {}
+
+    public default void setAzimuthPID(double kP, double kI, double kD) {}
+
+    public default void setAzimuthFF(double kS, double kV, double kA) {}
+}

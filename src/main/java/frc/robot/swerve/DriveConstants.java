@@ -1,0 +1,91 @@
+package frc.robot.swerve;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.wpilibj.RobotBase;
+
+public class DriveConstants {
+
+    public static final double kTrackwidthXMeters = 0.61595;
+    public static final double kTrackwidthYMeters = 0.61595;
+
+    public static final double kDrivebaseRadius =  Math.hypot(kTrackwidthXMeters / 2.0, kTrackwidthYMeters / 2.0);;
+
+    public static final int kGyroPort = 10;
+
+    public static final double kMaxLinearSpped = 4.8;
+    public static final double kMaxLinearAcceleration = 9.6;
+    public static final double kMaxRotationalSpeed = kMaxLinearSpped * kDrivebaseRadius;
+    public static final double kMaxRadiansPS = Math.toRadians(1320);
+
+    public static final double kAzimuthGearRatio = 150.0 / 7.0;
+    public static final double kDriveGearRatio = 6.75 / 1.0;
+    public static final double kWheelRadiusMeters = 5.08 / 100.0;
+    public static final double kCircumfrenceMeters = 2 * Math.PI * kWheelRadiusMeters;
+
+    public static final Translation2d[] kModuleTranslations = new Translation2d[] {
+        new Translation2d(kTrackwidthXMeters / 2.0, kTrackwidthYMeters / 2.0),
+        new Translation2d(kTrackwidthXMeters / 2.0, -kTrackwidthYMeters / 2.0),
+        new Translation2d(-kTrackwidthXMeters / 2.0, kTrackwidthYMeters / 2.0),
+        new Translation2d(-kTrackwidthXMeters / 2.0, -kTrackwidthYMeters / 2.0)
+      };
+    
+    public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(kModuleTranslations);
+
+    // TODO: Needs to be tuned //
+    public static final double kDriftRate = 1;
+
+    public static final SwerveModuleHardwareConfig kFrontLeft = new SwerveModuleHardwareConfig(
+      "FrontLeft", 
+      11, 
+      21, 
+      31, 
+      Rotation2d.fromRotations(0.173584));
+    
+    public static final SwerveModuleHardwareConfig kFrontRight = new SwerveModuleHardwareConfig(
+      "FrontRight", 
+      12, 
+      22,
+      32,
+      Rotation2d.fromRotations(-0.180420));
+   
+    public static final SwerveModuleHardwareConfig kBackLeft = new SwerveModuleHardwareConfig(
+      "BackLeft", 
+      13, 
+      23,
+     33, 
+      Rotation2d.fromRotations(0.334229));
+    
+    public static final SwerveModuleHardwareConfig kBackRight = new SwerveModuleHardwareConfig(
+      "BackRight",
+      14, 
+      24,
+      34, 
+      Rotation2d.fromRotations(0.110107));
+
+    public static final boolean kInvertAzimuths = true;
+
+    // Make sure to change this gains after each time of tuning //
+    public static final ModuleLimits MODULE_LIMITS = new ModuleLimits(kMaxLinearSpped, kMaxLinearAcceleration, Math.toRadians(660.0));
+
+    public record SwerveModuleHardwareConfig(String name, int drivePort, int azimuthPort, int cancoderPort, Rotation2d offset) {}
+
+    public static record ModuleControlConfig(
+        PIDController driveController,
+        SimpleMotorFeedforward driveFF,
+        PIDController azimuthController,
+        SimpleMotorFeedforward azimuthFF) {}
+
+    public static final ModuleControlConfig kModuleControllerConfigs = RobotBase.isReal() ? 
+        new ModuleControlConfig(
+            new PIDController(0.0, 0.0, 0.0), new SimpleMotorFeedforward(0.16396, 2.3327, 0.0),
+            new PIDController(15.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
+        new ModuleControlConfig(
+            new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.1, 0.015), 
+            new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0));
+
+    public record ModuleLimits(double linearSpeed, double linearAcel, double angle) {}
+    
+}
