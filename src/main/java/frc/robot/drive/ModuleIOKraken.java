@@ -1,4 +1,4 @@
-package frc.robot.swerve.SwerveModule;
+package frc.robot.drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -21,10 +21,10 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
-import frc.robot.swerve.DriveConstants;
-import frc.robot.swerve.DriveConstants.SwerveModuleHardwareConfig;
+import frc.robot.drive.DriveConstants.SwerveModuleHardwareConfig;
+import frc.robot.drive.ModuleIO.SwerveModuleInputs;
 
-public class SwerveModuleHardware implements SwerveModuleIO{
+public class ModuleIOKraken implements ModuleIO{
 
   // Robot Specific info //
   private String name;
@@ -56,7 +56,7 @@ public class SwerveModuleHardware implements SwerveModuleIO{
   private VelocityVoltage driveVelocityControl;
 
 
-  public SwerveModuleHardware(SwerveModuleHardwareConfig modConstants){
+  public ModuleIOKraken(SwerveModuleHardwareConfig modConstants){
     name = modConstants.name();
     angleOffset = modConstants.offset();
 

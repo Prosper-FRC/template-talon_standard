@@ -1,9 +1,9 @@
-package frc.robot.swerve.SwerveModule;
+package frc.robot.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
-public interface SwerveModuleIO {
+public interface ModuleIO {
     @AutoLog
     public static class SwerveModuleInputs {
         public boolean driveConnected = true;

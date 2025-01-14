@@ -1,4 +1,4 @@
-package frc.robot.swerve;
+package frc.robot.drive;
 
 import java.util.function.DoubleSupplier;
 
@@ -31,11 +31,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-
-import frc.robot.swerve.SwerveModule.SwerveModule;
-import frc.robot.swerve.controllers.HeadingController;
-import frc.robot.swerve.controllers.TeleopController;
-import frc.robot.swerve.gyro.GyroHardware;
+import frc.robot.drive.controllers.HeadingController;
+import frc.robot.drive.controllers.TeleopController;
+import frc.robot.drive.gyro.GyroHardware;
 import frc.robot.swerve.gyro.GyroInputsAutoLogged;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import frc.robot.utils.debugging.SysIDCharacterization;
@@ -55,7 +53,7 @@ public class Drive extends SubsystemBase{
         STOP
     }
 
-    private SwerveModule[] modules; 
+    private Module[] modules; 
     private GyroHardware gyro;
     private GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
     
@@ -87,7 +85,7 @@ public class Drive extends SubsystemBase{
     @AutoLogOutput(key="Drive/HeadingGoal")
     private Rotation2d headingGoal = new Rotation2d();
     
-    public Drive(SwerveModule[] modules, GyroHardware gyro){
+    public Drive(Module[] modules, GyroHardware gyro){
         this.modules = modules;
         this.gyro = gyro;
         robotRotation = gyroInputs.yaw;
@@ -137,7 +135,7 @@ public class Drive extends SubsystemBase{
         gyro.updateInputs(gyroInputs);
         Logger.processInputs("Drive/Gyro", gyroInputs);
 
-        for(SwerveModule module: modules){
+        for(Module module: modules){
             module.periodic();
 
             if(DriverStation.isDisabled()){
@@ -187,7 +185,7 @@ public class Drive extends SubsystemBase{
 
             case STOP:
                 desiredSpeeds = null;
-                for(SwerveModule module : modules) {
+                for(Module module : modules) {
                     module.setDriveVolts(0.0);
                 }
                 break;
@@ -245,7 +243,7 @@ public class Drive extends SubsystemBase{
     }
 
     public void setVoltage(double voltage){
-        for(SwerveModule mod : modules){
+        for(Module mod : modules){
             mod.setDriveVolts(voltage);
         }
     }

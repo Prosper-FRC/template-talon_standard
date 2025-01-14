@@ -1,16 +1,15 @@
-package frc.robot.swerve.SwerveModule;
+package frc.robot.drive;
 
-import static frc.robot.swerve.DriveConstants.*;
+import static frc.robot.drive.DriveConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.swerve.DriveConstants;
 
 
-public class SwerveModuleSim implements SwerveModuleIO {
+public class ModuleIOSim implements ModuleIO {
 
     private DCMotorSim driveMotor = new DCMotorSim(null, DCMotor.getKrakenX60(1), 0.025);
     private DCMotorSim azimuthMotor = new DCMotorSim(null, DCMotor.getKrakenX60(1), 0.04);
@@ -22,7 +21,7 @@ public class SwerveModuleSim implements SwerveModuleIO {
 
     private PIDController azimuthPID = kModuleControllerConfigs.azimuthController();
 
-    public SwerveModuleSim() {
+    public ModuleIOSim() {
         azimuthPID.enableContinuousInput(-Math.PI, Math.PI);
     }
 

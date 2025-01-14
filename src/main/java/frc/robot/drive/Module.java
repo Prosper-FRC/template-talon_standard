@@ -1,4 +1,4 @@
-package frc.robot.swerve.SwerveModule;
+package frc.robot.drive;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -7,10 +7,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.swerve.DriveConstants;
+import frc.robot.swerve.SwerveModule.SwerveModuleInputsAutoLogged;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 
-public class SwerveModule extends SubsystemBase {
+public class Module extends SubsystemBase {
 
     // All the logged tunable numbers used //
     // public static final LoggedTunableNumber driveP = new LoggedTunableNumber("Module/Drive/kP", DriveConstants.driveControllerConfig.kP());
@@ -44,7 +44,7 @@ public class SwerveModule extends SubsystemBase {
     private SwerveModulePosition currentPosition = new SwerveModulePosition();
 
     // IO layer along with the autologged inputs that are processed in this file //
-    private SwerveModuleHardware io;
+    private ModuleIOKraken io;
     private SwerveModuleInputsAutoLogged inputs = new SwerveModuleInputsAutoLogged();
 
     // This drive ff was added for when acceleration + velocity needs to be set //
@@ -53,7 +53,7 @@ public class SwerveModule extends SubsystemBase {
 
     private String nameKey;
 
-    public SwerveModule(SwerveModuleHardware config){
+    public Module(ModuleIOKraken config){
         this.io = (config);
         nameKey = "Module/" + io.getName();
     }
