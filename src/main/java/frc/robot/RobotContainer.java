@@ -8,6 +8,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.drive.Drive;
+import frc.robot.drive.Drive.DriveState;
+import frc.robot.drive.Module;
+import frc.robot.drive.ModuleIO;
+import frc.robot.drive.ModuleIOKraken;
+import frc.robot.drive.ModuleIOSim;
+import frc.robot.drive.gyro.GyroHardware;
+
+import static frc.robot.drive.DriveConstants.*;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -17,7 +27,7 @@ public class RobotContainer {
     private final CommandXboxController operatorController = new CommandXboxController(1);
 
     // Define subsystems
-    // ex: private final LEDSubsystem LEDs;
+    private Drive drive;
 
     // Define other utility classes
     private final AutonCommands autonCommands;
@@ -33,12 +43,30 @@ public class RobotContainer {
         switch (Constants.kCurrentMode) {
             case REAL:
                 // Instantiate subsystems that operate actual hardware (Hardware controller based modules)
+                drive = new Drive( new Module[] {
+                        new Module("FL", new ModuleIOKraken(kFrontLeft)),
+                        new Module("FR", new ModuleIOKraken(kFrontRight)),
+                        new Module("BL", new ModuleIOKraken(kBackLeft)),
+                        new Module("BR", new ModuleIOKraken(kBackRight))
+                    }, new GyroHardware());
                 break;
             case SIM:
                 // Instantiate subsystems that simulate actual hardware (IOSim modules)
+                drive = new Drive( new Module[] {
+                    new Module("FL", new ModuleIOSim()),
+                    new Module("FR", new ModuleIOSim()),
+                    new Module("BL", new ModuleIOSim()),
+                    new Module("BR", new ModuleIOSim())
+                }, new GyroHardware());
                 break;
             default:
                 // Instantiate subsystems that are driven by playback of recorded sessions. (IO modules)
+                drive = new Drive( new Module[] {
+                    new Module("FL", new ModuleIO(){}),
+                    new Module("FR", new ModuleIO(){}),
+                    new Module("BL", new ModuleIO(){}),
+                    new Module("BR", new ModuleIO(){})
+                }, new GyroHardware());
                 break;
         }
 

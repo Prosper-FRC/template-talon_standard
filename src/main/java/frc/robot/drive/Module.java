@@ -7,7 +7,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.swerve.SwerveModule.SwerveModuleInputsAutoLogged;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 
 public class Module extends SubsystemBase {
@@ -44,7 +43,7 @@ public class Module extends SubsystemBase {
     private SwerveModulePosition currentPosition = new SwerveModulePosition();
 
     // IO layer along with the autologged inputs that are processed in this file //
-    private ModuleIOKraken io;
+    private ModuleIO io;
     private SwerveModuleInputsAutoLogged inputs = new SwerveModuleInputsAutoLogged();
 
     // This drive ff was added for when acceleration + velocity needs to be set //
@@ -53,9 +52,9 @@ public class Module extends SubsystemBase {
 
     private String nameKey;
 
-    public Module(ModuleIOKraken config){
+    public Module(String key, ModuleIO config){
         this.io = (config);
-        nameKey = "Module/" + io.getName();
+        nameKey = "Module/" + key;
     }
 
     public void periodic(){
@@ -79,22 +78,38 @@ public class Module extends SubsystemBase {
         }
 
         if(azimuthSetpointAngle != null){
-            io.setAzimuthPosistion(azimuthSetpointAngle.getRotations());
+            io.setAzimuthPosition(azimuthSetpointAngle);
         }
 
-        // Changes PID / FF gains // 
-        LoggedTunableNumber.ifChanged(hashCode(), () -> {
-            io.setDriveConstants(driveP.get(), driveD.get(), driveS.get(), driveV.get(), driveA.get());
-        }, driveP, driveD, driveS, driveV, driveA);
+        // // Changes PID / FF gains // 
+        // LoggedTunableNumber.ifChanged(hashCode(), () -> {
+        //     io.setDriveConstants(driveP.get(), driveD.get(), driveS.get(), driveV.get(), driveA.get());
+        // }, driveP, driveD, driveS, driveV, driveA);
 
-        LoggedTunableNumber.ifChanged(hashCode(), () -> {
-            io.setAzimuthConstants(azimuthP.get(), azimuthD.get(), azimuthS.get());
-        }, azimuthP, azimuthD, azimuthS);
+        // LoggedTunableNumber.ifChanged(hashCode(), () -> {
+        //     io.setAzimuthConstants(azimuthP.get(), azimuthD.get(), azimuthS.get());
+        // }, azimuthP, azimuthD, azimuthS);
 
-        // Constantly updating the driveff if the gains are changed //
-        LoggedTunableNumber.ifChanged(hashCode(), () -> {
-            driveFeedforward = new SimpleMotorFeedforward(driveS.get(), driveV.get(), driveA.get());
-        }, driveS, driveV, driveA);
+        // // Constantly updating the driveff if the gains are changed //
+        // LoggedTunableNumber.ifChanged(hashCode(), () -> {
+        //     driveFeedforward = new SimpleMotorFeedforward(driveS.get(), driveV.get(), driveA.get());
+        // }, driveS, driveV, driveA);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(), () -> {
+                io.setDrivePID(driveP.get(), 0.0, driveD.get());
+            }, driveP, driveD);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(), () -> {
+                driveFeedforward = new SimpleMotorFeedforward(driveS.get(), driveV.get(), driveA.get());
+            }, driveS, driveV, driveA);
+
+        LoggedTunableNumber.ifChanged(
+            hashCode(), () -> {
+                io.setAzimuthPID(azimuthP.get(), 0.0, azimuthD.get());
+            }, azimuthP, azimuthD);
+
 
     }
 
@@ -102,7 +117,7 @@ public class Module extends SubsystemBase {
      * Reset the posistion of the azimuth encoder
      */
     public void resetAzimuthEncoder(){
-        io.resetAzimuthPosistion();
+        io.resetAzimuthEncoder();
     }
 
     /**

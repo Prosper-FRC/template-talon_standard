@@ -27,7 +27,6 @@ import frc.robot.drive.ModuleIO.SwerveModuleInputs;
 public class ModuleIOKraken implements ModuleIO{
 
   // Robot Specific info //
-  private String name;
   private Rotation2d angleOffset;
 
   // Hardware //
@@ -57,7 +56,6 @@ public class ModuleIOKraken implements ModuleIO{
 
 
   public ModuleIOKraken(SwerveModuleHardwareConfig modConstants){
-    name = modConstants.name();
     angleOffset = modConstants.offset();
 
     drive = new TalonFX(modConstants.drivePort(), Constants.kCanbusName);
@@ -133,9 +131,10 @@ public class ModuleIOKraken implements ModuleIO{
     azimuthVoltagePosistion = new PositionVoltage(0);
     driveVelocityControl = new VelocityVoltage(0);
 
-    resetAzimuthPosistion();
+    resetAzimuthEncoder();
   }
 
+  @Override
   public void updateInputs(SwerveModuleInputs inputs){
     inputs.driveConnected = BaseStatusSignal.refreshAll(
       driveVelocity,
@@ -164,20 +163,18 @@ public class ModuleIOKraken implements ModuleIO{
 
   }
 
-
-  public String getName(){
-    return name;
-  }
-
+  @Override
   public void setAzimuthVolts(double volts) {
     azimuth.setControl(azimuthVoltageControl.withOutput(volts));
   }
 
-  public void setAzimuthPosistion(double posistion) {
-    azimuth.setControl(azimuthVoltagePosistion.withPosition(posistion).withSlot(0));
+  @Override
+  public void setAzimuthPosition(Rotation2d rotation) {
+    azimuth.setControl(azimuthVoltagePosistion.withPosition(rotation.getRotations()).withSlot(0));
   }
 
-  public void setAzimuthConstants(double kP, double kD, double kS){
+  @Override
+  public void setAzimuthPID(double kP, double kD, double kS){
     Slot0Configs configs = new Slot0Configs();
     // Only gains neccessary for the azimuths //
     configs.kP = kP;
@@ -186,26 +183,28 @@ public class ModuleIOKraken implements ModuleIO{
     azimuth.getConfigurator().apply(configs);
   }
 
+  @Override
   public void setDriveVolts(double volts) {
     drive.setControl(driveVoltageControl.withOutput(volts));
   }
 
+  @Override
   public void setDriveVelocity(double velocityMPS, double feedforward) {
     drive.setControl(driveVelocityControl.withVelocity(velocityMPS).withFeedForward(feedforward).withSlot(0));
   }
 
-  public void setDriveConstants(double kP, double kD, double kS, double kV, double kA){
+  @Override
+  public void setDrivePID(double kP, double kI, double kD){
     Slot0Configs configs = new Slot0Configs();
     // Only gains neccessary for the drive //
     configs.kP = kP;
+    configs.kI = kI;
     configs.kD = kD;
-    configs.kS = kS;
-    configs.kV = kV;
-    configs.kA = kA;
     drive.getConfigurator().apply(configs);
   }
 
-  public void resetAzimuthPosistion() {
+  @Override
+  public void resetAzimuthEncoder() {
     azimuth.setPosition(
       Rotation2d.fromRotations(
       absolutePosistionSignal.getValueAsDouble()).minus(angleOffset).getRotations(), 
