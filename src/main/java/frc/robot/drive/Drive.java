@@ -33,7 +33,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.drive.controllers.HeadingController;
 import frc.robot.drive.controllers.TeleopController;
-import frc.robot.drive.gyro.GyroHardware;
 import frc.robot.drive.gyro.GyroInputsAutoLogged;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import frc.robot.utils.debugging.SysIDCharacterization;

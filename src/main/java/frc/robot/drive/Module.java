@@ -11,18 +11,6 @@ import frc.robot.utils.debugging.LoggedTunableNumber;
 
 public class Module extends SubsystemBase {
 
-    // All the logged tunable numbers used //
-    // public static final LoggedTunableNumber driveP = new LoggedTunableNumber("Module/Drive/kP", DriveConstants.driveControllerConfig.kP());
-    // public static final LoggedTunableNumber driveD = new LoggedTunableNumber("Module/Drive/d", DriveConstants.driveControllerConfig.kD());
-
-    // public static final LoggedTunableNumber driveS = new LoggedTunableNumber("Module/Drive/kS", DriveConstants.driveControllerConfig.kS());
-    // public static final LoggedTunableNumber driveV = new LoggedTunableNumber("Module/Drive/kV", DriveConstants.driveControllerConfig.kV());
-    // public static final LoggedTunableNumber driveA = new LoggedTunableNumber("Module/Drive/kA", DriveConstants.driveControllerConfig.kA());
-
-    // public static final LoggedTunableNumber azimuthP = new LoggedTunableNumber("Module/Azimuth/kP", DriveConstants.azimuthControllerConfig.kP());
-    // public static final LoggedTunableNumber azimuthD = new LoggedTunableNumber("Module/Azimuth/kD", DriveConstants.azimuthControllerConfig.kD());
-    // public static final LoggedTunableNumber azimuthS = new LoggedTunableNumber("Module/Azimuth/kS", DriveConstants.azimuthControllerConfig.kS());
-
     public static final LoggedTunableNumber driveP = new LoggedTunableNumber("Module/Drive/kP", DriveConstants.kModuleControllerConfigs.driveController().getP());
     public static final LoggedTunableNumber driveD = new LoggedTunableNumber("Module/Drive/kD", DriveConstants.kModuleControllerConfigs.driveController().getD());
     public static final LoggedTunableNumber driveS = new LoggedTunableNumber("Module/Drive/kS", DriveConstants.kModuleControllerConfigs.driveFF().getKs());
@@ -80,20 +68,6 @@ public class Module extends SubsystemBase {
         if(azimuthSetpointAngle != null){
             io.setAzimuthPosition(azimuthSetpointAngle);
         }
-
-        // // Changes PID / FF gains // 
-        // LoggedTunableNumber.ifChanged(hashCode(), () -> {
-        //     io.setDriveConstants(driveP.get(), driveD.get(), driveS.get(), driveV.get(), driveA.get());
-        // }, driveP, driveD, driveS, driveV, driveA);
-
-        // LoggedTunableNumber.ifChanged(hashCode(), () -> {
-        //     io.setAzimuthConstants(azimuthP.get(), azimuthD.get(), azimuthS.get());
-        // }, azimuthP, azimuthD, azimuthS);
-
-        // // Constantly updating the driveff if the gains are changed //
-        // LoggedTunableNumber.ifChanged(hashCode(), () -> {
-        //     driveFeedforward = new SimpleMotorFeedforward(driveS.get(), driveV.get(), driveA.get());
-        // }, driveS, driveV, driveA);
 
         LoggedTunableNumber.ifChanged(
             hashCode(), () -> {

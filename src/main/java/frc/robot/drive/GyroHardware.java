@@ -1,4 +1,4 @@
-package frc.robot.drive.gyro;
+package frc.robot.drive;
 
 import org.littletonrobotics.junction.AutoLog;
 
@@ -10,7 +10,6 @@ import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
 import frc.robot.Constants;
-import frc.robot.drive.DriveConstants;
 
 public class GyroHardware {
 

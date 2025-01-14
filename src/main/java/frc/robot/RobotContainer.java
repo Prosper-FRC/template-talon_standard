@@ -4,17 +4,19 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.drive.Drive;
+import frc.robot.drive.GyroHardware;
 import frc.robot.drive.Drive.DriveState;
 import frc.robot.drive.Module;
 import frc.robot.drive.ModuleIO;
 import frc.robot.drive.ModuleIOKraken;
 import frc.robot.drive.ModuleIOSim;
-import frc.robot.drive.gyro.GyroHardware;
 
 import static frc.robot.drive.DriveConstants.*;
 
@@ -88,12 +90,17 @@ public class RobotContainer {
 
 
         // Pass subsystems to classes that need them for configuration
+        drive.acceptJoystickInputs(
+            () -> driverController.getLeftY(),
+            () -> driverController.getLeftX(),
+            () -> driverController.getRightX());
 
+        drive.setDefaultCommand(Commands.run(
+            () -> drive.setDriveEnum(DriveState.TELEOP), drive));
 
         // Create any Dashboard choosers (LoggedDashboardChooser, etc)
 
         // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
-
         configureStateTriggers();
         configureButtonBindings();
     }
@@ -105,16 +112,25 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        return drive.setDriveStateCommand(DriveState.AUTON).andThen(autoChooser.get());
     }
 
     private void configureStateTriggers() {
-
-
+        new Trigger(DriverStation::isEnabled).onTrue(Commands.runOnce(() -> drive.resetAllEncoders()));
     }
 
-    private void configureButtonBindings() {
+  private void configureButtonBindings() {
+    driverController.x().onTrue(Commands.runOnce(() -> {drive.resetGyro();}));
 
-    }
+    driverController.povUp().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_UP)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+        
+    driverController.povRight().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_RIGHT)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+
+    driverController.povDown().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_DOWN)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+
+    driverController.povLeft().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_LEFT)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+
+    driverController.a().onTrue(drive.characterizeDriveMotors()).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+  }
 
 }
