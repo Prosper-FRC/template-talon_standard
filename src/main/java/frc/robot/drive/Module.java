@@ -71,7 +71,7 @@ public class Module extends SubsystemBase {
 
         LoggedTunableNumber.ifChanged(
             hashCode(), () -> {
-                io.setDrivePID(driveP.get(), 0.0, driveD.get());
+                io.setDriveGains(driveP.get(), 0.0, driveD.get(), driveS.get(), driveV.get(), driveA.get());
             }, driveP, driveD);
 
         LoggedTunableNumber.ifChanged(

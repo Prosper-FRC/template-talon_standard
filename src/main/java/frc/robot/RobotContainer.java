@@ -92,7 +92,7 @@ public class RobotContainer {
         // Pass subsystems to classes that need them for configuration
         drive.acceptJoystickInputs(
             () -> -driverController.getLeftY(),
-            () -> driverController.getLeftX(),
+            () -> -driverController.getLeftX(),
             () -> driverController.getRightX());
 
         drive.setDefaultCommand(Commands.run(
@@ -129,6 +129,8 @@ public class RobotContainer {
         driverController.povDown().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_DOWN)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
 
         driverController.povLeft().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_LEFT)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+
+        driverController.b().onTrue(drive.setDriveStateCommandContinued(DriveState.DRIFT_TEST)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
 
         driverController.a().onTrue(drive.characterizeDriveMotors()).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
     }

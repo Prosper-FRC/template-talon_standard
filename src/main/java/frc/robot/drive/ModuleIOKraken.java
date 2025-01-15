@@ -22,8 +22,6 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.drive.DriveConstants.SwerveModuleHardwareConfig;
-import frc.robot.drive.ModuleIO.SwerveModuleInputs;
-
 public class ModuleIOKraken implements ModuleIO{
 
   // Robot Specific info //
@@ -142,11 +140,11 @@ public class ModuleIOKraken implements ModuleIO{
       driveStatorCurrent,
       driveTempC).isOK();
 
-    inputs.driveVelocityMPS = (driveVelocity.getValueAsDouble());
     inputs.drivePosistionM = drivePosistion.getValueAsDouble();
-    inputs.driveMotorVolts = driveVoltage.getValueAsDouble();
+    inputs.driveVelocityMPS = (driveVelocity.getValueAsDouble());
     inputs.driveStatorAmps = new double[] {driveStatorCurrent.getValueAsDouble()};
     inputs.driveTempC = new double[] {driveTempC.getValueAsDouble()};
+    inputs.driveMotorVolts = driveVoltage.getValueAsDouble();
 
     inputs.azimuthConnected = BaseStatusSignal.refreshAll(
       absolutePosistionSignal,
@@ -157,10 +155,9 @@ public class ModuleIOKraken implements ModuleIO{
 
     inputs.azimuthPosistion = Rotation2d.fromRotations(azimuthPosistion.getValueAsDouble());
     inputs.azimuthAbsolutePosistion = Rotation2d.fromRotations(absolutePosistionSignal.getValueAsDouble()).minus((angleOffset));
-    inputs.azimuthMotorVolts = azimuthVoltage.getValueAsDouble();
     inputs.azimuthStatorAmps = new double[] {azimuthStatorCurrent.getValueAsDouble()};
     inputs.azimuthTempC = new double[] {azimuthTempC.getValueAsDouble()};
-
+    inputs.azimuthMotorVolts = azimuthVoltage.getValueAsDouble();
   }
 
   @Override
@@ -190,16 +187,19 @@ public class ModuleIOKraken implements ModuleIO{
 
   @Override
   public void setDriveVelocity(double velocityMPS, double feedforward) {
-    drive.setControl(driveVelocityControl.withVelocity(velocityMPS).withFeedForward(feedforward).withSlot(0));
+    drive.setControl(driveVelocityControl.withVelocity(velocityMPS).withSlot(0));
   }
 
   @Override
-  public void setDrivePID(double kP, double kI, double kD){
+  public void setDriveGains(double kP, double kI, double kD, double kS, double kV, double kA){
     Slot0Configs configs = new Slot0Configs();
     // Only gains neccessary for the drive //
     configs.kP = kP;
     configs.kI = kI;
     configs.kD = kD;
+    configs.kS = kS;
+    configs.kV = kV;
+    configs.kA = kA;
     drive.getConfigurator().apply(configs);
   }
 

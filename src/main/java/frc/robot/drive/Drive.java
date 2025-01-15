@@ -48,6 +48,7 @@ public class Drive extends SubsystemBase{
         SNIPER_DOWN,
         SNIPER_RIGHT,
         SNIPER_LEFT,
+        DRIFT_TEST,
         STOP
     }
 
@@ -71,7 +72,7 @@ public class Drive extends SubsystemBase{
     private SwerveSetpoint previousSetpoint;
     private PIDConstants translationPathplannerConstants = new PIDConstants(1.5, 0.0, 0.0);
     private PIDConstants rotationPathplannerConstants = new PIDConstants(1.5, 0.0, 0.0);
-    private boolean useGenerator = false;
+    private boolean useGenerator = true;
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.kModuleTranslations);
 
@@ -173,6 +174,10 @@ public class Drive extends SubsystemBase{
 
             case SNIPER_LEFT:
                 desiredSpeeds = new ChassisSpeeds(0, -0.5, 0);
+                break;
+
+            case DRIFT_TEST:
+                desiredSpeeds = new ChassisSpeeds(-0.7, 0, 1);
                 break;
 
             case AUTON:
@@ -277,14 +282,14 @@ public class Drive extends SubsystemBase{
                 boolean isModuleSpeedOptimized = isSpeedOptimized(preOptimizedSetpointState, setpointStates[i]);
                 Logger.recordOutput("Drive/Swerve/Feedforward/"+i+"/optimalInvert", isModuleSpeedOptimized);
 
-                optimizedSetpointStates[i].cosineScale(modules[i].getCurrentState().angle);
-
                 optimizedSetpointStates[i] = modules[i].setSwerveStatewithAccel(
                     setpointStates[i], 
                     // Pathplanner does not handle inverting //
                     (isModuleSpeedOptimized) ? -1 * previousSetpoint.feedforwards().accelerationsMPSSq()[i] : previousSetpoint.feedforwards().accelerationsMPSSq()[i]);
 
                 }
+
+                // optimizedSetpointStates[i].cosineScale(modules[i].getCurrentState().angle);
              
             
             else {

@@ -71,7 +71,7 @@ public class ModuleIOSim implements ModuleIO {
     }
 
     @Override
-    public void setDrivePID(double kP, double kI, double kD) {
+    public void setDriveGains(double kP, double kI, double kD, double kS, double kV, double kA) {
         drivePID.setPID(kP, kI, kD);
     }
 

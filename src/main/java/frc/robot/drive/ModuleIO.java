@@ -27,7 +27,7 @@ public interface ModuleIO {
 
     public default void setDriveVolts(double volts) {}
 
-    public default void setDrivePID(double kP, double kI, double kD) {}
+    public default void setDriveGains(double kP, double kI, double kD, double kS, double kV, double kA) {}
 
     public default void setDriveFF(double kS, double kV, double kA) {}
 
