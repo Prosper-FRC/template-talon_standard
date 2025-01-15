@@ -8,6 +8,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.intake.IndexerIOKraken;
+import frc.robot.subsystems.intake.IndexerIOSim;
+import frc.robot.subsystems.intake.IndexerIntake;
+import frc.robot.subsystems.intake.IndexerIntakeConstants;
+import frc.robot.subsystems.intake.IndexerIntakeIO;
+import frc.robot.subsystems.intake.IndexerIntake.IndexerIntakeVoltageGoal;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -18,6 +25,7 @@ public class RobotContainer {
 
     // Define subsystems
     // ex: private final LEDSubsystem LEDs;
+    private final IndexerIntake robotIntake;
 
     // Define other utility classes
     private final AutonCommands autonCommands;
@@ -32,12 +40,15 @@ public class RobotContainer {
         // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
             case REAL:
+                robotIntake = new IndexerIntake(new IndexerIOKraken(IndexerIntakeConstants.kIntakeConfig));
                 // Instantiate subsystems that operate actual hardware (Hardware controller based modules)
                 break;
             case SIM:
+                robotIntake = new IndexerIntake(new IndexerIOSim());
                 // Instantiate subsystems that simulate actual hardware (IOSim modules)
                 break;
             default:
+                robotIntake = new IndexerIntake(new IndexerIntakeIO() {});
                 // Instantiate subsystems that are driven by playback of recorded sessions. (IO modules)
                 break;
         }
@@ -86,7 +97,9 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-
+        // driverController.a()
+        //     .onTrue(robotIntake.setGoalCommand(IndexerIntakeVoltageGoal.INTAKE))
+        //     .onFalse(robotIntake.setGoalCommand(IndexerIntakeVoltageGoal.STOP));
     }
 
 }
