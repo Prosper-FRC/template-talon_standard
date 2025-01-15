@@ -29,15 +29,13 @@ public interface ModuleIO {
 
     public default void setDriveGains(double kP, double kI, double kD, double kS, double kV, double kA) {}
 
-    public default void setDriveFF(double kS, double kV, double kA) {}
-
     public default void setAzimuthVolts(double votls) {}
+
+    public default void setAzimuthGains(double kP, double kI, double kD, double kS, double kV, double kA) {}
 
     public default void setAzimuthPosition(Rotation2d rotation) {}
 
     public default void resetAzimuthEncoder() {}
 
-    public default void setAzimuthPID(double kP, double kI, double kD) {}
 
-    public default void setAzimuthFF(double kS, double kV, double kA) {}
 }

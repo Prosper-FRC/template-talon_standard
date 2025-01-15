@@ -14,7 +14,7 @@ import frc.robot.Constants;
 public class GyroHardware {
 
     private Pigeon2 gyroscope;
-    private StatusSignal<Angle> yaw;
+    private StatusSignal<Angle> yawDeg;
 
     @AutoLog
     public static class GyroInputs {
@@ -27,14 +27,14 @@ public class GyroHardware {
         gyroscope.getConfigurator().apply(new Pigeon2Configuration());
         gyroscope.setYaw(0);
 
-        yaw = gyroscope.getYaw();
-        BaseStatusSignal.setUpdateFrequencyForAll(50.0, yaw);
+        yawDeg = gyroscope.getYaw();
+        BaseStatusSignal.setUpdateFrequencyForAll(50.0, yawDeg);
         gyroscope.optimizeBusUtilization();
     }
 
     public void updateInputs(GyroInputs inputs){
-        inputs.gyroConnected = BaseStatusSignal.refreshAll(yaw).isOK();
-        inputs.yaw = Rotation2d.fromDegrees(yaw.getValueAsDouble());
+        inputs.gyroConnected = BaseStatusSignal.refreshAll(yawDeg).isOK();
+        inputs.yaw = Rotation2d.fromDegrees(yawDeg.getValueAsDouble());
     }
 
     public void setYaw(double yaw){

@@ -19,7 +19,7 @@ public class Module extends SubsystemBase {
 
     public static final LoggedTunableNumber azimuthP = new LoggedTunableNumber("Module/Azimuth/kP", DriveConstants.kModuleControllerConfigs.azimuthController().getP());
     public static final LoggedTunableNumber azimuthD = new LoggedTunableNumber("Module/Azimuth/kD", DriveConstants.kModuleControllerConfigs.azimuthController().getD());
-    public static final LoggedTunableNumber azimuthS = new LoggedTunableNumber("Module/Azimuth/kS", DriveConstants.kModuleControllerConfigs.azimuthFF().getKa());
+    public static final LoggedTunableNumber azimuthS = new LoggedTunableNumber("Module/Azimuth/kS", DriveConstants.kModuleControllerConfigs.azimuthFF().getKs());
 
     // Different set points for the azimuth and drive motors //
     private Double velocitySetpointMPS = null;
@@ -57,6 +57,7 @@ public class Module extends SubsystemBase {
 
             if(accelerationSetpointMPSS != null){
                 double feedforward = driveFeedforward.calculate(velocitySetpointMPS, accelerationSetpointMPSS);
+                // TODO: Double check this //
                 io.setDriveVelocity(velocitySetpointMPS, feedforward);
             }
 
@@ -76,13 +77,15 @@ public class Module extends SubsystemBase {
 
         LoggedTunableNumber.ifChanged(
             hashCode(), () -> {
+                io.setAzimuthGains(azimuthP.get(), 0.0, azimuthD.get(), azimuthS.get(), 0.0, 0.0);
+            }, azimuthP, azimuthD, azimuthS);
+
+        // TODO: DELTE IF NOT NEEDED
+        LoggedTunableNumber.ifChanged(
+            hashCode(), () -> {
                 driveFeedforward = new SimpleMotorFeedforward(driveS.get(), driveV.get(), driveA.get());
             }, driveS, driveV, driveA);
 
-        LoggedTunableNumber.ifChanged(
-            hashCode(), () -> {
-                io.setAzimuthPID(azimuthP.get(), 0.0, azimuthD.get());
-            }, azimuthP, azimuthD);
 
 
     }

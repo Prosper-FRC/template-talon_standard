@@ -171,12 +171,15 @@ public class ModuleIOKraken implements ModuleIO{
   }
 
   @Override
-  public void setAzimuthPID(double kP, double kD, double kS){
+  public void setAzimuthGains(double kP, double kI, double kD, double kS, double kV, double kA){
     Slot0Configs configs = new Slot0Configs();
-    // Only gains neccessary for the azimuths //
+    // Only gains neccessary for the drive //
     configs.kP = kP;
+    configs.kI = kI;
     configs.kD = kD;
     configs.kS = kS;
+    configs.kV = kV;
+    configs.kA = kA;
     azimuth.getConfigurator().apply(configs);
   }
 
@@ -185,6 +188,8 @@ public class ModuleIOKraken implements ModuleIO{
     drive.setControl(driveVoltageControl.withOutput(volts));
   }
 
+
+  // TODO: Figure out how to add acceleration setpoint
   @Override
   public void setDriveVelocity(double velocityMPS, double feedforward) {
     drive.setControl(driveVelocityControl.withVelocity(velocityMPS).withSlot(0));

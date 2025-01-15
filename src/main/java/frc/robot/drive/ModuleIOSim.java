@@ -89,7 +89,7 @@ public class ModuleIOSim implements ModuleIO {
     }
 
     @Override
-    public void setAzimuthPID(double kP, double kI, double kD) {
+    public void setAzimuthGains(double kP, double kI, double kD, double kS, double kV, double kA) {
         azimuthPID.setPID(kP, kI, kD);
     }
 }
