@@ -1,3 +1,7 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
 package frc.robot.subsystems.elevator;
 
 import java.util.function.DoubleSupplier;
@@ -5,153 +9,173 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import com.ctre.phoenix6.signals.InvertedValue;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 
-import static frc.robot.subsystems.elevator.ElevatorConstants.*;
-
-// A linearly moving mechanism, usually goes up and down like an elevator
 public class Elevator extends SubsystemBase {
-    public static enum ElevatorGoal {
-        IDLE(() -> 0.0),
-        UP(() -> 1.0),
-        DEBUGGING(() -> 0.0),
-        DEBUGGING_VOLTS(() -> 0.0),
-        MANUAL_UP(() -> 0.0),
-        MANUAL_DOWN(() -> 0.0);
+  /** List of position setpoints for the elevator in meters */
+  public enum ElevatorGoal {
+    DEMO(() -> 0.5),
+    CUSTOM(() -> new LoggedTunableNumber("Elevator/Custom", 0.0).get());
 
-        private DoubleSupplier posSupplierMeter;
+    private DoubleSupplier goalMeters;
 
-        private ElevatorGoal(DoubleSupplier posSupplierMeter) {
-            this.posSupplierMeter = posSupplierMeter;
-        }
-
-        public DoubleSupplier getGoal() {
-            return posSupplierMeter;
-        }
+    ElevatorGoal(DoubleSupplier goalMeters) {
+      this.goalMeters = goalMeters;
     }
 
-    private static final LoggedTunableNumber kP = new LoggedTunableNumber(
-        "Elevator/kP", kControllerConfig.kP());
-    private static final LoggedTunableNumber kD = new LoggedTunableNumber(
-        "Elevator/kD", kControllerConfig.kD());
+    private double getGoalMeters() {
+      return this.goalMeters.getAsDouble();
+    }
+  }
 
-    // IN DEGREES, DEGREES PER SECOND, AND DEGREES PER SECOND SQUARED
-    private static final LoggedTunableNumber kMaxV = new LoggedTunableNumber(
-        "Elevator/kMaxV", kControllerConfig.kMaxV());
-    private static final LoggedTunableNumber kMaxA = new LoggedTunableNumber(
-        "Elevator/kMaxA", kControllerConfig.kMaxA());
-    private static final LoggedTunableNumber kMaxJ = new LoggedTunableNumber(
-        "Elevator/kMaxA", kControllerConfig.kMaxA());
+  private final ElevatorIO kHardware;
+  private final ElevatorIOInputsAutoLogged kInputs = new ElevatorIOInputsAutoLogged();
 
-    private static final LoggedTunableNumber kS = new LoggedTunableNumber(
-        "Elevator/kS", kControllerConfig.kS());
-    private static final LoggedTunableNumber kG = new LoggedTunableNumber(
-        "Elevator/kG", kControllerConfig.kG());
-    private static final LoggedTunableNumber kV = new LoggedTunableNumber(
-        "Elevator/kV", kControllerConfig.kV());
-    private static final LoggedTunableNumber kA = new LoggedTunableNumber(
-        "Elevator/kA", kControllerConfig.kA());
+  @AutoLogOutput(key = "Elevator/CurrentGoal")
+  private ElevatorGoal currentElevaotrGoal = null;
 
-    private static final LoggedTunableNumber kManualSpeed = 
-        new LoggedTunableNumber("Elevator/ManualSpeedMetersPerSecond", kAngularPerSecond.getDegrees());
+  private double currentElevatorGoalPositionMeters = 0.0;
 
-    private static final LoggedTunableNumber kDebugginGoal = 
-        new LoggedTunableNumber("Elevator/DebuggingGoalMeters", 10.0);
-    private static final LoggedTunableNumber kDebugginGoalVolts = 
-        new LoggedTunableNumber("Elevator/DebuggingGoalVolts", 0.0);
+  private final LoggedTunableNumber kP =
+      new LoggedTunableNumber("Elevator/Gains/kP", ElevatorConstants.kElevatorGains.kP());
+  private final LoggedTunableNumber kI =
+      new LoggedTunableNumber("Elevator/Gains/kI", ElevatorConstants.kElevatorGains.kI());
+  private final LoggedTunableNumber kD =
+      new LoggedTunableNumber("Elevator/Gains/kD", ElevatorConstants.kElevatorGains.kD());
+  private final LoggedTunableNumber kS =
+      new LoggedTunableNumber("Elevator/Gains/kS", ElevatorConstants.kElevatorGains.kS());
+  private final LoggedTunableNumber kV =
+      new LoggedTunableNumber("Elevator/Gains/kV", ElevatorConstants.kElevatorGains.kV());
+  private final LoggedTunableNumber kA =
+      new LoggedTunableNumber("Elevator/Gains/kA", ElevatorConstants.kElevatorGains.kA());
+  private final LoggedTunableNumber kG =
+      new LoggedTunableNumber("Elevator/Gains/kG", ElevatorConstants.kElevatorGains.kG());
+  private final LoggedTunableNumber kMaxVelocity =
+      new LoggedTunableNumber(
+          "Elevator/MotionMagic/kMaxVelocity", 
+          ElevatorConstants.kElevatorGains.kMaxVelocityMetersPerSecond());
+  private final LoggedTunableNumber kMaxAcceleration =
+      new LoggedTunableNumber(
+          "Elevator/MotionMagic/kMaxAcceleration", 
+          ElevatorConstants.kElevatorGains.kMaxAccelerationMetersPerSecondSquared());
 
-    private ElevatorKrakenHardware io;
-    private ElevatorInputsAutoLogged elevatorInputs = new ElevatorInputsAutoLogged();
+  // Object used to visualize the mechanism over network tables, useful in simulation
+  private final ElevatorVisualizer kVisualizer;
 
-    @AutoLogOutput(key = "Elevator/Goal")
-    private ElevatorGoal goal = ElevatorGoal.IDLE;
+  public Elevator(ElevatorIO io) {
+    kHardware = io;
+    kVisualizer = new ElevatorVisualizer(getPositionMeters());
+  }
 
+  @Override
+  public void periodic() {
+    kHardware.updateInputs(kInputs);
+    Logger.processInputs("Elevator/Inputs", kInputs);
 
-    public Elevator() {
-        // INVERT AND CONSTANT IS ROBOT SPECIFIC
-        io = new ElevatorKrakenHardware(kControllerConfig, kMotorID, InvertedValue.CounterClockwise_Positive);
-        setGoal(ElevatorGoal.IDLE);
+    if (currentElevaotrGoal != null) {
+      currentElevatorGoalPositionMeters = currentElevaotrGoal.getGoalMeters();
+      setPosition(currentElevatorGoalPositionMeters);
+
+      Logger.recordOutput("Elevator/Goal", currentElevaotrGoal);
+    } else {
+      Logger.recordOutput("Elevator/Goal", "NONE");
     }
 
-    public void periodic() {
-        io.updateInputs(elevatorInputs);
-        Logger.processInputs("Elevator", elevatorInputs);
+    // Log this since it's useful to know what the elevator'sactual current goal is and not just the enum
+    Logger.recordOutput("Elevator/CurrentGoalPositionMeters", currentElevatorGoalPositionMeters);
 
-        // This says that if the value is changed in the advantageScope tool,
-        // Then we change the values in the code. Saves deploy time.
-        // More found in prerequisites slide
-        LoggedTunableNumber.ifChanged(hashCode(), () -> {
-            io.setPFF(kP.get(), kD.get(), kS.get(), kV.get(), kA.get(), kG.get());
-        }, kP, kD, kS, kV, kA, kG);
+    // This says that if the value is changed in the advantageScope tool,
+    // Then we change the values in the code. Saves deploy time.
+    // More found in prerequisites slide
+    LoggedTunableNumber.ifChanged(
+      hashCode(),
+      () -> {
+        kHardware.setGains(
+            kP.get(), kI.get(), kD.get(), kS.get(), kG.get(), kV.get(), kA.get());
+      },
+      kP,
+      kI,
+      kD,
+      kS,
+      kV,
+      kA,
+      kG);
+    LoggedTunableNumber.ifChanged(
+        hashCode(),
+        () -> {
+          kHardware.setMotionMagicConstraints(kMaxVelocity.get(), kMaxAcceleration.get());
+        },
+        kMaxVelocity,
+        kMaxAcceleration);
 
-        LoggedTunableNumber.ifChanged(hashCode(), () -> {
-            io.setMotionMagicConstraints(kMaxV.get(), kMaxA.get(), kMaxJ.get());
-        }, kMaxV, kMaxA, kMaxJ);
+    // The visualizer needs to be periodically fed the current position of the mechanism
+    kVisualizer.updateElevatorPosition(getPositionMeters());
+  }
 
-        if(goal != null) {
-            double positionGoal = 0.0;
-            switch(goal) {
-                case MANUAL_UP:
-                    positionGoal = elevatorInputs.positionMeters + kManualSpeed.get() * 0.02;
-                        break;
-                case MANUAL_DOWN:
-                    positionGoal = elevatorInputs.positionMeters - kManualSpeed.get() * 0.02;
-                        break;
-                case DEBUGGING:
-                // Position not used for debugging volts, but left in there
-                // as a back-up(Doesn't matter)
-                case DEBUGGING_VOLTS:
-                    positionGoal = kDebugginGoal.get();
-                    break;
-                case IDLE:
-                case UP:
-                    positionGoal = goal.getGoal().getAsDouble();
-                    break;
-                // Had to satisfy compiler
-                default:
-                    // Back up position, UP position theoretically can still score
-                    positionGoal = ElevatorGoal.UP.getGoal().getAsDouble();
-            }
+  /**
+   * Sets the position goal of the mechanism, logic runs in subsystem periodic method
+   * 
+   * @param desiredGoal The desired position goal
+   */
+  public void setGoal(ElevatorGoal desiredGoal) {
+    currentElevaotrGoal = desiredGoal;
+  }
 
-            if(!goal.equals(ElevatorGoal.DEBUGGING_VOLTS)) {
-                Logger.recordOutput("Elevator/PositionGoal", goal.getGoal().getAsDouble());
-                positionGoal = MathUtil.clamp(positionGoal, kMinPositionMeters, kMaxPositionMeters);
-                io.setPosition(positionGoal);
-            } else {
-                io.setVolts(kDebugginGoalVolts.get());
-            }
-        }
+  /**
+   * Sets the voltage of the motor,
+   * 
+   * @param voltage
+   */
+  public void setVoltage(double voltage) {
+    // Notice how we are not checking if position control is running, it is up to the caller
+    // to check for this before calling this method (I recommend calling this subsystem's stop() 
+    // method after completing any action)
+    if (getPositionMeters() > ElevatorConstants.kMaxPositionMeters
+        && voltage > 0.0) {
+      return;
+    } else if (getPositionMeters() < ElevatorConstants.kMinPositionMeters
+        && voltage < 0.0) {
+      return;
+    } else {
+      kHardware.setVoltage(voltage);
     }
+  }
 
-    public void setGoal(ElevatorGoal goal) {
-        this.goal = goal;
-    }
+  /** Stops the mechanism */
+  public void stop() {
+    currentElevaotrGoal = null;
+    kHardware.stop();
+  }
 
-    public Command setGoalCommand(ElevatorGoal goal) {
-        return Commands.runOnce(() -> setGoal(goal), this);
-    }
+  /** Reset the mechanism's encoder to 0 meters */
+  public void resetPosition() {
+    kHardware.resetPosition();
+  }
 
-    public void setVolts(double volts) {
-        io.setVolts(volts);
-    }
+  /**
+   * Set the position goal of the hardware layer
+   * 
+   * @param positionGoalMeters The position goal in meters
+   */
+  private void setPosition(double positionGoalMeters) {
+    kHardware.setPosition(positionGoalMeters);
+  }
 
-    public void stopMotor() {
-        io.setVolts(0.0);
-    }
+  /**
+   * Compute the error based off of our current position and current goal
+   * 
+   * @return The computed error in meters
+   */
+  @AutoLogOutput(key = "Elevator/Feedback/ErrorMeters")
+  public double getErrorMeters() {
+    return currentElevatorGoalPositionMeters - getPositionMeters();
+  }
 
-    @AutoLogOutput(key="Elevator/inTolerance")
-    public boolean inTolerance() {
-        return Math.abs(goal.getGoal().getAsDouble() - elevatorInputs.positionMeters) < ElevatorConstants.kToleranceMeters;
-    }
-
-    @AutoLogOutput(key="Elevator/Goal")
-    public ElevatorGoal getElevatorGoal() {
-        return goal;
-    }
+  /**
+   * @return The position of the linear mechanism in meters
+   */
+  public double getPositionMeters() {
+    return kInputs.positionMeters;
+  }
 }

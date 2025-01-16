@@ -107,14 +107,5 @@ public class ElevatorConstants {
     true, 
     0.0, 
     0.0002);
-
-  // TODO Remove when import is complete
-  public static final ElevatorControllerConfig kControllerConfig = 
-      new ElevatorControllerConfig(0.0, 0.0, 0.0, 0.0, 3000.0, 0.1, 0.32, 2.1, 0.0);
-
-  // TODO Remove when import is complete
-  public record ElevatorControllerConfig(
-      double kP, double kD, double kMaxV, double kMaxA, double kMaxJ,
-      double kS, double kG, double kV, double kA) {}
 }
 
