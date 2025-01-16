@@ -65,8 +65,6 @@ public class Elevator extends SubsystemBase {
         new LoggedTunableNumber("Elevator/DebuggingGoalMeters", 10.0);
     private static final LoggedTunableNumber kDebugginGoalVolts = 
         new LoggedTunableNumber("Elevator/DebuggingGoalVolts", 0.0);
-    private static final LoggedTunableNumber kToleranceMeters =
-        new LoggedTunableNumber("Elevator/DebuggingGoalVolts", ElevatorConstants.kToleranceMeters);
 
     private ElevatorKrakenHardware io;
     private ElevatorInputsAutoLogged elevatorInputs = new ElevatorInputsAutoLogged();
@@ -149,7 +147,7 @@ public class Elevator extends SubsystemBase {
 
     @AutoLogOutput(key="Elevator/inTolerance")
     public boolean inTolerance() {
-        return Math.abs(goal.getGoal().getAsDouble() - elevatorInputs.positionMeters) < kToleranceMeters.getAsDouble();
+        return Math.abs(goal.getGoal().getAsDouble() - elevatorInputs.positionMeters) < ElevatorConstants.kToleranceMeters;
     }
 
     @AutoLogOutput(key="Elevator/Goal")

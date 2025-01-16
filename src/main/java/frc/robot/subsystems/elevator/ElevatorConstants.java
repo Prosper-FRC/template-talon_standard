@@ -1,29 +1,120 @@
+
 package frc.robot.subsystems.elevator;
 
-import edu.wpi.first.math.geometry.Rotation2d;
+import frc.robot.Constants;
+
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 
 public class ElevatorConstants {
-    // Taken from mech and electrical
-    public static final int kMotorID = 22;
-    public static final int kAbsoluteEncoderID = 9;
-    public static final Rotation2d kAbsoluteEncoderOffset = Rotation2d.fromDegrees(301.6);
+  public record ElevatorGains(
+    // Feedback control
+    double kP, 
+    double kI, 
+    double kD, 
+    // Motion magic constraints
+    double kMaxVelocityMetersPerSecond, 
+    double kMaxAccelerationMetersPerSecondSquared, 
+    double kJerkMetersPerSecondCubed, 
+    // Elevator feedforward values
+    double kS, 
+    double kV, 
+    double kA, 
+    double kG) {}
 
-    public static final double kGearing = 120.0;
-    public static final double kDrumCircumferenceMeters = 1.0;
+  public record KrakenConfiguration(
+    boolean kInvert,
+    boolean kEnableStatorCurrentLimit,
+    boolean kEnableSupplyCurrentLimit,
+    double kStatorCurrentLimitAmps,
+    double kSupplyCurrentLimitAmps,
+    NeutralModeValue kNeutralMode) {}
 
-    public static final double kMinPosMeters = 0;
-    public static final double kMaxPosmeters = 2.0;
+  public record SimulationConfiguration(
+    DCMotor kMotorType,
+    double kCarriageMassKg,
+    double kDrumRadiusMeters,
+    boolean kSimulateGravity,
+    double kStartingHeightMeters,
+    double kMeasurementStdDevs
+  ) {}
 
-    // Tuned by user
-    public static final Rotation2d kAngularPerSecond = Rotation2d.fromDegrees(30.0);
+  // Taken from mech and electrical
+  public static final int kMotorID = 1;
 
-    public static final double kToleranceMeters = 0.05;
+  public static final double kGearing = 1.0 / 1.0;
+  public static final double kDrumCircumferenceMeters = 1.0;
 
-    public static final ElevatorControllerConfig kControllerConfig = 
-        new ElevatorControllerConfig(0.25, 0.0, 450.0, 300.0, 3000.0, 0.1, 0.32, 2.1, 0.0);
+  public static final double kMaxPosmeters = 0.0;
+  public static final double kMinPosMeters = 0.0;
 
-    public record ElevatorControllerConfig(
-        double kP, double kD, double kMaxV, double kMaxA, double kMaxJ,
-        double kS, double kG, double kV, double kA) {}
+  public static final double kToleranceMeters = 0.0;
+
+  /** The frequency that telemetry form the motor is pushed to the CANBus */
+  public static final double kStatusSignalUpdateFrequencyHz = 100.0;
+
+  public static final ElevatorGains kElevatorGains = 
+    switch (Constants.kCurrentMode) {
+      case REAL -> new ElevatorGains(
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0);
+      case SIM -> new ElevatorGains(
+        100.0,
+        0.0,
+        0.0,
+        100.0,
+        100.0,
+        0.0,
+        0.0,
+        2.41,
+        0.08,
+        0.79);
+      default -> new ElevatorGains(
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0);
+  };
+
+  public static final KrakenConfiguration kMotorConfiguration = new KrakenConfiguration(
+    false, 
+    true, 
+    true, 
+    60.0, 
+    45.0, 
+    NeutralModeValue.Brake);
+
+  public static final SimulationConfiguration kSimulationConfiguration = new SimulationConfiguration(
+    DCMotor.getKrakenX60(1), 
+    6.0, 
+    Units.inchesToMeters(2.5), 
+    true, 
+    0.0, 
+    0.0002);
+
+  // TODO Remove when import is complete
+  public static final ElevatorControllerConfig kControllerConfig = 
+      new ElevatorControllerConfig(0.0, 0.0, 0.0, 0.0, 3000.0, 0.1, 0.32, 2.1, 0.0);
+
+  // TODO Remove when import is complete
+  public record ElevatorControllerConfig(
+      double kP, double kD, double kMaxV, double kMaxA, double kMaxJ,
+      double kS, double kG, double kV, double kA) {}
 }
 
