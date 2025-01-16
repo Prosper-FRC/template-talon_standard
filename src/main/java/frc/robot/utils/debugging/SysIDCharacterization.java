@@ -11,9 +11,6 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 
-// import static frc.robot.subsystems.drive.DriveConstants.kDrivebaseRadiusMeters;
-// import static frc.robot.subsystems.drive.DriveConstants.kRadiusMeters;
-
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
