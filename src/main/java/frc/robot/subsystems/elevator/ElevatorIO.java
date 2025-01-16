@@ -58,6 +58,26 @@ public interface ElevatorIO {
    */
   public default void setGains(double p, double i, double d, double s, double g, double v, double a) {}
 
+  /**
+   * Updates the gains of the profile. Note that profiled pid control is 
+   * called "MotionMagic" by CTRE
+   * 
+   * @param maxVelocity The maximum achieveable velocity of the motor in 
+   *                    meters per second
+   * @param maxAcceleration The maximum achieveable acceleration of the motor 
+   *                        in meters per second squared
+   */
+  public default void setMotionMagicConstraints(double maxVelocity, double maxAcceleration) {}
+
+  /**
+   * Enables brake or coast on the motor, only on the real motors. Useful 
+   * since we usually keep them on brake, but may want to set them to coast 
+   * when disabled
+   * 
+   * @param enableBrake
+   */
+  public default void setBrakeMode(boolean enableBrake) {}
+
   /** Reset the relative encoder to 0 */
   public default void resetPosition() {}
 }
