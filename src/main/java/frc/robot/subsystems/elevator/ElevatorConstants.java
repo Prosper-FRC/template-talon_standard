@@ -47,8 +47,8 @@ public class ElevatorConstants {
   public static final double kGearing = 1.0 / 1.0;
   public static final double kDrumCircumferenceMeters = 1.0;
 
-  public static final double kMaxPosmeters = 0.0;
-  public static final double kMinPosMeters = 0.0;
+  public static final double kMaxPositionMeters = 0.0;
+  public static final double kMinPositionMeters = 0.0;
 
   public static final double kToleranceMeters = 0.0;
 

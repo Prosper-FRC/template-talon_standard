@@ -121,7 +121,7 @@ public class Elevator extends SubsystemBase {
 
             if(!goal.equals(ElevatorGoal.DEBUGGING_VOLTS)) {
                 Logger.recordOutput("Elevator/PositionGoal", goal.getGoal().getAsDouble());
-                positionGoal = MathUtil.clamp(positionGoal, kMinPosMeters, kMaxPosmeters);
+                positionGoal = MathUtil.clamp(positionGoal, kMinPositionMeters, kMaxPositionMeters);
                 io.setPosition(positionGoal);
             } else {
                 io.setVolts(kDebugginGoalVolts.get());
