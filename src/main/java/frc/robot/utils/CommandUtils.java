@@ -11,61 +11,61 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommandUtils {
-    // Makes a copy of a command, which doesn't share the
-    // the same reference as the old command
-    // Useful for working around composition requirements
-    // But preferable don't use this.
-    public static Command copyCommand(Command command) {
-        return new FunctionalCommand(
-            command::initialize,
-            command::execute,
-            command::end,
-            command::isFinished,
-            command.getRequirements().toArray(Subsystem[]::new));
+  // Makes a copy of a command, which doesn't share the
+  // the same reference as the old command
+  // Useful for working around composition requirements
+  // But preferable don't use this.
+  public static Command copyCommand(Command command) {
+    return new FunctionalCommand(
+        command::initialize,
+        command::execute,
+        command::end,
+        command::isFinished,
+        command.getRequirements().toArray(Subsystem[]::new));
+  }
+
+  public static SendableChooser<Command> buildAutoChooser() {
+    return buildAutoChooser("");
+  }
+
+  // A safe version of the autochooser
+  // That doesn't "corrupt" the roborio
+  // if thereis a null path
+  public static SendableChooser<Command> buildAutoChooser(String defaultAutoName) {
+    if (!AutoBuilder.isConfigured()) {
+      throw new RuntimeException(
+          "AutoBuilder was not configured before attempting to build an auto chooser");
     }
 
-    public static SendableChooser<Command> buildAutoChooser() {
-        return buildAutoChooser("");
-    }
+    SendableChooser<Command> chooser = new SendableChooser<>();
+    List<String> autoNames = AutoBuilder.getAllAutoNames();
 
-    // A safe version of the autochooser
-    // That doesn't "corrupt" the roborio
-    // if thereis a null path
-    public static SendableChooser<Command> buildAutoChooser(String defaultAutoName) {
-        if (!AutoBuilder.isConfigured()) {
-            throw new RuntimeException(
-            "AutoBuilder was not configured before attempting to build an auto chooser");
-        }
+    PathPlannerAuto defaultOption = null;
+    List<PathPlannerAuto> options = new ArrayList<>();
 
-        SendableChooser<Command> chooser = new SendableChooser<>();
-        List<String> autoNames = AutoBuilder.getAllAutoNames();
+    for (String autoName : autoNames) {
+      try {
+        PathPlannerAuto auto = new PathPlannerAuto(autoName);
 
-        PathPlannerAuto defaultOption = null;
-        List<PathPlannerAuto> options = new ArrayList<>();
-
-        for (String autoName : autoNames) {
-            try {
-                PathPlannerAuto auto = new PathPlannerAuto(autoName);
-
-            if (!defaultAutoName.isEmpty() && defaultAutoName.equals(autoName)) {
-                defaultOption = auto;
-            } else {
-                options.add(auto);
-            }
-            } catch (Exception e) {
-                System.out.println("Auto " + autoName + " failed to load");
-                chooser.addOption("FAILEDTOLOAD: " + autoName, defaultOption);
-            }
-        }
-
-        if (defaultOption == null) {
-            chooser.setDefaultOption("None", Commands.none());
+        if (!defaultAutoName.isEmpty() && defaultAutoName.equals(autoName)) {
+          defaultOption = auto;
         } else {
-            chooser.setDefaultOption(defaultOption.getName(), defaultOption);
+          options.add(auto);
         }
-
-        options.forEach(auto -> chooser.addOption(auto.getName(), auto));
-
-        return chooser;
+      } catch (Exception e) {
+        System.out.println("Auto " + autoName + " failed to load");
+        chooser.addOption("FAILEDTOLOAD: " + autoName, defaultOption);
+      }
     }
+
+    if (defaultOption == null) {
+      chooser.setDefaultOption("None", Commands.none());
+    } else {
+      chooser.setDefaultOption(defaultOption.getName(), defaultOption);
+    }
+
+    options.forEach(auto -> chooser.addOption(auto.getName(), auto));
+
+    return chooser;
+  }
 }
