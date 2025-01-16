@@ -12,6 +12,10 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.subsystems.flywheels.FlywheelsConstants.FlywheelHardwareConfig;
 
@@ -34,11 +38,11 @@ public class FlywheelsKrakenHardware {
     private VoltageOut voltageControl = new VoltageOut(0);
 
     private double appliedVolts = 0.0;
-    private StatusSignal<Double> motorVelocity;
-    private StatusSignal<Double> motorVoltage;
-    private StatusSignal<Double> motorStatorCurrent;
-    private StatusSignal<Double> motorSupplyCurrent;
-    private StatusSignal<Double> motorTemp;
+    private StatusSignal<AngularVelocity> motorVelocity;
+    private StatusSignal<Voltage> motorVoltage;
+    private StatusSignal<Current> motorStatorCurrent;
+    private StatusSignal<Current> motorSupplyCurrent;
+    private StatusSignal<Temperature> motorTemp;
 
     public FlywheelsKrakenHardware(FlywheelHardwareConfig hardConfig) {
         motor = new TalonFX(hardConfig.motorID());

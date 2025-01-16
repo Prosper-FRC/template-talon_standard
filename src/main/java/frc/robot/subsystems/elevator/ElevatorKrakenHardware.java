@@ -13,6 +13,11 @@ import com.ctre.phoenix6.signals.GravityTypeValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
 import frc.robot.subsystems.elevator.ElevatorConstants.ElevatorControllerConfig;
 
@@ -39,12 +44,12 @@ public class ElevatorKrakenHardware {
     // Open-loop control, basically setVoltage()
     private VoltageOut voltageControl = new VoltageOut(0.0);
 
-    private StatusSignal<Double> motorVelocity;
-    private StatusSignal<Double> motorVoltage;
-    private StatusSignal<Double> motorStatorCurrent;
-    private StatusSignal<Double> motorSupplyCurrent;
-    private StatusSignal<Double> motorTemp;
-    private StatusSignal<Double> motorPosition;
+    private StatusSignal<AngularVelocity> motorVelocity;
+    private StatusSignal<Voltage> motorVoltage;
+    private StatusSignal<Current> motorStatorCurrent;
+    private StatusSignal<Current> motorSupplyCurrent;
+    private StatusSignal<Temperature> motorTemp;
+    private StatusSignal<Angle> motorPosition;
 
     public ElevatorKrakenHardware(ElevatorControllerConfig controlConfigs, int motorID, InvertedValue invert) {
         motor = new TalonFX(ElevatorConstants.kMotorID, Constants.kCanbusName);
@@ -66,7 +71,7 @@ public class ElevatorKrakenHardware {
 
         // WILL USUALLY BE ROTOR SENSOR, BUT COULD BE A CANCODER BASED ON DESIGN
         motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        motorConfig.Feedback.SensorToMechanismRatio = ElevatorConstants.kDrumCircumferenceMeters / ElevatorConstants.kGearing;
+        motorConfig.Feedback.SensorToMechanismRatio = ElevatorConstants.kGearing / ElevatorConstants.kDrumCircumferenceMeters ;
 
         motorConfig.Slot0.kP = controlConfigs.kP();
         motorConfig.Slot0.kD = controlConfigs.kD();

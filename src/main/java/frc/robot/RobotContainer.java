@@ -102,10 +102,6 @@ public class RobotContainer {
           .onTrue(robotFlywheels.setGoalCommand(FlywheelSetpoint.AMP))
           .onFalse(robotFlywheels.setGoalCommand(FlywheelSetpoint.STOP));
 
-        operatorController.b()
-          .onTrue(robotFlywheels.characterizeShooter())
-          .onFalse(robotFlywheels.setGoalCommand(FlywheelSetpoint.STOP));
-
 //        operatorController.b()
 //          .onTrue(robotElevator.setGoalCommand(ElevatorGoal.UP))
 //          .onFalse(robotElevator.setGoalCommand(ElevatorGoal.IDLE));

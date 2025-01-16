@@ -168,14 +168,4 @@ public class Flywheels extends SubsystemBase {
         return (topProfile.getGoal() - topInputs.velocityMPS) < kToleranceMPS.get()
             && (bottomProfile.getGoal() - bottomInputs.velocityMPS) < kToleranceMPS.get();
     }
-
-    // Runs sys ID tests, learn about these in Sys ID slides.
-    // Just run this command to use it, but make sure to be careful
-    public Command characterizeShooter() {
-        return setGoalCommand(null).andThen(SysIDCharacterization.runShooterSysIDTests((v) -> {
-            setGoal(null);
-            topFlywheel.setVolts(v);
-            bottomFlywheel.setVolts(v);
-        }, this));
-    }
 }
