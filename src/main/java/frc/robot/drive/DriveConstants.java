@@ -17,8 +17,10 @@ public class DriveConstants {
 
     public static final double kMaxLinearSpped = 4.5;
     public static final double kMaxLinearAcceleration = 9.6;
-    public static final double kMaxRotationalSpeed = kMaxLinearSpped * kDrivebaseRadius;
-    public static final double kMaxRadiansPS = Math.toRadians(1320);
+    public static final double kMaxRotationalSpeedRadians = Math.toRadians(360.0);
+    public static final double kMaxRotationalAccelerationRadians = Math.toRadians(360) * 10;
+    public static final double kMaxAzimuthAngularRadiansPS = Math.toRadians(660.0);
+    // Temp
 
     public static final double kAzimuthGearRatio = 150.0 / 7.0;
     public static final double kDriveGearRatio = 6.75 / 1.0;
@@ -35,7 +37,7 @@ public class DriveConstants {
     public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(kModuleTranslations);
 
     // TODO: Needs to be tuned //
-    public static final double kDriftRate = 1;
+    public static final double kDriftRate = -3;
 
     public static final SwerveModuleHardwareConfig kFrontLeft = new SwerveModuleHardwareConfig(
       "FrontLeft", 
@@ -67,9 +69,6 @@ public class DriveConstants {
 
     public static final boolean kInvertAzimuths = true;
 
-    // Make sure to change this gains after each time of tuning //
-    public static final ModuleLimits MODULE_LIMITS = new ModuleLimits(kMaxLinearSpped, kMaxLinearAcceleration, Math.toRadians(660.0));
-
     public record SwerveModuleHardwareConfig(String name, int drivePort, int azimuthPort, int cancoderPort, Rotation2d offset) {}
 
     public static record ModuleControlConfig(
@@ -85,7 +84,5 @@ public class DriveConstants {
         new ModuleControlConfig(
             new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.1, 0.015), 
             new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0));
-
-    public record ModuleLimits(double linearSpeed, double linearAcel, double angle) {}
     
 }

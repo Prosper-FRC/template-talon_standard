@@ -1,5 +1,11 @@
 package frc.robot.drive;
 
+import static frc.robot.drive.DriveConstants.kDriftRate;
+import static frc.robot.drive.DriveConstants.kMaxLinearAcceleration;
+import static frc.robot.drive.DriveConstants.kMaxLinearSpped;
+import static frc.robot.drive.DriveConstants.kMaxRotationalAccelerationRadians;
+import static frc.robot.drive.DriveConstants.kMaxRotationalSpeedRadians;
+
 import java.util.function.DoubleSupplier;
 
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -13,10 +19,12 @@ import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -36,6 +44,7 @@ import frc.robot.drive.controllers.TeleopController;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import frc.robot.utils.debugging.SysIDCharacterization;
 import frc.robot.utils.swerve.LocalADStarAK;
+import frc.robot.utils.swerve.SwerveUtils;
 
 public class Drive extends SubsystemBase{
 
@@ -53,7 +62,7 @@ public class Drive extends SubsystemBase{
     }
 
     private Module[] modules; 
-    private GyroHardware gyro;
+    private GyroIO gyro;
     private GyroInputsAutoLogged gyroInputs = new GyroInputsAutoLogged();
     
     private ChassisSpeeds desiredSpeeds = new ChassisSpeeds();
@@ -77,6 +86,8 @@ public class Drive extends SubsystemBase{
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.kModuleTranslations);
 
     private static final LoggedTunableNumber kDriftRate = new LoggedTunableNumber("Drive/DriftRate", DriveConstants.kDriftRate);
+    private static final LoggedTunableNumber kOmegaSpeed = new LoggedTunableNumber("Drive/Omega Speed", 0.0);
+    private static final LoggedTunableNumber kTranslationSpeed = new LoggedTunableNumber("Drive/Translation Speed", 0.0);
 
     @AutoLogOutput(key="Drive/CurrentState")
     private DriveState driveState = DriveState.TELEOP;
@@ -84,10 +95,10 @@ public class Drive extends SubsystemBase{
     @AutoLogOutput(key="Drive/HeadingGoal")
     private Rotation2d headingGoal = new Rotation2d();
     
-    public Drive(Module[] modules, GyroHardware gyro){
+    public Drive(Module[] modules, GyroIO gyro){
         this.modules = modules;
         this.gyro = gyro;
-        robotRotation = gyroInputs.yaw;
+        robotRotation = gyroInputs.yawPosition;
 
         swerveOdometry = new SwerveDriveOdometry(kinematics, getRobotRotation(), getModulePositions());
         swervePoseEstimator = new SwerveDrivePoseEstimator(kinematics, getRobotRotation(), getModulePositions(), new Pose2d());
@@ -99,7 +110,7 @@ public class Drive extends SubsystemBase{
             System.out.println("HELP ME I CANT CATCH ROBOTCONFIG");
         }
 
-        generator = new SwerveSetpointGenerator(robotConfig, DriveConstants.kMaxRadiansPS);
+        generator = new SwerveSetpointGenerator(robotConfig, DriveConstants.kMaxAzimuthAngularRadiansPS);
         previousSetpoint = new SwerveSetpoint(
             new ChassisSpeeds(0, 0, 0), 
             new SwerveModuleState[] {
@@ -143,7 +154,7 @@ public class Drive extends SubsystemBase{
             }
         }
 
-        robotRotation = gyroInputs.yaw;
+        robotRotation = gyroInputs.yawPosition;
 
         swervePoseEstimator.update(robotRotation, getModulePositions());
         swerveOdometry.update(robotRotation, getModulePositions());
@@ -177,7 +188,7 @@ public class Drive extends SubsystemBase{
                 break;
 
             case DRIFT_TEST:
-                desiredSpeeds = new ChassisSpeeds(-0.7, 0, 1);
+                desiredSpeeds = ChassisSpeeds.fromFieldRelativeSpeeds(new ChassisSpeeds(kTranslationSpeed.get(), 0, Math.toRadians(kOmegaSpeed.get())), getRobotRotation());
                 break;
 
             case AUTON:
@@ -199,13 +210,14 @@ public class Drive extends SubsystemBase{
 
         }
 
+        Logger.recordOutput("Drive/Odometry/FieldCurrentChassisSpeeds", ChassisSpeeds.fromRobotRelativeSpeeds(getChassisSpeeds(), robotRotation));
+
         if(desiredSpeeds != null){
-            setSwerve(desiredSpeeds);
+            runSwerve(desiredSpeeds);
+            Logger.recordOutput("Drive/Odometry/FieldDesiredChassisSpeeds", ChassisSpeeds.fromRobotRelativeSpeeds(getDesiredChassisSpeeds(), robotRotation));
         }
 
         SmartDashboard.putData(field);
-        
-        Logger.recordOutput("Drive/desired speeds", desiredSpeeds);
     }  
 
     public void setDriveEnum(DriveState state){
@@ -252,83 +264,121 @@ public class Drive extends SubsystemBase{
         }
     }
 
-    public void setSwerve(ChassisSpeeds speeds) {
-        desiredSpeeds = discretize(speeds);
+    public void runSwerve(ChassisSpeeds speeds) {
+        desiredSpeeds = SwerveUtils.discretize(speeds, kDriftRate.get());
+
+        Logger.recordOutput("Drive/Swerve/Running", true);
         // FOR LOGGING
-        SwerveModuleState[] unoptimizedSetpointStates = kinematics.toSwerveModuleStates(desiredSpeeds);
+        // Re-purposed through out execution to compare states
+        SwerveModuleState[] unOptimizedSetpointStates = kinematics.toSwerveModuleStates(desiredSpeeds);
+        for(int i = 0; i <4; i++) {
+            SwerveDriveKinematics.desaturateWheelSpeeds(unOptimizedSetpointStates, kMaxLinearSpped);
+            unOptimizedSetpointStates[i] = new SwerveModuleState(
+                    unOptimizedSetpointStates[i].speedMetersPerSecond,
+                    Math.abs(previousSetpoint.moduleStates()[i].speedMetersPerSecond / kMaxLinearSpped) < 0.01 ?
+                    modules[i].getCurrentState().angle : unOptimizedSetpointStates[i].angle);
+            unOptimizedSetpointStates[i].optimize(modules[i].getCurrentState().angle);
+            unOptimizedSetpointStates[i].cosineScale(modules[i].getCurrentState().angle);
+        }
+        Logger.recordOutput("Drive/Swerve/preOptimizedSetpoints", unOptimizedSetpointStates);
+
+        unOptimizedSetpointStates = kinematics.toSwerveModuleStates(desiredSpeeds);
+        for(int i = 0; i <4; i++) {
+            unOptimizedSetpointStates[i] = new SwerveModuleState(
+                    unOptimizedSetpointStates[i].speedMetersPerSecond,
+                    Math.abs(previousSetpoint.moduleStates()[i].speedMetersPerSecond / kMaxLinearSpped) < 0.01 ?
+                    modules[i].getCurrentState().angle : unOptimizedSetpointStates[i].angle);
+            unOptimizedSetpointStates[i].optimize(modules[i].getCurrentState().angle);
+            unOptimizedSetpointStates[i].cosineScale(modules[i].getCurrentState().angle);
+        }
+        Logger.recordOutput("Drive/Swerve/saturatedPreOptimizedSetpoints", unOptimizedSetpointStates);
+        Logger.recordOutput("Drive/Odometry/preOptimizedChassisSpeeds", kinematics.toChassisSpeeds(unOptimizedSetpointStates));
 
         SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(desiredSpeeds);
-        SwerveDriveKinematics.desaturateWheelSpeeds(unoptimizedSetpointStates, DriveConstants.kMaxLinearSpped);
-        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, DriveConstants.kMaxLinearSpped);
+        SwerveDriveKinematics.desaturateWheelSpeeds(unOptimizedSetpointStates, kMaxLinearSpped);
+        SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, kMaxLinearSpped);
 
         SwerveModuleState[] optimizedSetpointStates = new SwerveModuleState[4];
 
-        // 0.02 is the loop time of a periodic
-        previousSetpoint = generator.generateSetpoint(previousSetpoint, desiredSpeeds, 0.02);
+        // SwerveModuleState[] prevSetpointStates = previousSetpoint.moduleStates();
+
+        previousSetpoint = generator.generateSetpoint(
+            previousSetpoint, 
+            desiredSpeeds, 
+            new PathConstraints(
+                kMaxLinearSpped, 
+                kMaxLinearAcceleration, 
+                kMaxRotationalSpeedRadians, 
+                kMaxRotationalAccelerationRadians), 
+            0.02);
+
+        Logger.recordOutput("Drive/Odometry/generatedFieldRelativeChassisSpeed", ChassisSpeeds.fromRobotRelativeSpeeds(previousSetpoint.robotRelativeSpeeds(), robotRotation));
 
         for (int i = 0; i < 4; i++) {
             if(useGenerator) {
                 setpointStates[i] = new SwerveModuleState(
                     previousSetpoint.moduleStates()[i].speedMetersPerSecond,
-                    Math.abs(previousSetpoint.moduleStates()[i].speedMetersPerSecond / DriveConstants.kMaxLinearSpped) < 0.01 ?
+                    Math.abs(previousSetpoint.moduleStates()[i].speedMetersPerSecond / kMaxLinearSpped) < 0.01 ?
                     modules[i].getCurrentState().angle : previousSetpoint.moduleStates()[i].angle);
+
+                unOptimizedSetpointStates[i] = new SwerveModuleState(setpointStates[i].speedMetersPerSecond, setpointStates[i].angle);
 
                 Logger.recordOutput("Drive/Swerve/Feedforward/"+i+"/Acceleration", previousSetpoint.feedforwards().accelerationsMPSSq()[i]);
                 Logger.recordOutput("Drive/Swerve/Feedforward/"+i+"/Force", previousSetpoint.feedforwards().linearForcesNewtons()[i]);
                 Logger.recordOutput("Drive/Swerve/Feedforward/"+i+"/Current", previousSetpoint.feedforwards().torqueCurrentsAmps()[i]);
 
-                SwerveModuleState preOptimizedSetpointState = setpointStates[i];
                 setpointStates[i].optimize(modules[i].getCurrentState().angle);
-                boolean isModuleSpeedOptimized = isSpeedOptimized(preOptimizedSetpointState, setpointStates[i]);
+                boolean isModuleSpeedOptimized = isSpeedOptimized(unOptimizedSetpointStates[i], setpointStates[i]);
                 Logger.recordOutput("Drive/Swerve/Feedforward/"+i+"/optimalInvert", isModuleSpeedOptimized);
 
-                optimizedSetpointStates[i] = modules[i].setSwerveStatewithAccel(
-                    setpointStates[i], 
-                    // Pathplanner does not handle inverting //
-                    (isModuleSpeedOptimized) ? -1 * previousSetpoint.feedforwards().accelerationsMPSSq()[i] : previousSetpoint.feedforwards().accelerationsMPSSq()[i]);
+                setpointStates[i].cosineScale(modules[i].getCurrentState().angle);
 
-                }
+                optimizedSetpointStates[i] = modules[i].setSwerveStatewithAccel(setpointStates[i], 0.0);
 
-                // optimizedSetpointStates[i].cosineScale(modules[i].getCurrentState().angle);
-             
-            
-            else {
-                // This all works and is fully tested //
+                // modules[i].setDesiredAzimuthVelocity(azimuthVelocity);
+            } else {
                 setpointStates[i] = new SwerveModuleState(
-                    previousSetpoint.moduleStates()[i].speedMetersPerSecond,
-                    Math.abs(previousSetpoint.moduleStates()[i].speedMetersPerSecond / DriveConstants.kMaxLinearSpped) < 0.01 ?
-                    modules[i].getCurrentState().angle : previousSetpoint.moduleStates()[i].angle);
+                    setpointStates[i].speedMetersPerSecond,
+                    Math.abs(setpointStates[i].speedMetersPerSecond / kMaxLinearSpped) < 0.01 ?
+                    modules[i].getCurrentState().angle : setpointStates[i].angle);
 
                 setpointStates[i].optimize(modules[i].getCurrentState().angle);
+                setpointStates[i].cosineScale(modules[i].getCurrentState().angle);
                 optimizedSetpointStates[i] = modules[i].setSwerveState(setpointStates[i]);
             }
         }
         
-        Logger.recordOutput("Drive/Swerve/Setpoints", unoptimizedSetpointStates);
+        Logger.recordOutput("Drive/Swerve/Setpoints", unOptimizedSetpointStates);
         Logger.recordOutput("Drive/Swerve/SetpointsOptimized", optimizedSetpointStates);
         Logger.recordOutput("Drive/Swerve/SetpointsChassisSpeeds", kinematics.toChassisSpeeds(optimizedSetpointStates));
+        Logger.recordOutput("Drive/Odometry/FieldSetpointChassisSpeed", ChassisSpeeds.fromRobotRelativeSpeeds(
+            kinematics.toChassisSpeeds(optimizedSetpointStates), robotRotation));
+    }
+
+    public SwerveModuleState[] reduxDrive(Translation2d translation, double rotation, boolean isOpenLoop) {
+        SwerveModuleState[] swerveModuleStates = kinematics.toSwerveModuleStates(
+            new ChassisSpeeds(
+                translation.getX(), 
+                translation.getY(), 
+                rotation));
+
+        Logger.recordOutput("Drive/Swerve/ReduxSetpoints", swerveModuleStates);
+
+        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, kMaxLinearSpped);
+
+        Logger.recordOutput("Drive/Swerve/SaturatedReduxSetpoints", swerveModuleStates);
+        Logger.recordOutput("Drive/Odometry/FieldReduxChassisSpeeds", ChassisSpeeds.fromRobotRelativeSpeeds(
+            kinematics.toChassisSpeeds(swerveModuleStates), robotRotation));
+            
+        return swerveModuleStates;
     }
 
     public boolean isSpeedOptimized(SwerveModuleState state, SwerveModuleState optimizedState) {
         return state.speedMetersPerSecond != optimizedState.speedMetersPerSecond;
     }
 
-    // The discretize function is used to break apart the fact that the values is not constant (its fed every 0.02) seconds //
-    // This funciton is used to stop the chassis speeds from considered continuous and rather little slivers //
-    // Looks at EN for L3 to learn more about it //
-    private ChassisSpeeds discretize(ChassisSpeeds speeds) {
-        double dt = 0.02;
-        var desiredDeltaPose = new Pose2d(
-            speeds.vxMetersPerSecond * dt,
-            speeds.vyMetersPerSecond * dt,
-            new Rotation2d(speeds.omegaRadiansPerSecond * dt * kDriftRate.get()));
-        var twist = new Pose2d().log(desiredDeltaPose);
-
-        return new ChassisSpeeds((twist.dx / dt), (twist.dy / dt), (speeds.omegaRadiansPerSecond));
-    }
-
     public void stop(){
-        setSwerve(new ChassisSpeeds());
+        runSwerve(new ChassisSpeeds());
     } 
 
     public void resetGyro() {
@@ -342,7 +392,7 @@ public class Drive extends SubsystemBase{
 
     public void setPose(Pose2d pose){
         robotRotation = pose.getRotation();
-        gyro.setYaw(pose.getRotation().getDegrees());
+        gyro.resetGyro(pose.getRotation());
         swerveOdometry.resetPosition(robotRotation, getModulePositions(), pose);
         swervePoseEstimator.resetPosition(robotRotation, getModulePositions(), pose);
     }
@@ -354,7 +404,7 @@ public class Drive extends SubsystemBase{
 
     @AutoLogOutput(key = "Drive/Odometry/GyroRotation")
     public Rotation2d getGyroRotation(){
-        return gyroInputs.yaw;
+        return gyroInputs.yawPosition;
     }
 
     @AutoLogOutput(key = "Drive/Odometry/PoseEstimate")
@@ -389,7 +439,7 @@ public class Drive extends SubsystemBase{
 
     @AutoLogOutput(key = "Drive/Odometry/CurrentChassisSpeeds")
     public ChassisSpeeds getChassisSpeeds() {
-        return DriveConstants.kKinematics.toChassisSpeeds(getModuleStates());
+        return kinematics.toChassisSpeeds(getModuleStates());
     }
 
     @AutoLogOutput(key = "Drive/Odometry/DesiredChassisSpeeds")

@@ -11,8 +11,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.drive.Drive;
-import frc.robot.drive.GyroHardware;
+import frc.robot.drive.GyroIOPigeon2;
 import frc.robot.drive.Drive.DriveState;
+import frc.robot.drive.GyroIO;
 import frc.robot.drive.Module;
 import frc.robot.drive.ModuleIO;
 import frc.robot.drive.ModuleIOKraken;
@@ -50,7 +51,7 @@ public class RobotContainer {
                         new Module("FR", new ModuleIOKraken(kFrontRight)),
                         new Module("BL", new ModuleIOKraken(kBackLeft)),
                         new Module("BR", new ModuleIOKraken(kBackRight))
-                    }, new GyroHardware());
+                    }, new GyroIOPigeon2());
                 break;
             case SIM:
                 // Instantiate subsystems that simulate actual hardware (IOSim modules)
@@ -59,7 +60,7 @@ public class RobotContainer {
                     new Module("FR", new ModuleIOSim()),
                     new Module("BL", new ModuleIOSim()),
                     new Module("BR", new ModuleIOSim())
-                }, new GyroHardware());
+                }, new GyroIO(){});
                 break;
             default:
                 // Instantiate subsystems that are driven by playback of recorded sessions. (IO modules)
@@ -68,7 +69,7 @@ public class RobotContainer {
                     new Module("FR", new ModuleIO(){}),
                     new Module("BL", new ModuleIO(){}),
                     new Module("BR", new ModuleIO(){})
-                }, new GyroHardware());
+                }, new GyroIO(){});
                 break;
         }
 

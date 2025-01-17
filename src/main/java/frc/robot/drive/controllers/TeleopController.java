@@ -47,7 +47,7 @@ public class TeleopController {
         // Converts the value to m/s for the chassis speeds //
         double xVelocityMPS = DriveConstants.kMaxLinearSpped * Math.pow(xChangedDemand, linearExp);
         double yVelocityMPS = DriveConstants.kMaxLinearSpped * Math.pow(yChangedDemand, linearExp);
-        double rotationVelocityRPS = DriveConstants.kMaxRadiansPS * Math.pow(omegaChangedDemand, rotationExp);
+        double rotationVelocityRPS = DriveConstants.kMaxRotationalSpeedRadians * Math.pow(omegaChangedDemand, rotationExp);
 
         if (linearExp % 2 == 0) {
             xVelocityMPS *= Math.signum(xChangedDemand);
