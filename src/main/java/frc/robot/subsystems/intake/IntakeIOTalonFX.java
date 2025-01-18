@@ -14,7 +14,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 
-public class IntakeIOKraken implements IntakeIO {
+public class IntakeIOTalonFX implements IntakeIO {
   private final TalonFX kMotor = new TalonFX(IntakeConstants.kMotorID);
   private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
   
@@ -27,7 +27,7 @@ public class IntakeIOKraken implements IntakeIO {
   
   private VoltageOut voltageControl;
 
-  public IntakeIOKraken() {
+  public IntakeIOTalonFX() {
     // Apply configurations
     motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = 
         IntakeConstants.kMotorConfiguration.kEnableSupplyCurrentLimit();
