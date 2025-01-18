@@ -162,11 +162,14 @@ public class ModuleIOKraken implements ModuleIO{
 
   @Override
   public void setAzimuthVolts(double volts) {
+    // Using this control mode allows for voltage to control the speed of the motor //
     azimuth.setControl(azimuthVoltageControl.withOutput(volts));
   }
 
   @Override
   public void setAzimuthPosition(Rotation2d rotation) {
+    // Using this control mode allows for voltage to control the posistion of the motor //
+    // Using the withSlot() allows for specific PID and FF gains to be set into the voltage posistion control //
     azimuth.setControl(azimuthVoltagePosistion.withPosition(rotation.getRotations()).withSlot(0));
   }
 
@@ -185,11 +188,14 @@ public class ModuleIOKraken implements ModuleIO{
 
   @Override
   public void setDriveVolts(double volts) {
+    // Using this control mode allows for voltage to control the speed of the motor //
     drive.setControl(driveVoltageControl.withOutput(volts));
   }
 
   @Override
   public void setDriveVelocity(double velocityMPS) {
+    // Using this control mode allows for voltage to control the posistion of the motor //
+    // Using the withSlot() allows for specific PID and FF gains to be set into the voltage posistion control //
     drive.setControl(driveVelocityControl.withVelocity(velocityMPS).withSlot(0));
   }
 

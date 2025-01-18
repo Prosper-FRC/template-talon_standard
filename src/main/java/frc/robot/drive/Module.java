@@ -35,8 +35,8 @@ public class Module {
 
     private String nameKey;
 
-    public Module(String key, ModuleIO config){
-        this.io = (config);
+    public Module(String key, ModuleIO instance){
+        this.io = (instance);
         nameKey = "Module/" + key;
     }
 
@@ -192,6 +192,7 @@ public class Module {
     public void stop(){
         io.setAzimuthVolts(0);
         io.setDriveVolts(0);
+
     }
 
 }

@@ -217,7 +217,7 @@ public class Drive extends SubsystemBase{
             case STOP:
                 desiredSpeeds = null;
                 for(Module module : modules) {
-                    module.setDriveVolts(0.0);
+                    module.stop();
                 }
                 break;
             
