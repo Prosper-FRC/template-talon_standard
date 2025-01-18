@@ -13,6 +13,8 @@ public class AutonCommands {
     // Define target poses for path planner (location and orientation)
     // ex: public static final Pose2d A1 = new Pose2d(2.55, 6.550, Rotation2d.fromRadians(0.464));
 
+    // Define local storage of subsystems
+
     public static enum AutonState {
         ALLIANCE,
         CENTERLINE

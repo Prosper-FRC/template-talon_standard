@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public class DriveConstants {
 
-    public static final double kTrackwidthXMeters = 0.61595;
-    public static final double kTrackwidthYMeters = 0.61595;
+    public static final double kTrackwidthXMeters = 0.55;
+    public static final double kTrackwidthYMeters = 0.55;
 
     public static final double kDrivebaseRadius =  Math.hypot(kTrackwidthXMeters / 2.0, kTrackwidthYMeters / 2.0);;
 
@@ -37,7 +37,7 @@ public class DriveConstants {
     public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(kModuleTranslations);
 
     // TODO: Needs to be tuned //
-    public static final double kDriftRate = -3;
+    public static final double kDriftRate = 1;
 
     public static final SwerveModuleHardwareConfig kFrontLeft = new SwerveModuleHardwareConfig(
       "FrontLeft", 
@@ -83,6 +83,6 @@ public class DriveConstants {
             new PIDController(30.0, 0.0, 0.0), new SimpleMotorFeedforward(0.05, 0.0, 0.0)) :
         new ModuleControlConfig(
             new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.1, 0.015), 
-            new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0));
+            new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0));
     
 }

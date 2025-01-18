@@ -92,8 +92,8 @@ public class RobotContainer {
 
         // Pass subsystems to classes that need them for configuration
         drive.acceptJoystickInputs(
-            () -> -driverController.getLeftY(),
-            () -> -driverController.getLeftX(),
+            () -> driverController.getLeftY(),
+            () -> driverController.getLeftX(),
             () -> driverController.getRightX());
 
         drive.setDefaultCommand(Commands.run(

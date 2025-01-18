@@ -4,6 +4,7 @@ import static frc.robot.drive.DriveConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -14,21 +15,23 @@ public class ModuleIOSim implements ModuleIO {
 
     private DCMotorSim driveMotor = 
     new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.004, kDriveGearRatio), 
-        DCMotor.getKrakenX60Foc(1), 0.0, 0.0);
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.004, kDriveGearRatio), 
+        DCMotor.getKrakenX60(1), 0.0, 0.0);
 
-        private DCMotorSim azimuthMotor = 
+    private DCMotorSim azimuthMotor = 
     new DCMotorSim(
-        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.025, kAzimuthGearRatio), 
-        DCMotor.getKrakenX60Foc(1), 0.0, 0.0);
+        LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60(1), 0.025, kAzimuthGearRatio), 
+        DCMotor.getKrakenX60(1), 0.0, 0.0);
 
 
     private double driveAppliedVolts = 0.0;
     private double azimuthAppliedVolts = 0.0;
 
     private PIDController drivePID = kModuleControllerConfigs.driveController();
+    private SimpleMotorFeedforward driveFF = kModuleControllerConfigs.driveFF();
 
     private PIDController azimuthPID = kModuleControllerConfigs.azimuthController();
+    private SimpleMotorFeedforward azimuthFF = kModuleControllerConfigs.azimuthFF();
 
     public ModuleIOSim() {
         azimuthPID.enableContinuousInput(-Math.PI, Math.PI);
@@ -62,17 +65,17 @@ public class ModuleIOSim implements ModuleIO {
     }
 
     @Override
-    public void setDriveVelocity(double velocityMPS, double feedforward) {
+    public void setDriveVelocity(double velocityMPS) {
         setDriveVolts(
             drivePID.calculate(
                 driveMotor.getAngularVelocityRPM() * DriveConstants.kCircumfrenceMeters / 60, 
-                velocityMPS) 
-            + feedforward);
+                velocityMPS));
     }
 
     @Override
     public void setDriveGains(double kP, double kI, double kD, double kS, double kV, double kA) {
         drivePID.setPID(kP, kI, kD);
+        driveFF = new SimpleMotorFeedforward(kS, kV, kA);
     }
 
 
@@ -91,5 +94,6 @@ public class ModuleIOSim implements ModuleIO {
     @Override
     public void setAzimuthGains(double kP, double kI, double kD, double kS, double kV, double kA) {
         azimuthPID.setPID(kP, kI, kD);
+        azimuthFF = new SimpleMotorFeedforward(kS, kV, kA);
     }
 }

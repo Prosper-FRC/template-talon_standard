@@ -2,7 +2,6 @@ package frc.robot.drive;
 
 import org.littletonrobotics.junction.Logger;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -34,10 +33,6 @@ public class Module extends SubsystemBase {
     private ModuleIO io;
     private SwerveModuleInputsAutoLogged inputs = new SwerveModuleInputsAutoLogged();
 
-    // This drive ff was added for when acceleration + velocity needs to be set //
-    // This allows for the calculation of the feedforward value between the velocity and acceleration //
-    private SimpleMotorFeedforward driveFeedforward = new SimpleMotorFeedforward(0, 0, 0);
-
     private String nameKey;
 
     public Module(String key, ModuleIO config){
@@ -54,16 +49,7 @@ public class Module extends SubsystemBase {
 
         // Checks if setpoint is existing before setting a demand // 
         if(velocitySetpointMPS != null){
-
-            if(accelerationSetpointMPSS != null){
-                double feedforward = driveFeedforward.calculate(velocitySetpointMPS, accelerationSetpointMPSS);
-                // TODO: Double check this //
-                io.setDriveVelocity(velocitySetpointMPS, feedforward);
-            }
-
-            else{
-                io.setDriveVelocity(velocitySetpointMPS, 0);
-            }
+            io.setDriveVelocity(velocitySetpointMPS);     
         }
 
         if(azimuthSetpointAngle != null){
@@ -73,21 +59,12 @@ public class Module extends SubsystemBase {
         LoggedTunableNumber.ifChanged(
             hashCode(), () -> {
                 io.setDriveGains(driveP.get(), 0.0, driveD.get(), driveS.get(), driveV.get(), driveA.get());
-            }, driveP, driveD);
+            }, driveP, driveD, driveS, driveV, driveA);
 
         LoggedTunableNumber.ifChanged(
             hashCode(), () -> {
                 io.setAzimuthGains(azimuthP.get(), 0.0, azimuthD.get(), azimuthS.get(), 0.0, 0.0);
             }, azimuthP, azimuthD, azimuthS);
-
-        // TODO: DELTE IF NOT NEEDED
-        LoggedTunableNumber.ifChanged(
-            hashCode(), () -> {
-                driveFeedforward = new SimpleMotorFeedforward(driveS.get(), driveV.get(), driveA.get());
-            }, driveS, driveV, driveA);
-
-
-
     }
 
     /**

@@ -154,7 +154,13 @@ public class Drive extends SubsystemBase{
             }
         }
 
-        robotRotation = gyroInputs.yawPosition;
+        if (gyroInputs.connected) {
+            robotRotation = gyroInputs.yawPosition;
+        } else {
+            robotRotation = Rotation2d.fromRadians(
+                (swervePoseEstimator.getEstimatedPosition().getRotation().getRadians()
+                    + getChassisSpeeds().omegaRadiansPerSecond * 0.02) % 360.0);
+        }
 
         swervePoseEstimator.update(robotRotation, getModulePositions());
         swerveOdometry.update(robotRotation, getModulePositions());

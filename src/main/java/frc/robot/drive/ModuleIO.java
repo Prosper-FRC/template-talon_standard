@@ -23,7 +23,7 @@ public interface ModuleIO {
     
     public default void updateInputs(SwerveModuleInputs inputs) {}
 
-    public default void setDriveVelocity(double velocityMPS, double feedforward) {}
+    public default void setDriveVelocity(double velocityMPS) {}
 
     public default void setDriveVolts(double volts) {}
 

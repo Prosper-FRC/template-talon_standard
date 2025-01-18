@@ -188,10 +188,8 @@ public class ModuleIOKraken implements ModuleIO{
     drive.setControl(driveVoltageControl.withOutput(volts));
   }
 
-
-  // TODO: Figure out how to add acceleration setpoint
   @Override
-  public void setDriveVelocity(double velocityMPS, double feedforward) {
+  public void setDriveVelocity(double velocityMPS) {
     drive.setControl(driveVelocityControl.withVelocity(velocityMPS).withSlot(0));
   }
 
