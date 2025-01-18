@@ -3,96 +3,101 @@ package frc.robot.subsystems.intake;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.NeutralOut;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.DigitalInput;
-import frc.robot.subsystems.intake.IntakeConstants.IntakeHardwareConfig;
 
 public class IntakeIOKraken implements IntakeIO {
-    private TalonFX motor;
-    private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
-    
-    private VoltageOut voltageControl;
-    private DigitalInput irSensor;
-    private double intakeAppliedVolts = 0.0;
+  private final TalonFX kMotor = new TalonFX(IntakeConstants.kMotorID);
+  private TalonFXConfiguration motorConfiguration = new TalonFXConfiguration();
+  
+  // Motor data we wish to log
+  private StatusSignal<AngularVelocity> velocityRotationsPerSec;
+  private StatusSignal<Voltage> appliedVolts;
+  private StatusSignal<Current> supplyCurrentAmps;
+  private StatusSignal<Current> statorCurrentAmps;
+  private StatusSignal<Temperature> temperatureCelsius;
+  
+  private VoltageOut voltageControl;
 
-    private StatusSignal<AngularVelocity> motorVelocity;
-    private StatusSignal<Voltage> motorVoltage;
-    private StatusSignal<Current> motorStatorCurrent;
-    private StatusSignal<Current> motorSupplyCurrent;
-    private StatusSignal<Temperature> motorTemp;
+  public IntakeIOKraken() {
+    // Apply configurations
+    motorConfiguration.CurrentLimits.SupplyCurrentLimitEnable = 
+        IntakeConstants.kMotorConfiguration.kEnableSupplyCurrentLimit();
+    motorConfiguration.CurrentLimits.SupplyCurrentLimit = 
+        IntakeConstants.kMotorConfiguration.kSupplyCurrentLimitAmps();
+    motorConfiguration.CurrentLimits.StatorCurrentLimitEnable = 
+        IntakeConstants.kMotorConfiguration.kEnableStatorCurrentLimit();
+    motorConfiguration.CurrentLimits.StatorCurrentLimit = 
+        IntakeConstants.kMotorConfiguration.kStatorCurrentLimitAmps();
+    motorConfiguration.Voltage.PeakForwardVoltage = 
+      IntakeConstants.kMotorConfiguration.kPeakForwardVoltage();
+    motorConfiguration.Voltage.PeakReverseVoltage = 
+      IntakeConstants.kMotorConfiguration.kPeakReverseVoltage();
 
-    public IntakeIOKraken(IntakeHardwareConfig config) {
-        motor = new TalonFX(config.motorID());
+    motorConfiguration.MotorOutput.NeutralMode = IntakeConstants.kMotorConfiguration.kNeutralMode();
+    motorConfiguration.MotorOutput.Inverted = 
+    IntakeConstants.kMotorConfiguration.kInvert() 
+        ? InvertedValue.CounterClockwise_Positive 
+        : InvertedValue.Clockwise_Positive;
 
-        // SPECIFIC TO SYSTEM. 
-        // https://v6.docs.ctr-electronics.com/en/stable/docs/hardware-reference/talonfx/improving-performance-with-current-limits.html
-        motorConfig.CurrentLimits.StatorCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.StatorCurrentLimit = 30;
-        motorConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        motorConfig.CurrentLimits.SupplyCurrentLimit = 30;
+    motorConfiguration.Feedback.SensorToMechanismRatio = IntakeConstants.kGearing;
+    // Rotor sensor is the built-in sensor
+    motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
-        // GENERAL FOR ALL FRC MOTORS, 12 VOLT BATTERIES
-        motorConfig.Voltage.PeakForwardVoltage = 12.0;
-        motorConfig.Voltage.PeakReverseVoltage = -12.0;
-        motorConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
+    kMotor.getConfigurator().apply(motorConfiguration, 1.0);
 
-        // ROBOT SPECIFIC
-        motorConfig.MotorOutput.Inverted = config.motorInvert() ? InvertedValue.Clockwise_Positive : InvertedValue.CounterClockwise_Positive;
+    // Get status signals from the motor controller
+    velocityRotationsPerSec = kMotor.getVelocity();
+    appliedVolts = kMotor.getMotorVoltage();
+    supplyCurrentAmps = kMotor.getSupplyCurrent();
+    statorCurrentAmps = kMotor.getStatorCurrent();
+    temperatureCelsius = kMotor.getDeviceTemp();
 
-        // USES INTERNAL ENCODER
-        motorConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-        motorConfig.Feedback.SensorToMechanismRatio = config.gearing() / config.wheelCircumference();
+    BaseStatusSignal.setUpdateFrequencyForAll(IntakeConstants.kStatusSignalUpdateFrequencyHz,
+        velocityRotationsPerSec,
+        appliedVolts,
+        supplyCurrentAmps,
+        supplyCurrentAmps,
+        statorCurrentAmps,
+        temperatureCelsius);
 
-        motor.getConfigurator().apply(motorConfig);
+    // Optimize the CANBus utilization by explicitly telling all CAN signals we
+    // are not using to simply not be sent over the CANBus
+    kMotor.optimizeBusUtilization(0.0, 1.0);
+  }
 
-        motorVelocity = motor.getVelocity();
-        motorVoltage = motor.getMotorVoltage();
-        motorStatorCurrent = motor.getStatorCurrent();
-        motorSupplyCurrent = motor.getSupplyCurrent();
-        motorTemp = motor.getDeviceTemp();
+  @Override
+  public void updateInputs(IntakeIOInputs inputs) {
+    inputs.isMotorConnected = BaseStatusSignal.refreshAll(
+      velocityRotationsPerSec,
+      appliedVolts,
+      supplyCurrentAmps,
+      supplyCurrentAmps,
+      statorCurrentAmps,
+      temperatureCelsius).isOK();
 
-        BaseStatusSignal.setUpdateFrequencyForAll(
-            50.0, 
-            motorVoltage, 
-            motorVelocity, 
-            motorStatorCurrent, 
-            motorTemp);
+    inputs.velocityRotationsPerSec = velocityRotationsPerSec.getValueAsDouble();
+    inputs.appliedVoltage = appliedVolts.getValueAsDouble();
+    inputs.supplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
+    inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
+    inputs.temperatureCelsius = temperatureCelsius.getValueAsDouble();
+  }
 
-        motor.optimizeBusUtilization();
+  @Override
+  public void setVoltage(double volts) {
+    kMotor.setControl(voltageControl.withOutput(volts));
+  }
 
-        irSensor = new DigitalInput(config.irSensorID());
-    }
-
-    @Override
-    public void updateInputs(IntakeIOInputs inputs) {
-        inputs.isIntakeConnected = BaseStatusSignal.refreshAll(
-                motorVelocity,
-                motorVoltage,
-                motorStatorCurrent,
-                motorTemp).isOK();
-        inputs.intakeMPS = (motorVelocity.getValueAsDouble());
-        inputs.intakeAppliedVolts = intakeAppliedVolts;
-        inputs.intakeVolts = motorVoltage.getValueAsDouble();
-        inputs.intakeStatorCurrentAmps = new double[] {motorStatorCurrent.getValueAsDouble()};
-        inputs.intakeSupplyCurrentAmps = new double[] {motorSupplyCurrent.getValueAsDouble()};
-        inputs.intakeTemperatureC = new double[] {motorTemp.getValueAsDouble()};
-
-        inputs.intakeHasNote = !irSensor.get();
-    }
-
-    @Override
-    public void setIntakeVolts(double volts) {
-        intakeAppliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
-        motor.setControl(voltageControl.withOutput(volts));
-    }
+   @Override
+  public void stop() {
+    kMotor.setControl(new NeutralOut());
+  }
 }

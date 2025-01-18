@@ -47,7 +47,7 @@ public class IntakeConstants {
     60.0, 
     45.0, 
     12.0,
-    -12.0
+    -12.0,
     NeutralModeValue.Brake);
 
   public static final SimulationConfiguration kSimulationConfiguration = new SimulationConfiguration(

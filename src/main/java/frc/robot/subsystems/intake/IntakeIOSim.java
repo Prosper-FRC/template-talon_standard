@@ -1,39 +1,48 @@
+
 package frc.robot.subsystems.intake;
 
-import static frc.robot.subsystems.intake.IntakeConstants.*;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
-import frc.robot.Constants;
 
 public class IntakeIOSim implements IntakeIO {
-    private DCMotorSim intakeSim = new DCMotorSim(
-            LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.004, kIntakeGearing), 
-            DCMotor.getKrakenX60Foc(1), 0.0, 0.0);
-    private double intakeAppliedVolts = 0.0;
+  private final double kLoopPeriodSec = 0.02;
 
-    public IntakeIOSim() {}
+  private final DCMotorSim kIntake;
 
-    @Override
-    public void updateInputs(IntakeIOInputs inputs) {
-        intakeSim.update(Constants.kLoopPeriod);
+  private double appliedVoltage = 0.0;
 
-        inputs.isIntakeConnected = true;
-        inputs.intakeMPS = (intakeSim.getAngularVelocityRadPerSec() / kIntakeGearing) * kWheelCircumference;
-        inputs.intakeStatorCurrentAmps = new double[] {intakeSim.getCurrentDrawAmps()};
-        inputs.intakeSupplyCurrentAmps = new double[] {intakeSim.getCurrentDrawAmps()};
-        inputs.intakeTemperatureC = new double[] {25.0};
-        inputs.intakeAppliedVolts = intakeAppliedVolts;
-        // No way to access
-        inputs.intakeVolts = intakeAppliedVolts;
+  public IntakeIOSim() {
+    kIntake = new DCMotorSim(
+      LinearSystemId.createDCMotorSystem(
+        IntakeConstants.kSimulationConfiguration.kMotorType(), 
+        IntakeConstants.kSimulationConfiguration.kMeasurementStdDevs(), 
+        IntakeConstants.kGearing), 
+      IntakeConstants.kSimulationConfiguration.kMotorType(), 
+      IntakeConstants.kSimulationConfiguration.kMeasurementStdDevs());
+  }
 
-        inputs.intakeHasNote = false;
-    }
+  @Override
+  public void updateInputs(IntakeIOInputs inputs) {
+    kIntake.update(kLoopPeriodSec);
 
-    @Override
-    public void setIntakeVolts(double volts) {
-        intakeAppliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
-        intakeSim.setInputVoltage(intakeAppliedVolts);
-    }
+    inputs.isMotorConnected = true;
+
+    inputs.velocityRotationsPerSec = kIntake.getAngularVelocityRPM() / 60.0;
+    inputs.appliedVoltage = appliedVoltage;
+    inputs.supplyCurrentAmps = 0.0;
+    inputs.statorCurrentAmps = 0.0;
+    inputs.temperatureCelsius = 0.0;
+  }
+
+  @Override
+  public void setVoltage(double volts) {
+    appliedVoltage = MathUtil.clamp(volts, -12.0, 12.0);
+    kIntake.setInputVoltage(appliedVoltage);
+  }
+
+  @Override
+  public void stop() {
+    kIntake.setInputVoltage(0.0);
+  }
 }

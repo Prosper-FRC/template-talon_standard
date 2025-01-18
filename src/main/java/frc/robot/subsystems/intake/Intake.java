@@ -1,3 +1,4 @@
+
 package frc.robot.subsystems.intake;
 
 import java.util.function.DoubleSupplier;
@@ -8,78 +9,85 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import edu.wpi.first.math.filter.LinearFilter;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 
 public class Intake extends SubsystemBase {
-  public static enum IntakeVoltageGoal {
+  /** List of voltage setpoints for the intake in voltage */
+  public enum IntakeGoal {
     DEMO(() -> 6.0),
     CUSTOM(new LoggedTunableNumber("Intake/Feedback/Setpoint", 0.0));
 
     private DoubleSupplier intakeVolts;
 
-    private IntakeVoltageGoal(DoubleSupplier intakeVolts) {
+    private IntakeGoal(DoubleSupplier intakeVolts) {
       this.intakeVolts = intakeVolts;
     }
 
-    public double getVolts() {
+    public double getGoalVolts() {
       return intakeVolts.getAsDouble();
     }
   }
 
-  private IntakeIO io;
-  private IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
+  private final IntakeIO kHardware;
+  private final IntakeIOInputsAutoLogged kInputs = new IntakeIOInputsAutoLogged();
 
-  @AutoLogOutput(key="Intake/IntakeMotorHasNote")
-  private boolean motorCurrentDetectedNote = false;
+  private boolean detectedGamepiece = false;
   private LinearFilter ampFilter = LinearFilter.movingAverage(10);
 
   @AutoLogOutput(key = "Intake/Goal")
-  private IntakeVoltageGoal goal = null;
+  private IntakeGoal goal = null;
 
   public Intake(IntakeIO io) {
-    this.io = io;
+    kHardware = io;
   }
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Intake", inputs);
+    kHardware.updateInputs(kInputs);
+    Logger.processInputs("Intake/Inputs", kInputs);
 
-    // Checks for spike in amperage, and if greater than the value
-    // Then the intake motor probbaly has the note
-    // Note currently used in code, but left for implementation
-    motorCurrentDetectedNote = ampFilter.calculate(inputs.intakeStatorCurrentAmps[0]) > 35;
+    // Checks for spike in amperage, and if greater than the value then
+    // the intake motor probbaly has the note
+    detectedGamepiece = ampFilter.calculate(
+      kInputs.statorCurrentAmps) > IntakeConstants.kAmpFilterThreshold;
 
-    Logger.recordOutput("Intake/StoppedByIR", false);
-    if(goal != null) {
-      if(goal == IntakeVoltageGoal.INTAKE && inputs.intakeHasNote) {
-        Logger.recordOutput("Intake/StoppedByIR", true);
-        io.setIntakeVolts(0.0);
-      } else {
-        io.setIntakeVolts(goal.getVolts());
-      }
+    if (goal != null) {
+      setVoltage(goal.getGoalVolts());
     }
   }
 
-  public Command setGoalCommand(IntakeVoltageGoal goal) {
-    return Commands.runOnce(() -> setGoal(goal), this);
+  /**
+   * Sets the voltage goal of the mechanism, logic runs in subsystem periodic method
+   * 
+   * @param desiredGoal The desired voltage goal
+   */
+  public void setGoal(IntakeGoal desiredGoal) {
+    goal = desiredGoal;
   }
 
-  public void setGoal(IntakeVoltageGoal goal) {
-    this.goal = goal;
+  /** Stops the motor */
+  public void stop() {
+    goal = null;
+    kHardware.stop();
   }
 
-  public void setIntakeVoltageManually(double volts) {
-    setGoal(null);
-    io.setIntakeVolts(volts);
+  /**
+   * Sets the voltage of the motor,
+   * 
+   * @param voltage
+   */
+  private void setVoltage(double voltage) {
+    kHardware.setVoltage(voltage);
   }
 
-  public boolean getHasPiece() {
-    return inputs.intakeHasNote;
-  }
-  
-  public boolean getMotorCurrentDetectedNotee() {
-    return motorCurrentDetectedNote;
+  /**
+   * The subsystem runs a linear filter that accepts the motor's current and 
+   * compares the moving average against a threshold. If that threshold is exceeded, 
+   * it is very likely that the motor has a gamepiece (or is jammed)
+   * 
+   * @return If the motor thinks it has a gamepiece
+   */
+  @AutoLogOutput(key = "Intake/hasGamepiece")
+  public boolean hasGamepiece() {
+    return detectedGamepiece;
   }
 }
