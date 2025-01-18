@@ -86,6 +86,8 @@ public class Drive extends SubsystemBase{
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.kModuleTranslations);
 
     private static final LoggedTunableNumber kDriftRate = new LoggedTunableNumber("Drive/DriftRate", DriveConstants.kDriftRate);
+    
+    // Following two only used for drift test:
     private static final LoggedTunableNumber kOmegaSpeed = new LoggedTunableNumber("Drive/Omega Speed", 0.0);
     private static final LoggedTunableNumber kTranslationSpeed = new LoggedTunableNumber("Drive/Translation Speed", 0.0);
 
@@ -116,7 +118,7 @@ public class Drive extends SubsystemBase{
             new SwerveModuleState[] {
                 new SwerveModuleState(), new SwerveModuleState(),
                 new SwerveModuleState(), new SwerveModuleState()
-            }, DriveFeedforwards.zeros(robotConfig.numModules));
+            }, DriveFeedforwards.zeros(robotConfig.numModules)); // Omg there's a zeros function that's kinda cool
 
         AutoBuilder.configure(
             this::getEstimatedPose,
