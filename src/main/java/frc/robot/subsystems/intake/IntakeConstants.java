@@ -1,6 +1,6 @@
 package frc.robot.subsystems.intake;
 
-public class IndexerIntakeConstants {
+public class IntakeConstants {
     public static final int kIndexerID = 31;
     public static final int kIRSensorID = 1;
     

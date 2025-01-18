@@ -1,22 +1,22 @@
 package frc.robot.subsystems.intake;
 
-import static frc.robot.subsystems.intake.IndexerIntakeConstants.*;
+import static frc.robot.subsystems.intake.IntakeConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 
-public class IndexerIOSim implements IndexerIntakeIO {
+public class IntakeIOSim implements IntakeIO {
     private DCMotorSim intakeSim = new DCMotorSim(
             LinearSystemId.createDCMotorSystem(DCMotor.getKrakenX60Foc(1), 0.004, kIntakeGearing), 
             DCMotor.getKrakenX60Foc(1), 0.0, 0.0);
     private double intakeAppliedVolts = 0.0;
 
-    public IndexerIOSim() {}
+    public IntakeIOSim() {}
 
     @Override
-    public void updateInputs(IndexerIntakeInputs inputs) {
+    public void updateInputs(IntakeIOInputs inputs) {
         intakeSim.update(Constants.kLoopPeriod);
 
         inputs.isIntakeConnected = true;

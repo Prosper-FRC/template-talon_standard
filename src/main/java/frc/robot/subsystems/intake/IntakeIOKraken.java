@@ -74,7 +74,7 @@ public class IntakeIOKraken implements IntakeIO {
     }
 
     @Override
-    public void updateInputs(IndexerIntakeInputs inputs) {
+    public void updateInputs(IntakeIOInputs inputs) {
         inputs.isIntakeConnected = BaseStatusSignal.refreshAll(
                 motorVelocity,
                 motorVoltage,
