@@ -1,7 +1,9 @@
 {
   "NTProvider": {
     "types": {
-      "/FMSInfo": "FMSInfo"
+      "/AdvantageKit/RealOutputs/Elevator/Visualier": "Mechanism2d",
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Auton Program": "String Chooser"
     }
   },
   "NetworkTables": {

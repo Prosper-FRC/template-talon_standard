@@ -44,13 +44,11 @@ public class ElevatorConstants {
   // Taken from mech and electrical
   public static final int kMotorID = 1;
 
-  public static final double kGearing = 1.0 / 1.0;
-  public static final double kDrumCircumferenceMeters = 1.0;
+  public static final double kGearing = 8.0 / 1.0;
+  public static final double kDrumCircumferenceMeters = Units.inchesToMeters(5.0);
 
-  public static final double kMaxPositionMeters = 0.0;
+  public static final double kMaxPositionMeters = 2.5;
   public static final double kMinPositionMeters = 0.0;
-
-  public static final double kToleranceMeters = 0.0;
 
   /** The frequency that telemetry form the motor is pushed to the CANBus */
   public static final double kStatusSignalUpdateFrequencyHz = 100.0;
@@ -69,16 +67,16 @@ public class ElevatorConstants {
         0.0,
         0.0);
       case SIM -> new ElevatorGains(
-        100.0,
+        1.8,
         0.0,
         0.0,
-        100.0,
-        100.0,
+        10.0,
+        25.0,
         0.0,
         0.0,
-        2.41,
-        0.08,
-        0.79);
+        3.07,
+        0.41,
+        2.28);
       default -> new ElevatorGains(
         0.0,
         0.0,

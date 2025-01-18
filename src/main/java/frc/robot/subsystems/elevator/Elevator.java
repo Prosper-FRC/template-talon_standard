@@ -16,7 +16,7 @@ public class Elevator extends SubsystemBase {
   /** List of position setpoints for the elevator in meters */
   public enum ElevatorGoal {
     DEMO(() -> 0.5),
-    CUSTOM(() -> new LoggedTunableNumber("Elevator/Custom", 0.0).get());
+    CUSTOM(new LoggedTunableNumber("Elevator/Custom", 0.0));
 
     private DoubleSupplier goalMeters;
 
@@ -32,7 +32,6 @@ public class Elevator extends SubsystemBase {
   private final ElevatorIO kHardware;
   private final ElevatorIOInputsAutoLogged kInputs = new ElevatorIOInputsAutoLogged();
 
-  @AutoLogOutput(key = "Elevator/CurrentGoal")
   private ElevatorGoal currentElevaotrGoal = null;
 
   private double currentElevatorGoalPositionMeters = 0.0;
@@ -81,9 +80,6 @@ public class Elevator extends SubsystemBase {
     } else {
       Logger.recordOutput("Elevator/Goal", "NONE");
     }
-
-    // Log this since it's useful to know what the elevator'sactual current goal is and not just the enum
-    Logger.recordOutput("Elevator/CurrentGoalPositionMeters", currentElevatorGoalPositionMeters);
 
     // This says that if the value is changed in the advantageScope tool,
     // Then we change the values in the code. Saves deploy time.
@@ -177,5 +173,15 @@ public class Elevator extends SubsystemBase {
    */
   public double getPositionMeters() {
     return kInputs.positionMeters;
+  }
+
+  /**
+   * It may be useful to know what the goal of the feedback controller is
+   * 
+   * @return The goal position of the linear mechanism in meters (typically set in periodic)
+   */
+  @AutoLogOutput(key = "Elevator/Feedback/GoalMeters")
+  public double getPositionGoalMeters() {
+    return currentElevatorGoalPositionMeters;
   }
 }

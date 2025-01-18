@@ -4,9 +4,11 @@
 
 package frc.robot.subsystems.elevator;
 
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ElevatorFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 
@@ -25,22 +27,28 @@ public class ElevatorIOSim implements ElevatorIO {
     ElevatorConstants.kSimulationConfiguration.kMeasurementStdDevs(),
     ElevatorConstants.kSimulationConfiguration.kMeasurementStdDevs());
 
-  // Create and use the feedback and feedforware controllers in here since we 
-  // are using the internal motor controllers
-  private final ProfiledPIDController kFeedback = 
-    new ProfiledPIDController(ElevatorConstants.kElevatorGains.kP(),
-      ElevatorConstants.kElevatorGains.kI(),
-      ElevatorConstants.kElevatorGains.kD(),
-      new TrapezoidProfile.Constraints(
-        ElevatorConstants.kElevatorGains.kMaxVelocityMetersPerSecond(), 
-        ElevatorConstants.kElevatorGains.kMaxAccelerationMetersPerSecondSquared()));
-  // It's still a constant, but we have to reinstantiate the model in order to change the gains
+    // Create and use the feedback and feedforware controllers in here since we 
+    // are using the internal motor controllers
+  private TrapezoidProfile kProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(
+    ElevatorConstants.kElevatorGains.kMaxVelocityMetersPerSecond(), 
+    ElevatorConstants.kElevatorGains.kMaxAccelerationMetersPerSecondSquared()));
+
+  private final PIDController kFeedback = new PIDController(ElevatorConstants.kElevatorGains.kP(),
+  ElevatorConstants.kElevatorGains.kI(),
+  ElevatorConstants.kElevatorGains.kD());
+
+  // Feedforward still a constant, but we have to reinstantiate the model in order to change the gains
   private ElevatorFeedforward kFeedforward = 
     new ElevatorFeedforward(
       ElevatorConstants.kElevatorGains.kS(), 
       ElevatorConstants.kElevatorGains.kG(), 
       ElevatorConstants.kElevatorGains.kV(), 
       ElevatorConstants.kElevatorGains.kA());
+
+  // Final goal of the mechanism
+  private TrapezoidProfile.State goal = new TrapezoidProfile.State();
+  // Setpoint to go to following the profile
+  private TrapezoidProfile.State setpoint = new TrapezoidProfile.State();
 
   private double appliedVoltage = 0.0;
 
@@ -86,15 +94,20 @@ public class ElevatorIOSim implements ElevatorIO {
       closedLoopControl = true;
     }
     if (feedbackNeedsReset) {
-      kFeedback.reset(kElevator.getPositionMeters());
+      kFeedback.reset();
+      setpoint = new TrapezoidProfile.State(kElevator.getPositionMeters(), 0.0);
       feedbackNeedsReset = false;
     }
+    goal = new TrapezoidProfile.State(goalPositionMeters, 0.0);
 
-    double feedforwardEffort = kFeedforward.calculate(kElevator.getVelocityMetersPerSecond());
-    double setpointVolts = kFeedback.calculate(
-      kElevator.getPositionMeters(), 
-      goalPositionMeters + feedforwardEffort);
-    setVoltage(setpointVolts);
+    setpoint = kProfile.calculate(0.02, setpoint, goal);
+
+    double feedforwardEffort = kFeedforward.calculate(setpoint.velocity);
+    double feedbackEffort = kFeedback.calculate(kElevator.getPositionMeters(), setpoint.position);
+
+    Logger.recordOutput("Elevator/Feedback/FBEffort", feedbackEffort);
+    Logger.recordOutput("Elevator/Feedback/FFEffort", feedforwardEffort);
+    setVoltage(feedbackEffort + feedforwardEffort);
   }
 
   @Override
@@ -110,7 +123,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
   @Override
   public void setMotionMagicConstraints(double maxVelocity, double maxAcceleration) {
-    kFeedback.setConstraints(new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
+    kProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(maxVelocity, maxAcceleration));
   }
 
   @Override

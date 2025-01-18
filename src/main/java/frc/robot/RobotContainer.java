@@ -4,26 +4,24 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
-import frc.robot.subsystems.flywheels.Flywheels;
-import frc.robot.subsystems.flywheels.Flywheels.FlywheelSetpoint;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
+    private final Elevator elevator;
 
     private final CommandXboxController driverController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
-
-    // Define subsystems
-    // ex: private final LEDSubsystem LEDs;
-    private final Flywheels robotFlywheels;
-//    private final Elevator robotElevator;
 
     // Define other utility classes
     private final AutonCommands autonCommands;
@@ -34,24 +32,17 @@ public class RobotContainer {
     private final boolean useCompetitionBindings = true;
 
     public RobotContainer() {
-
-        // If using AdvantageKit, perform mode-specific instantiation of subsystems.
         switch (Constants.kCurrentMode) {
             case REAL:
-                // Instantiate subsystems that operate actual hardware (Hardware controller based modules)
+                elevator = new Elevator(new ElevatorIOTalonFX());
                 break;
             case SIM:
-                // Instantiate subsystems that simulate actual hardware (IOSim modules)
+                elevator = new Elevator(new ElevatorIOSim());
                 break;
             default:
-                // Instantiate subsystems that are driven by playback of recorded sessions. (IO modules)
+                elevator = new Elevator(new ElevatorIO() {});
                 break;
         }
-
-        // Instantiate subsystems that don't care about mode, or are non-AdvantageKit enabled.
-        // ex: LEDs = new LEDSubsystem();
-        robotFlywheels = new Flywheels();
-        // robotElevator = new Elevator();
 
         // Instantiate your TeleopCommands and AutonCommands classes
         telopCommands = new TeleopCommands(/* pass subsystems here */);
@@ -88,29 +79,27 @@ public class RobotContainer {
         return autoChooser.get();
     }
 
-    private void configureStateTriggers() {
-
-
-    }
+    private void configureStateTriggers() {}
 
     private void configureButtonBindings() {
-        operatorController.a()
-          .onTrue(robotFlywheels.setGoalCommand(FlywheelSetpoint.SHOOT))
-          .onFalse(robotFlywheels.setGoalCommand(FlywheelSetpoint.STOP));
+        driverController.a()
+            .whileTrue(Commands.startEnd(
+                () -> {elevator.setVoltage(12.0);}, 
+                () -> {elevator.stop();}, 
+                elevator));
 
-        operatorController.x()
-          .onTrue(robotFlywheels.setGoalCommand(FlywheelSetpoint.AMP))
-          .onFalse(robotFlywheels.setGoalCommand(FlywheelSetpoint.STOP));
-
-//        operatorController.b()
-//          .onTrue(robotElevator.setGoalCommand(ElevatorGoal.UP))
-//          .onFalse(robotElevator.setGoalCommand(ElevatorGoal.IDLE));
-
-//        operatorController.y()
-//          .onTrue(robotElevator.setGoalCommand(ElevatorGoal.DEBUGGING_VOLTS));
-
-//        operatorController.povDown()
-//          .onTrue(robotElevator.setGoalCommand(ElevatorGoal.IDLE));
+        driverController.b()
+            .whileTrue(Commands.startEnd(
+                () -> {elevator.setVoltage(-12.0);}, 
+                () -> {elevator.stop();}, 
+                elevator));
+        
+        driverController.x()
+            .whileTrue(Commands.run(
+                () -> {elevator.setGoal(ElevatorGoal.CUSTOM);},  
+                elevator))
+            .whileFalse(Commands.runOnce(
+                () -> {elevator.stop();}, 
+                elevator));
     }
-
 }
