@@ -15,9 +15,9 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DigitalInput;
-import frc.robot.subsystems.intake.IndexerIntakeConstants.IntakeHardwareConfig;
+import frc.robot.subsystems.intake.IntakeConstants.IntakeHardwareConfig;
 
-public class IndexerIOKraken implements IndexerIntakeIO {
+public class IntakeIOKraken implements IntakeIO {
     private TalonFX motor;
     private TalonFXConfiguration motorConfig = new TalonFXConfiguration();
     
@@ -31,7 +31,7 @@ public class IndexerIOKraken implements IndexerIntakeIO {
     private StatusSignal<Current> motorSupplyCurrent;
     private StatusSignal<Temperature> motorTemp;
 
-    public IndexerIOKraken(IntakeHardwareConfig config) {
+    public IntakeIOKraken(IntakeHardwareConfig config) {
         motor = new TalonFX(config.motorID());
 
         // SPECIFIC TO SYSTEM. 
