@@ -30,25 +30,35 @@ public class Intake extends SubsystemBase {
   private final IntakeIO kHardware;
   private final IntakeIOInputsAutoLogged kInputs = new IntakeIOInputsAutoLogged();
 
+  private final SensorIO kSensor;
+  private final SensorIOInputsAutoLogged kSensorInputs = new SensorIOInputsAutoLogged();
+
   private boolean detectedGamepiece = false;
   private LinearFilter ampFilter = LinearFilter.movingAverage(10);
 
   @AutoLogOutput(key = "Intake/Goal")
   private IntakeGoal goal = null;
 
-  public Intake(IntakeIO io) {
-    kHardware = io;
+  public Intake(IntakeIO hardwareIO, SensorIO sensorIO) {
+    kHardware = hardwareIO;
+    kSensor = sensorIO;
   }
 
   @Override
   public void periodic() {
     kHardware.updateInputs(kInputs);
     Logger.processInputs("Intake/Inputs", kInputs);
+    kSensor.updateInputs(kSensorInputs);
+    Logger.processInputs("Intake/Inputs/Sensor", kSensorInputs);
 
-    // Checks for spike in amperage, and if greater than the value then
-    // the intake motor probbaly has the note
-    detectedGamepiece = ampFilter.calculate(
-      kInputs.statorCurrentAmps) > IntakeConstants.kAmpFilterThreshold;
+    if (kSensorInputs.isConnected) {
+      detectedGamepiece = kSensorInputs.detectsObject;
+    } else {
+      // Checks for spike in amperage, and if greater than the value then
+      // the intake motor probbaly has the note
+      detectedGamepiece = ampFilter.calculate(
+        kInputs.statorCurrentAmps) > IntakeConstants.kAmpFilterThreshold;
+    }
 
     if (goal != null) {
       setVoltage(goal.getGoalVolts());

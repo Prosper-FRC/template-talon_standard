@@ -11,6 +11,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.intake.SensorIO;
+import frc.robot.subsystems.intake.SensorIORange;
 import frc.robot.subsystems.intake.Intake.IntakeGoal;
 import frc.robot.subsystems.intake.IntakeIOSim;
 
@@ -40,15 +42,15 @@ public class RobotContainer {
         switch (Constants.kCurrentMode) {
             case REAL:
                 // Instantiate subsystems that operate actual hardware (Hardware controller based modules)
-                intake = new Intake(new IntakeIOTalonFX());
+                intake = new Intake(new IntakeIOTalonFX(), new SensorIORange());
                 break;
             case SIM:
                 // Instantiate subsystems that simulate actual hardware (IOSim modules)
-                intake = new Intake(new IntakeIOSim());
+                intake = new Intake(new IntakeIOSim(), new SensorIO(){});
                 break;
             default:
                 // Instantiate subsystems that are driven by playback of recorded sessions. (IO modules)
-                intake = new Intake(new IntakeIO(){});
+                intake = new Intake(new IntakeIO(){}, new SensorIO(){});
                 break;
         }
 

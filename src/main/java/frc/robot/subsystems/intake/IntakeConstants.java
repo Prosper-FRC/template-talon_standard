@@ -17,13 +17,18 @@ public class IntakeConstants {
     double kPeakReverseVoltage,
     NeutralModeValue kNeutralMode) {}
 
+  public record SensorConfiguration(
+    double kDetectionThresholdMeters
+  ) {}
+
   public record SimulationConfiguration(
     DCMotor kMotorType,
     double kMeasurementStdDevs
   ) {}
 
   // Taken from mech and electrical
-  public static final int kMotorID = 1;
+  public static final int kMotorID = 56;
+  public static final int kCANrangeID = 57;
 
   public static final double kGearing = 9.0 / 1.0;
   public static final double kWheelRadiusMeters = Units.inchesToMeters(0.0);
@@ -50,7 +55,11 @@ public class IntakeConstants {
     -12.0,
     NeutralModeValue.Brake);
 
+  public static final SensorConfiguration kSensorConfiguration = new SensorConfiguration(
+    1.0);
+    
   public static final SimulationConfiguration kSimulationConfiguration = new SimulationConfiguration(
     DCMotor.getKrakenX60(1), 
     0.0002);
+
 }
