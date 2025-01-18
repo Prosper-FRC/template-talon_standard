@@ -82,24 +82,24 @@ public class RobotContainer {
     private void configureStateTriggers() {}
 
     private void configureButtonBindings() {
-        driverController.a()
-            .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(12.0);}, 
-                () -> {elevator.stop();}, 
-                elevator));
+        // driverController.a()
+        //     .whileTrue(Commands.startEnd(
+        //         () -> {elevator.setVoltage(12.0);}, 
+        //         () -> {elevator.stop();}, 
+        //         elevator));
 
-        driverController.b()
-            .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(-12.0);}, 
-                () -> {elevator.stop();}, 
-                elevator));
+        // driverController.b()
+        //     .whileTrue(Commands.startEnd(
+        //         () -> {elevator.setVoltage(-12.0);}, 
+        //         () -> {elevator.stop();}, 
+        //         elevator));
         
-        driverController.x()
-            .whileTrue(Commands.run(
-                () -> {elevator.setGoal(ElevatorGoal.CUSTOM);},  
-                elevator))
-            .whileFalse(Commands.runOnce(
-                () -> {elevator.stop();}, 
-                elevator));
+        // driverController.x()
+        //     .whileTrue(Commands.run(
+        //         () -> {elevator.setGoal(ElevatorGoal.CUSTOM);},  
+        //         elevator))
+        //     .whileFalse(Commands.runOnce(
+        //         () -> {elevator.stop();}, 
+        //         elevator));
     }
 }
