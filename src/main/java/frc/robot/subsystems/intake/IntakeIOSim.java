@@ -18,8 +18,7 @@ public class IntakeIOSim implements IntakeIO {
         IntakeConstants.kSimulationConfiguration.kMotorType(), 
         IntakeConstants.kSimulationConfiguration.kMeasurementStdDevs(), 
         IntakeConstants.kGearing), 
-      IntakeConstants.kSimulationConfiguration.kMotorType(), 
-      IntakeConstants.kSimulationConfiguration.kMeasurementStdDevs());
+      IntakeConstants.kSimulationConfiguration.kMotorType());
   }
 
   @Override
@@ -43,6 +42,6 @@ public class IntakeIOSim implements IntakeIO {
 
   @Override
   public void stop() {
-    kIntake.setInputVoltage(0.0);
+    setVoltage(0.0);
   }
 }
