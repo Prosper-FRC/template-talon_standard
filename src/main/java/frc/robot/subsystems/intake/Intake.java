@@ -34,7 +34,8 @@ public class Intake extends SubsystemBase {
   private final SensorIOInputsAutoLogged kSensorInputs = new SensorIOInputsAutoLogged();
 
   private boolean detectedGamepiece = false;
-  private LinearFilter ampFilter = LinearFilter.movingAverage(10);
+  private LinearFilter ampFilter = LinearFilter.movingAverage(
+    IntakeConstants.kLinearFilterSampleCount);
 
   @AutoLogOutput(key = "Intake/Goal")
   private IntakeGoal goal = null;
@@ -51,6 +52,8 @@ public class Intake extends SubsystemBase {
     kSensor.updateInputs(kSensorInputs);
     Logger.processInputs("Intake/Inputs/Sensor", kSensorInputs);
 
+    // If the CANrange disconnects we can use motor current to detect when we have a coral
+    // TODO Test this fallback to see if it actually works
     if (kSensorInputs.isConnected) {
       detectedGamepiece = kSensorInputs.detectsObject;
     } else {
