@@ -8,7 +8,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 
-public class Module extends SubsystemBase {
+public class Module {
 
     public static final LoggedTunableNumber driveP = new LoggedTunableNumber("Module/Drive/kP", DriveConstants.kModuleControllerConfigs.driveController().getP());
     public static final LoggedTunableNumber driveD = new LoggedTunableNumber("Module/Drive/kD", DriveConstants.kModuleControllerConfigs.driveController().getD());
@@ -25,7 +25,7 @@ public class Module extends SubsystemBase {
     private Rotation2d azimuthSetpointAngle = null;
     private Double accelerationSetpointMPSS = null;
 
-    // Current state and current posistion are updated periodically //
+    // Current state and current position are updated periodically //
     private SwerveModuleState currentState = new SwerveModuleState();
     private SwerveModulePosition currentPosition = new SwerveModulePosition();
 
@@ -44,8 +44,8 @@ public class Module extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.processInputs("Drive/"+ nameKey, inputs);
 
-        currentState = new SwerveModuleState(inputs.driveVelocityMPS, inputs.azimuthPosistion);
-        currentPosition = new SwerveModulePosition(inputs.drivePosistionM, inputs.azimuthPosistion);
+        currentState = new SwerveModuleState(inputs.driveVelocityMPS, inputs.azimuthPosition);
+        currentPosition = new SwerveModulePosition(inputs.drivePositionM, inputs.azimuthPosition);
 
         // Checks if setpoint is existing before setting a demand // 
         if(velocitySetpointMPS != null){
@@ -68,7 +68,7 @@ public class Module extends SubsystemBase {
     }
 
     /**
-     * Reset the posistion of the azimuth encoder
+     * Reset the position of the azimuth encoder
      */
     public void resetAzimuthEncoder(){
         io.resetAzimuthEncoder();
@@ -80,50 +80,50 @@ public class Module extends SubsystemBase {
      * @param inputVolts volts fed into the motor
      */
     public void runLinearCharacterization(double inputVolts) {
-        setAzimuthPosistion(Rotation2d.fromRotations(0));
+        setAzimuthPosition(Rotation2d.fromRotations(0));
         setDriveVelocity(null);
         setDriveVolts(inputVolts);
     }
 
     /**
-     * Set the desired velocity/posistion respectivly to the drive and azimuth with no acceleration
-     * @param state desired state (posistion + velocity)
+     * Set the desired velocity/position respectivly to the drive and azimuth with no acceleration
+     * @param state desired state (position + velocity)
      * @return set state
      */
     public SwerveModuleState setSwerveState(SwerveModuleState state){
         setDriveAcceleration(null);
         setDriveVelocity(state.speedMetersPerSecond);
-        setAzimuthPosistion(state.angle);
+        setAzimuthPosition(state.angle);
         return new SwerveModuleState(velocitySetpointMPS, azimuthSetpointAngle);
     }
 
     /**
-     * Set the desired velocity/posistion respectivly to the drive and azimuth with acceleration
-     * @param state desired state (posistion + velocity)
+     * Set the desired velocity/position respectivly to the drive and azimuth with acceleration
+     * @param state desired state (position + velocity)
      * @param accel desired acceleration (m/s^2)
      * @return set state
      */
     public SwerveModuleState setSwerveStatewithAccel(SwerveModuleState state, double accel){
         setDriveAcceleration(accelerationSetpointMPSS);
         setDriveVelocity(state.speedMetersPerSecond);
-        setAzimuthPosistion(state.angle);
+        setAzimuthPosition(state.angle);
         return new SwerveModuleState(velocitySetpointMPS, azimuthSetpointAngle);
     }
 
     /**
-     * Set the desired posistion of the azimuth
-     * @param state desired state (posistion + velocity), velocity will not be used
+     * Set the desired position of the azimuth
+     * @param state desired state (position + velocity), velocity will not be used
      * @return set state
      */
-    public SwerveModuleState setAzimuthPosistion(SwerveModuleState state){
-        setAzimuthPosistion(state.angle);
+    public SwerveModuleState setAzimuthPosition(SwerveModuleState state){
+        setAzimuthPosition(state.angle);
         setDriveVelocity(null);
         setDriveAcceleration(null);
         return new SwerveModuleState(0, azimuthSetpointAngle);
     }
 
     /**
-     * Returns the velocity/posistion of the drive and azimuth respectively
+     * Returns the velocity/position of the drive and azimuth respectively
      * @return current state of the swerve module
      */
     public SwerveModuleState getCurrentState(){
@@ -131,10 +131,10 @@ public class Module extends SubsystemBase {
     }
 
     /**
-     * Returnds the distance traveled/posistion of the drive and azimuth respectively
+     * Returnds the distance traveled/position of the drive and azimuth respectively
      * @return current position of the swerve module
      */
-    public SwerveModulePosition getCurrentPosistion(){
+    public SwerveModulePosition getCurrentPosition(){
         return currentPosition;
     }
 
@@ -163,11 +163,11 @@ public class Module extends SubsystemBase {
     }
 
     /**
-     * Set posistion to the azimuth motor
+     * Set position to the azimuth motor
      * @param positionDemand (units: rotations)
      */
-    public void setAzimuthPosistion(Rotation2d posistionDemand){
-        azimuthSetpointAngle = posistionDemand;
+    public void setAzimuthPosition(Rotation2d positionDemand){
+        azimuthSetpointAngle = positionDemand;
     }
 
     /**

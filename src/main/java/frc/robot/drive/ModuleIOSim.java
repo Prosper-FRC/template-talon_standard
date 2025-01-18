@@ -42,15 +42,15 @@ public class ModuleIOSim implements ModuleIO {
         driveMotor.update(0.02);
         azimuthMotor.update(0.02);
 
-        inputs.drivePosistionM = driveMotor.getAngularPositionRotations() * DriveConstants.kCircumfrenceMeters;
-        inputs.driveVelocityMPS = (driveMotor.getAngularVelocityRPM() * DriveConstants.kCircumfrenceMeters) / 60.0;
+        inputs.drivePositionM = driveMotor.getAngularPositionRotations() * DriveConstants.kWheelCircumferenceMeters;
+        inputs.driveVelocityMPS = (driveMotor.getAngularVelocityRPM() * DriveConstants.kWheelCircumferenceMeters) / 60.0;
         inputs.driveTempC = new double[]{0.0};
         inputs.driveConnected = true;
         inputs.driveMotorVolts = driveAppliedVolts;
         inputs.driveStatorAmps = new double[] {Math.abs(driveMotor.getCurrentDrawAmps())};
 
-        inputs.azimuthAbsolutePosistion = new Rotation2d(azimuthMotor.getAngularPositionRad());
-        inputs.azimuthPosistion = new Rotation2d(azimuthMotor.getAngularPositionRad());
+        inputs.azimuthAbsolutePosition = new Rotation2d(azimuthMotor.getAngularPositionRad());
+        inputs.azimuthPosition = new Rotation2d(azimuthMotor.getAngularPositionRad());
         inputs.azimuthStatorAmps = new double[] {Math.abs(azimuthMotor.getCurrentDrawAmps())};
         inputs.azimuthTempC = new double[] {0.0};
         inputs.azimuthMotorVolts = azimuthAppliedVolts;
@@ -68,7 +68,7 @@ public class ModuleIOSim implements ModuleIO {
     public void setDriveVelocity(double velocityMPS) {
         setDriveVolts(
             drivePID.calculate(
-                driveMotor.getAngularVelocityRPM() * DriveConstants.kCircumfrenceMeters / 60, 
+                driveMotor.getAngularVelocityRPM() * DriveConstants.kWheelCircumferenceMeters / 60, 
                 velocityMPS));
     }
 

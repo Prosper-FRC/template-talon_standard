@@ -15,7 +15,7 @@ public class DriveConstants {
 
     public static final int kGyroPort = 10;
 
-    public static final double kMaxLinearSpped = 4.5;
+    public static final double kMaxLinearSpeed = 4.5;
     public static final double kMaxLinearAcceleration = 9.6;
     public static final double kMaxRotationalSpeedRadians = Math.toRadians(360.0);
     public static final double kMaxRotationalAccelerationRadians = Math.toRadians(360) * 10;
@@ -25,7 +25,7 @@ public class DriveConstants {
     public static final double kAzimuthGearRatio = 150.0 / 7.0;
     public static final double kDriveGearRatio = 6.75 / 1.0;
     public static final double kWheelRadiusMeters = 5.08 / 100.0;
-    public static final double kCircumfrenceMeters = 2 * Math.PI * kWheelRadiusMeters;
+    public static final double kWheelCircumferenceMeters = 2 * Math.PI * kWheelRadiusMeters;
 
     public static final Translation2d[] kModuleTranslations = new Translation2d[] {
         new Translation2d(kTrackwidthXMeters / 2.0, kTrackwidthYMeters / 2.0),
@@ -77,6 +77,11 @@ public class DriveConstants {
         PIDController azimuthController,
         SimpleMotorFeedforward azimuthFF) {}
 
+
+    // First set of ModuleControlConfig tell us the PID and FF gains in real life and the second set gives the sim ones //
+    // The drive kS and kV can be found using a system indentication test, kA shoulud only be added for FOC //
+    // kP is simply tuned and kD is not neccessary usually //
+    // Important note: Update these values after each time you tune with LoggedTuneableNumbers to make sure that its the new default value //
     public static final ModuleControlConfig kModuleControllerConfigs = RobotBase.isReal() ? 
         new ModuleControlConfig(
             new PIDController(0.0, 0.0, 0.0), new SimpleMotorFeedforward(0.16396, 2.3327, 0.0),

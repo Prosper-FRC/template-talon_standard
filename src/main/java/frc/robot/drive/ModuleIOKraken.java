@@ -70,7 +70,7 @@ public class ModuleIOKraken implements ModuleIO{
     driveConfig.Voltage.PeakForwardVoltage = 12.0;
     driveConfig.Voltage.PeakReverseVoltage = -12.0;
     driveConfig.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
-    driveConfig.Feedback.SensorToMechanismRatio = DriveConstants.kDriveGearRatio / DriveConstants.kCircumfrenceMeters;
+    driveConfig.Feedback.SensorToMechanismRatio = DriveConstants.kDriveGearRatio / DriveConstants.kWheelCircumferenceMeters;
     driveConfig.Slot0.kP = DriveConstants.kModuleControllerConfigs.driveController().getP();
     driveConfig.Slot0.kD = DriveConstants.kModuleControllerConfigs.driveController().getD();
     driveConfig.Slot0.kS = DriveConstants.kModuleControllerConfigs.driveFF().getKs();
@@ -140,7 +140,7 @@ public class ModuleIOKraken implements ModuleIO{
       driveStatorCurrent,
       driveTempC).isOK();
 
-    inputs.drivePosistionM = drivePosistion.getValueAsDouble();
+    inputs.drivePositionM = drivePosistion.getValueAsDouble();
     inputs.driveVelocityMPS = (driveVelocity.getValueAsDouble());
     inputs.driveStatorAmps = new double[] {driveStatorCurrent.getValueAsDouble()};
     inputs.driveTempC = new double[] {driveTempC.getValueAsDouble()};
@@ -153,8 +153,8 @@ public class ModuleIOKraken implements ModuleIO{
       azimuthStatorCurrent,
       azimuthTempC).isOK();
 
-    inputs.azimuthPosistion = Rotation2d.fromRotations(azimuthPosistion.getValueAsDouble());
-    inputs.azimuthAbsolutePosistion = Rotation2d.fromRotations(absolutePosistionSignal.getValueAsDouble()).minus((angleOffset));
+    inputs.azimuthPosition = Rotation2d.fromRotations(azimuthPosistion.getValueAsDouble());
+    inputs.azimuthAbsolutePosition = Rotation2d.fromRotations(absolutePosistionSignal.getValueAsDouble()).minus((angleOffset));
     inputs.azimuthStatorAmps = new double[] {azimuthStatorCurrent.getValueAsDouble()};
     inputs.azimuthTempC = new double[] {azimuthTempC.getValueAsDouble()};
     inputs.azimuthMotorVolts = azimuthVoltage.getValueAsDouble();

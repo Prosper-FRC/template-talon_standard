@@ -91,6 +91,11 @@ public class RobotContainer {
 
 
         // Pass subsystems to classes that need them for configuration
+
+        // Create any Dashboard choosers (LoggedDashboardChooser, etc)
+
+        // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
+        
         drive.acceptJoystickInputs(
             () -> driverController.getLeftY(),
             () -> driverController.getLeftX(),
@@ -98,12 +103,10 @@ public class RobotContainer {
 
         drive.setDefaultCommand(Commands.run(
             () -> drive.setDriveEnum(DriveState.TELEOP), drive));
-
-        // Create any Dashboard choosers (LoggedDashboardChooser, etc)
-
-        // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
+        
         configureStateTriggers();
         configureButtonBindings();
+
     }
 
     public Command getTeleopCommand() {
@@ -116,9 +119,7 @@ public class RobotContainer {
         return autoChooser.get();
     }
 
-    private void configureStateTriggers() {
-        new Trigger(DriverStation::isEnabled).onTrue(Commands.runOnce(() -> drive.resetAllEncoders()));
-    }
+    private void configureStateTriggers() {}
 
     private void configureButtonBindings() {
         driverController.x().onTrue(Commands.runOnce(() -> {drive.resetGyro();}));
@@ -132,6 +133,8 @@ public class RobotContainer {
         driverController.povLeft().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_LEFT)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
 
         driverController.b().onTrue(drive.setDriveStateCommandContinued(DriveState.DRIFT_TEST)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+
+        driverController.y().onTrue(drive.setDriveStateCommandContinued(DriveState.RIGHT_DEG)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
 
         driverController.a().onTrue(drive.characterizeDriveMotors()).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
     }

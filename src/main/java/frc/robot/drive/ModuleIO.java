@@ -7,15 +7,15 @@ public interface ModuleIO {
     @AutoLog
     public static class SwerveModuleInputs {
         public boolean driveConnected = true;
-        public double drivePosistionM = 0.0;
+        public double drivePositionM = 0.0;
         public double driveVelocityMPS = 0.0;
         public double[] driveStatorAmps = new double[] {0.0};
         public double[] driveTempC = new double[] {0.0};
         public double driveMotorVolts = 0.0;
 
         public boolean azimuthConnected = true;
-        public Rotation2d azimuthPosistion = new Rotation2d();
-        public Rotation2d azimuthAbsolutePosistion = new Rotation2d();
+        public Rotation2d azimuthPosition = new Rotation2d();
+        public Rotation2d azimuthAbsolutePosition = new Rotation2d();
         public double[] azimuthStatorAmps = new double[] {0.0};
         public double[] azimuthTempC = new double[] {0.0};
         public double azimuthMotorVolts = 0.0;
