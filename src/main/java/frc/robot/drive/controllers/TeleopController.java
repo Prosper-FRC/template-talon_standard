@@ -25,7 +25,7 @@ public class TeleopController {
 
     // The Scalar can proportionally make the linear/rotational speed faster or slower //
     public static final LoggedTunableNumber linearScalar = new LoggedTunableNumber("Drive/Teleop/LinearScalar", 1);
-    public static final LoggedTunableNumber omegaScalar = new LoggedTunableNumber("Drive/Teleop/RotationScalar", 0.5);
+    public static final LoggedTunableNumber omegaScalar = new LoggedTunableNumber("Drive/Teleop/RotationScalar", 1);
 
     // 
     public static final LoggedTunableNumber rotationInputsExponent = new LoggedTunableNumber("Drive/Teleop/RotationInputExponent", 1);

@@ -1,6 +1,5 @@
 package frc.robot.drive;
 
-import static frc.robot.drive.DriveConstants.kDriftRate;
 import static frc.robot.drive.DriveConstants.kMaxLinearAcceleration;
 import static frc.robot.drive.DriveConstants.kMaxLinearSpeed;
 import static frc.robot.drive.DriveConstants.kMaxRotationalAccelerationRadians;
@@ -21,7 +20,6 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
 
-import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -83,7 +81,7 @@ public class Drive extends SubsystemBase{
     private SwerveSetpoint previousSetpoint;
     private PIDConstants translationPathplannerConstants = new PIDConstants(1.5, 0.0, 0.0);
     private PIDConstants rotationPathplannerConstants = new PIDConstants(1.5, 0.0, 0.0);
-    private boolean useGenerator = true;
+    private boolean useGenerator = false;
 
     private SwerveDriveKinematics kinematics = new SwerveDriveKinematics(DriveConstants.kModuleTranslations);
 
@@ -120,7 +118,7 @@ public class Drive extends SubsystemBase{
             new SwerveModuleState[] {
                 new SwerveModuleState(), new SwerveModuleState(),
                 new SwerveModuleState(), new SwerveModuleState()
-            }, DriveFeedforwards.zeros(robotConfig.numModules)); // Omg there's a zeros function that's kinda cool
+            }, DriveFeedforwards.zeros(robotConfig.numModules)); 
 
         AutoBuilder.configure(
             this::getEstimatedPose,

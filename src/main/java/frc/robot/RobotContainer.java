@@ -137,6 +137,9 @@ public class RobotContainer {
         driverController.y().onTrue(drive.setDriveStateCommandContinued(DriveState.RIGHT_DEG)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
 
         driverController.a().onTrue(drive.characterizeDriveMotors()).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+
+        // FOR DEBUGGING PURPOSES AND SHOULD BE REMOVED DURING COMP
+        driverController.rightBumper().onTrue(Commands.runOnce(() -> {drive.resetPose();}));
     }
 
 }
