@@ -4,10 +4,18 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.intake.SensorIO;
+import frc.robot.subsystems.intake.SensorIORange;
+import frc.robot.subsystems.intake.Intake.IntakeGoal;
+import frc.robot.subsystems.intake.IntakeIOSim;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -18,6 +26,7 @@ public class RobotContainer {
 
     // Define subsystems
     // ex: private final LEDSubsystem LEDs;
+    private final Intake intake;
 
     // Define other utility classes
     private final AutonCommands autonCommands;
@@ -33,12 +42,15 @@ public class RobotContainer {
         switch (Constants.kCurrentMode) {
             case REAL:
                 // Instantiate subsystems that operate actual hardware (Hardware controller based modules)
+                intake = new Intake(new IntakeIOTalonFX(), new SensorIORange());
                 break;
             case SIM:
                 // Instantiate subsystems that simulate actual hardware (IOSim modules)
+                intake = new Intake(new IntakeIOSim(), new SensorIO(){});
                 break;
             default:
                 // Instantiate subsystems that are driven by playback of recorded sessions. (IO modules)
+                intake = new Intake(new IntakeIO(){}, new SensorIO(){});
                 break;
         }
 
@@ -86,7 +98,9 @@ public class RobotContainer {
     }
 
     private void configureButtonBindings() {
-
+        driverController.a()
+            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.CUSTOM);}, intake))
+            .whileFalse(Commands.runOnce(() -> {intake.stop();}, intake));
     }
 
 }
