@@ -139,6 +139,9 @@ public class RobotContainer {
         driverController.a().onTrue(drive.characterizeDriveMotors()).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
         
         driverController.x().onTrue(Commands.runOnce(() -> {drive.resetGyro();}));
+
+        // FOR DEBUGGING PURPOSES AND SHOULD BE REMOVED DURING COMP
+        driverController.rightBumper().onTrue(Commands.runOnce(() -> {drive.resetPose();}));
     }
 
 }

@@ -15,12 +15,12 @@ public class DriveConstants {
 
     public static final int kGyroPort = 10;
 
+    // TODO: Might need to change this to a lower value in pp and here
     public static final double kMaxLinearSpeed = 4.5;
     public static final double kMaxLinearAcceleration = 7.7;
     public static final double kMaxRotationalSpeedRadians = Math.toRadians(360.0);
     public static final double kMaxRotationalAccelerationRadians = Math.toRadians(360) * 10;
     public static final double kMaxAzimuthAngularRadiansPS = Math.toRadians(660.0);
-    // Temp
 
     public static final double kAzimuthGearRatio = 150.0 / 7.0;
     public static final double kDriveGearRatio = 6.12 / 1.0;
@@ -37,7 +37,7 @@ public class DriveConstants {
     public static final SwerveDriveKinematics kKinematics = new SwerveDriveKinematics(kModuleTranslations);
 
     // TODO: Needs to be tuned //
-    public static final double kDriftRate = 1;
+    public static final double kDriftRate = RobotBase.isReal() ? 1 : 3.0;
 
     public static final SwerveModuleHardwareConfig kFrontLeft = new SwerveModuleHardwareConfig(
       "FrontLeft", 
@@ -87,7 +87,7 @@ public class DriveConstants {
             new PIDController(0.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0),
             new PIDController(0.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
         new ModuleControlConfig(
-            new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.1, 0.015), 
+            new PIDController(2.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.1, 0.0), 
             new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0));
     
 }
