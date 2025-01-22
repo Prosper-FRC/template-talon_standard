@@ -75,43 +75,46 @@ public class VisionIOPV implements VisionIO {
             
             // Gets the camera data
             List<PhotonPipelineResult> unreadResults = limelightCam.getAllUnreadResults();
-            PhotonPipelineResult result = (!unreadResults.isEmpty()) ? unreadResults.get(unreadResults.size()-1) : limelightCam.getLatestResult();
             poseEstimator.setLastPose(lastRobotPose);
-            Optional<EstimatedRobotPose> estimatedRobotPose = poseEstimator.update(result);
+            inputs.hasBeenUpdated = !unreadResults.isEmpty();
+            if(!unreadResults.isEmpty()) {
+                PhotonPipelineResult result = unreadResults.get(unreadResults.size()-1);
+                Optional<EstimatedRobotPose> latestEstimatedRobotPose = poseEstimator.update(result);
 
-            // Adds it to data streaming
-            inputs.isConnected = limelightCam.isConnected();
+                // Adds it to data streaming
+                inputs.isConnected = limelightCam.isConnected();
 
-            inputs.hasTarget = result.hasTargets();
-            if (result.hasTargets()) {
-                PhotonTrackedTarget target = result.getBestTarget();
-                inputs.cameraToApriltag = target.getBestCameraToTarget();
-                inputs.robotToApriltag = target.getBestCameraToTarget().plus(cameraTransform);
-                inputs.aprilTagID = target.getFiducialId();
-                inputs.poseAmbiguity = target.getPoseAmbiguity();
-                inputs.yaw = target.getYaw();
-                inputs.pitch = target.getPitch();
-                inputs.area = target.getArea();
-                inputs.latencySeconds = result.getTimestampSeconds() / 1000.0;
+                inputs.hasTarget = result.hasTargets();
+                if (result.hasTargets()) {
+                    PhotonTrackedTarget target = result.getBestTarget();
+                    inputs.cameraToApriltag = target.getBestCameraToTarget();
+                    inputs.robotToApriltag = target.getBestCameraToTarget().plus(cameraTransform);
+                    inputs.aprilTagID = target.getFiducialId();
+                    inputs.poseAmbiguity = target.getPoseAmbiguity();
+                    inputs.yaw = target.getYaw();
+                    inputs.pitch = target.getPitch();
+                    inputs.area = target.getArea();
+                    inputs.latencySeconds = result.getTimestampSeconds() / 1000.0;
 
-                estimatedRobotPose.ifPresent(est -> {
-                    inputs.estimatedRobotPose = estimatedRobotPose.get().estimatedPose;
+                    latestEstimatedRobotPose.ifPresent(est -> {
+                        inputs.latestEstimatedRobotPose = latestEstimatedRobotPose.get().estimatedPose;
 
-                    ArrayList<Transform3d> tagTs = new ArrayList<>();
-                    double[] ambiguities = new double[estimatedRobotPose.get().targetsUsed.size()];
-                    if(estimatedRobotPose.get().targetsUsed.size() > 0) {
-                        for(int i = 0; i < estimatedRobotPose.get().targetsUsed.size(); i++) {
-                            tagTs.add(estimatedRobotPose.get().targetsUsed.get(i).getBestCameraToTarget());
-                            ambiguities[i] = estimatedRobotPose.get().targetsUsed.get(i).getPoseAmbiguity();
+                        ArrayList<Transform3d> tagTs = new ArrayList<>();
+                        double[] ambiguities = new double[latestEstimatedRobotPose.get().targetsUsed.size()];
+                        if(latestEstimatedRobotPose.get().targetsUsed.size() > 0) {
+                            for(int i = 0; i < latestEstimatedRobotPose.get().targetsUsed.size(); i++) {
+                                tagTs.add(latestEstimatedRobotPose.get().targetsUsed.get(i).getBestCameraToTarget());
+                                ambiguities[i] = latestEstimatedRobotPose.get().targetsUsed.get(i).getPoseAmbiguity();
+                            }
                         }
-                    }
    
-                    inputs.numberOfTargets = estimatedRobotPose.get().targetsUsed.size();
-                    inputs.tagTransforms = tagTs.toArray(Transform3d[]::new);
-                    inputs.tagAmbiguities = ambiguities;
+                        inputs.numberOfTargets = latestEstimatedRobotPose.get().targetsUsed.size();
+                        inputs.latestTagTransforms = tagTs.toArray(Transform3d[]::new);
+                        inputs.latestTagAmbiguities = ambiguities;
         
-                    inputs.latestTimestamp = result.getTimestampSeconds();
-                });
+                        inputs.latestTimestamp = result.getTimestampSeconds();
+                    });
+                }
             }
             // In case camera goes brrr
         } catch(Exception e) {
@@ -129,9 +132,9 @@ public class VisionIOPV implements VisionIO {
             inputs.aprilTagID = 0;
             inputs.robotToApriltag = new Transform3d();
             inputs.latestTimestamp = 0.0;
-            inputs.estimatedRobotPose = new Pose3d();
-            inputs.tagTransforms = new Transform3d[14];
-            inputs.tagAmbiguities = new double[14];
+            inputs.latestEstimatedRobotPose = new Pose3d();
+            inputs.latestTagTransforms = new Transform3d[14];
+            inputs.latestTagAmbiguities = new double[14];
         }
     }
 }

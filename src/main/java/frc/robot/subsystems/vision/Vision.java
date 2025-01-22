@@ -32,10 +32,10 @@ public class Vision {
         for(int i = 0; i < cameras.length; i++) {
             cameras[i].updateInputs(camerasData[i], lastRobotPose, simOdomPose);
             Logger.processInputs("Vision/"+camerasData[i].camName, camerasData[i]);
-            Logger.recordOutput("Vision/"+camerasData[i].camName+"/Pose", camerasData[i].estimatedRobotPose.toPose2d());
-            Logger.recordOutput("Vision/"+camerasData[i].camName+"/X", camerasData[i].estimatedRobotPose.getRotation().getX());
-            Logger.recordOutput("Vision/"+camerasData[i].camName+"/Y", camerasData[i].estimatedRobotPose.getRotation().getY());
-            Logger.recordOutput("Vision/"+camerasData[i].camName+"/Z", camerasData[i].estimatedRobotPose.getRotation().getZ());
+            Logger.recordOutput("Vision/"+camerasData[i].camName+"/Pose", camerasData[i].latestEstimatedRobotPose.toPose2d());
+            Logger.recordOutput("Vision/"+camerasData[i].camName+"/X", camerasData[i].latestEstimatedRobotPose.getRotation().getX());
+            Logger.recordOutput("Vision/"+camerasData[i].camName+"/Y", camerasData[i].latestEstimatedRobotPose.getRotation().getY());
+            Logger.recordOutput("Vision/"+camerasData[i].camName+"/Z", camerasData[i].latestEstimatedRobotPose.getRotation().getZ());
         }
 
     }
@@ -46,15 +46,15 @@ public class Vision {
         int i = 0;
         // STANDARD DEVIATION CALCULATIONS \\
         for(VisionIOInputsAutoLogged camData : camerasData) {
-            // No point in adding vision data if it doesn't exist
-            if(camData.hasTarget) {
+                // No point in adding vision data if it doesn't exist
+            if(camData.hasTarget && camData.hasBeenUpdated) {
                 // Average distance from tag, and the number of tags to determine estimate stability
                 double numberOfTargets = camData.numberOfTargets;
                 double avgDistMeters = 0.0;
-                for(int r = 0; r < camData.tagTransforms.length; r++) {
-                    if(camData.tagTransforms[r] != null) {
-                        if(camData.tagAmbiguities[r] < kAmbiguityThreshold) {
-                            avgDistMeters += camData.tagTransforms[r].getTranslation().getNorm();
+                for(int r = 0; r < camData.latestTagTransforms.length; r++) {
+                    if(camData.latestTagTransforms[r] != null) {
+                        if(camData.latestTagAmbiguities[r] < kAmbiguityThreshold) {
+                            avgDistMeters += camData.latestTagTransforms[r].getTranslation().getNorm();
                         } else {
                             numberOfTargets -= 1;
                         }
@@ -65,7 +65,7 @@ public class Vision {
                 if(numberOfTargets == 0) {
                     observations[i] = new VisionObservation(
                         true, 
-                        camData.estimatedRobotPose.toPose2d(), 
+                        camData.latestEstimatedRobotPose.toPose2d(), 
                         VecBuilder.fill(
                             Double.MAX_VALUE, 
                             Double.MAX_VALUE, 
@@ -82,7 +82,7 @@ public class Vision {
                 if(numberOfTargets == 0 || (numberOfTargets == 1 && avgDistMeters > 3.5)) {
                     observations[i] = new VisionObservation(
                         true,
-                        camData.estimatedRobotPose.toPose2d(), 
+                        camData.latestEstimatedRobotPose.toPose2d(), 
                         VecBuilder.fill(
                             Double.MAX_VALUE, 
                             Double.MAX_VALUE, 
@@ -92,7 +92,7 @@ public class Vision {
                 } else if(numberOfTargets == 1) {
                     observations[i] = new VisionObservation(
                         true,
-                        camData.estimatedRobotPose.toPose2d(), 
+                        camData.latestEstimatedRobotPose.toPose2d(), 
                         VecBuilder.fill(
                             kSingleXYStdev.get() * xyScalar, 
                             kSingleXYStdev.get() * xyScalar, 
@@ -102,7 +102,7 @@ public class Vision {
                 } else {
                     observations[i] = new VisionObservation(
                         true,
-                        camData.estimatedRobotPose.toPose2d(), 
+                        camData.latestEstimatedRobotPose.toPose2d(), 
                         VecBuilder.fill(
                             kMultiXYStdev.get() * xyScalar, 
                             kMultiXYStdev.get() * xyScalar, 

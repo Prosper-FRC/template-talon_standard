@@ -22,13 +22,14 @@ public interface VisionIO {
         public int aprilTagID = 0;
         public Transform3d robotToApriltag = new Transform3d();
         public double latestTimestamp = 0.0;
-        public Pose3d estimatedRobotPose = new Pose3d();
-        public Transform3d[] tagTransforms = new Transform3d[] {
+        public boolean hasBeenUpdated = false;
+        public Pose3d latestEstimatedRobotPose = new Pose3d();
+        public Transform3d[] latestTagTransforms = new Transform3d[] {
             new Transform3d(), new Transform3d(), new Transform3d(), new Transform3d(), 
             new Transform3d(), new Transform3d(), new Transform3d(), new Transform3d(), 
             new Transform3d(), new Transform3d(), new Transform3d(), new Transform3d(), 
             new Transform3d(), new Transform3d()};
-        public double[] tagAmbiguities = new double[] {
+        public double[] latestTagAmbiguities = new double[] {
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
         };
