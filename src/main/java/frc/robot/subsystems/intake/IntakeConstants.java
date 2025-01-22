@@ -2,6 +2,7 @@
 package frc.robot.subsystems.intake;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.util.Units;
@@ -16,6 +17,12 @@ public class IntakeConstants {
     double kPeakForwardVoltage,
     double kPeakReverseVoltage,
     NeutralModeValue kNeutralMode) {}
+
+  public record SparkConfiguration(
+    boolean kInvert,
+    int kSmartCurrentLimitAmps,
+    int kSecondaryCurrentLimitAmps,
+    IdleMode kIdleMode) {}
 
   public record SensorConfiguration(
     double kDetectionThresholdMeters
@@ -39,8 +46,8 @@ public class IntakeConstants {
   public static final int kAmpFilterThreshold = 0;
 
   /** The number of motor current reading samples the gamepeice detection filter averages 
-   * over */
-  public static final int kLinearFilterSampleCount = 0;
+   * over, this number cannot be 0 */
+  public static final int kLinearFilterSampleCount = 10;
 
   /** The frequency that telemetry form the motor is pushed to the CANBus */
   public static final double kStatusSignalUpdateFrequencyHz = 100.0;
@@ -54,6 +61,12 @@ public class IntakeConstants {
     12.0,
     -12.0,
     NeutralModeValue.Brake);
+
+  public static final SparkConfiguration kSparkConfiguration = new SparkConfiguration(
+    false,
+    60,
+    80,
+    IdleMode.kCoast);
 
   public static final SensorConfiguration kSensorConfiguration = new SensorConfiguration(
     1.0);
