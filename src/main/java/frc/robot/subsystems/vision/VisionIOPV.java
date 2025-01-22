@@ -4,12 +4,12 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.photonvision.EstimatedRobotPose;
@@ -37,18 +37,17 @@ public class VisionIOPV implements VisionIO {
         this.cameraTransform = cameraTransform;
         // Don't worry about it
         PhotonCamera.setVersionCheckEnabled(false);
+
         poseEstimator = new PhotonPoseEstimator(
-            AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo),
-            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-            limelightCam,
-            cameraTransform);
+            AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField), 
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, cameraTransform);
         poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.CLOSEST_TO_LAST_POSE);
 
         if(Constants.kCurrentMode == Mode.SIM) {
             // Create the vision system simulation which handles cameras and targets on the field.
             visionSim = new VisionSystemSim("main");
             // Add all the AprilTags inside the tag layout as visible targets to this simulated field.
-            visionSim.addAprilTags(AprilTagFields.k2024Crescendo.loadAprilTagLayoutField());
+            visionSim.addAprilTags(AprilTagFields.kDefaultField.loadAprilTagLayoutField());
             // Create simulated camera properties. These can be set to mimic your actual camera.
             var cameraProp = new SimCameraProperties();
             cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(75));
@@ -73,8 +72,10 @@ public class VisionIOPV implements VisionIO {
             if (Constants.kCurrentMode == Mode.SIM) {
                 visionSim.update(simOdomPose);
             }
+            
             // Gets the camera data
-            PhotonPipelineResult result = limelightCam.getLatestResult();
+            List<PhotonPipelineResult> unreadResults = limelightCam.getAllUnreadResults();
+            PhotonPipelineResult result = (!unreadResults.isEmpty()) ? unreadResults.get(unreadResults.size()-1) : limelightCam.getLatestResult();
             poseEstimator.setLastPose(lastRobotPose);
             Optional<EstimatedRobotPose> estimatedRobotPose = poseEstimator.update(result);
 
@@ -91,20 +92,20 @@ public class VisionIOPV implements VisionIO {
                 inputs.yaw = target.getYaw();
                 inputs.pitch = target.getPitch();
                 inputs.area = target.getArea();
-                inputs.latencySeconds = result.getLatencyMillis() / 1000.0;
+                inputs.latencySeconds = result.getTimestampSeconds() / 1000.0;
 
                 estimatedRobotPose.ifPresent(est -> {
-                    // PV returns it off by Math.PI radians
-                    inputs.estimatedRobotPose = estimatedRobotPose.get().estimatedPose.transformBy(
-                        new Transform3d(0, 0, 0, new Rotation3d(0.0, 0.0, Math.PI)));
+                    inputs.estimatedRobotPose = estimatedRobotPose.get().estimatedPose;
 
                     ArrayList<Transform3d> tagTs = new ArrayList<>();
                     double[] ambiguities = new double[estimatedRobotPose.get().targetsUsed.size()];
-                    for(int i = 0; i < estimatedRobotPose.get().targetsUsed.size(); i++) {
-                        tagTs.add(estimatedRobotPose.get().targetsUsed.get(i).getBestCameraToTarget());
-                        ambiguities[i] = estimatedRobotPose.get().targetsUsed.get(i).getPoseAmbiguity();
+                    if(estimatedRobotPose.get().targetsUsed.size() > 0) {
+                        for(int i = 0; i < estimatedRobotPose.get().targetsUsed.size(); i++) {
+                            tagTs.add(estimatedRobotPose.get().targetsUsed.get(i).getBestCameraToTarget());
+                            ambiguities[i] = estimatedRobotPose.get().targetsUsed.get(i).getPoseAmbiguity();
+                        }
                     }
-                        
+   
                     inputs.numberOfTargets = estimatedRobotPose.get().targetsUsed.size();
                     inputs.tagTransforms = tagTs.toArray(Transform3d[]::new);
                     inputs.tagAmbiguities = ambiguities;

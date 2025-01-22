@@ -4,10 +4,15 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionConstants;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOPV;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
@@ -26,6 +31,11 @@ public class RobotContainer {
     private LoggedDashboardChooser<Command> autoChooser;
 
     private final boolean useCompetitionBindings = true;
+
+    private final Vision robotVision = new Vision(new VisionIO[] {
+        new VisionIOPV(VisionConstants.kLeftCamName, VisionConstants.kLeftCamTransform),
+        new VisionIOPV(VisionConstants.kRightCamName, VisionConstants.kRightCamTransform)
+    });
 
     public RobotContainer() {
 
@@ -87,6 +97,10 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
 
+    }
+
+    public void updateVision() {
+        robotVision.periodic(new Pose2d(), new Pose2d());
     }
 
 }
