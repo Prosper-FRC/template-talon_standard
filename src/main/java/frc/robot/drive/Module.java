@@ -39,7 +39,7 @@ public class Module {
         this.io = (instance);
         nameKey = "Module/" + key;
     }
-
+    
     public void periodic(){
         io.updateInputs(inputs);
         Logger.processInputs("Drive/"+ nameKey, inputs);

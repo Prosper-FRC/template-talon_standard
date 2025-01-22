@@ -69,7 +69,7 @@ public class ModuleIOSim implements ModuleIO {
         setDriveVolts(
             drivePID.calculate(
                 driveMotor.getAngularVelocityRPM() * DriveConstants.kWheelCircumferenceMeters / 60, 
-                velocityMPS));
+                velocityMPS) + driveFF.calculate(velocityMPS));
     }
 
     @Override

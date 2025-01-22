@@ -8,22 +8,22 @@ import edu.wpi.first.wpilibj.RobotBase;
 
 public class DriveConstants {
 
-    public static final double kTrackwidthXMeters = 0.55;
-    public static final double kTrackwidthYMeters = 0.55;
+    public static final double kTrackwidthXMeters = 0.6;
+    public static final double kTrackwidthYMeters = 0.6;
 
     public static final double kDrivebaseRadius =  Math.hypot(kTrackwidthXMeters / 2.0, kTrackwidthYMeters / 2.0);;
 
     public static final int kGyroPort = 10;
 
     public static final double kMaxLinearSpeed = 4.5;
-    public static final double kMaxLinearAcceleration = 9.6;
+    public static final double kMaxLinearAcceleration = 7.7;
     public static final double kMaxRotationalSpeedRadians = Math.toRadians(360.0);
     public static final double kMaxRotationalAccelerationRadians = Math.toRadians(360) * 10;
     public static final double kMaxAzimuthAngularRadiansPS = Math.toRadians(660.0);
     // Temp
 
     public static final double kAzimuthGearRatio = 150.0 / 7.0;
-    public static final double kDriveGearRatio = 6.75 / 1.0;
+    public static final double kDriveGearRatio = 6.12 / 1.0;
     public static final double kWheelRadiusMeters = 5.08 / 100.0;
     public static final double kWheelCircumferenceMeters = 2 * Math.PI * kWheelRadiusMeters;
 
@@ -44,28 +44,28 @@ public class DriveConstants {
       11, 
       21, 
       31, 
-      Rotation2d.fromRotations(0.173584));
+      Rotation2d.fromRotations(0));
     
     public static final SwerveModuleHardwareConfig kFrontRight = new SwerveModuleHardwareConfig(
       "FrontRight", 
       12, 
       22,
       32,
-      Rotation2d.fromRotations(-0.180420));
+      Rotation2d.fromRotations(-0.4956));
    
     public static final SwerveModuleHardwareConfig kBackLeft = new SwerveModuleHardwareConfig(
       "BackLeft", 
       13, 
       23,
-     33, 
-      Rotation2d.fromRotations(0.334229));
+      33, 
+      Rotation2d.fromRotations(0.01));
     
     public static final SwerveModuleHardwareConfig kBackRight = new SwerveModuleHardwareConfig(
       "BackRight",
       14, 
       24,
       34, 
-      Rotation2d.fromRotations(0.110107));
+      Rotation2d.fromRotations(-0.4888));
 
     public static final boolean kInvertAzimuths = true;
 
@@ -84,8 +84,8 @@ public class DriveConstants {
     // Important note: Update these values after each time you tune with LoggedTuneableNumbers to make sure that its the new default value //
     public static final ModuleControlConfig kModuleControllerConfigs = RobotBase.isReal() ? 
         new ModuleControlConfig(
-            new PIDController(0.0, 0.0, 0.0), new SimpleMotorFeedforward(0.16396, 2.3327, 0.0),
-            new PIDController(30.0, 0.0, 0.0), new SimpleMotorFeedforward(0.05, 0.0, 0.0)) :
+            new PIDController(0.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0),
+            new PIDController(0.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
         new ModuleControlConfig(
             new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.1, 0.015), 
             new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0));

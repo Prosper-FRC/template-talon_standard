@@ -119,11 +119,11 @@ public class RobotContainer {
         return autoChooser.get();
     }
 
-    private void configureStateTriggers() {}
+    private void configureStateTriggers() {
+        
+    }
 
     private void configureButtonBindings() {
-        driverController.x().onTrue(Commands.runOnce(() -> {drive.resetGyro();}));
-
         driverController.povUp().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_UP)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
             
         driverController.povRight().onTrue(drive.setDriveStateCommandContinued(DriveState.SNIPER_RIGHT)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
@@ -137,6 +137,8 @@ public class RobotContainer {
         driverController.y().onTrue(drive.setDriveStateCommandContinued(DriveState.RIGHT_DEG)).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
 
         driverController.a().onTrue(drive.characterizeDriveMotors()).onFalse(drive.setDriveStateCommand(DriveState.TELEOP));
+        
+        driverController.x().onTrue(Commands.runOnce(() -> {drive.resetGyro();}));
     }
 
 }
