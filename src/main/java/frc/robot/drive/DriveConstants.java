@@ -44,28 +44,28 @@ public class DriveConstants {
       11, 
       21, 
       31, 
-      Rotation2d.fromRotations(0));
+      Rotation2d.fromRotations(-0.085));
     
     public static final SwerveModuleHardwareConfig kFrontRight = new SwerveModuleHardwareConfig(
       "FrontRight", 
       12, 
       22,
-      32,
-      Rotation2d.fromRotations(-0.4956));
+      34,
+      Rotation2d.fromRotations(-0.23071));
    
     public static final SwerveModuleHardwareConfig kBackLeft = new SwerveModuleHardwareConfig(
       "BackLeft", 
-      13, 
-      23,
+      23, 
+      13,
       33, 
-      Rotation2d.fromRotations(0.01));
+      Rotation2d.fromRotations(0.081299));
     
     public static final SwerveModuleHardwareConfig kBackRight = new SwerveModuleHardwareConfig(
       "BackRight",
       14, 
       24,
-      34, 
-      Rotation2d.fromRotations(-0.4888));
+      32, 
+      Rotation2d.fromRotations(0.4055));
 
     public static final boolean kInvertAzimuths = true;
 
@@ -84,8 +84,8 @@ public class DriveConstants {
     // Important note: Update these values after each time you tune with LoggedTuneableNumbers to make sure that its the new default value //
     public static final ModuleControlConfig kModuleControllerConfigs = RobotBase.isReal() ? 
         new ModuleControlConfig(
-            new PIDController(0.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0),
-            new PIDController(0.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
+            new PIDController(1.0, 0.0, 0.0), new SimpleMotorFeedforward(0.164, 2.33, 0.0),
+            new PIDController(25.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0)) :
         new ModuleControlConfig(
             new PIDController(2.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 2.1, 0.0), 
             new PIDController(12.0, 0.0, 0.0), new SimpleMotorFeedforward(0.0, 0.0, 0.0));
