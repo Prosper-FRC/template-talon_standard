@@ -23,6 +23,10 @@ public class VisionConstants {
         new Rotation3d(1.0, 1.0, 1.0)
     );
 
+    // TODO: SET TO FALSE UNLESS YOU ACTUALLY KNOW WHAT THIS DOES
+    // This turns on a implementation of Rembrandts single tag vision algorithm
+    public static final boolean KUseSingleTagTransform = true;
+
     // Tuned by your
     public static final Vector<N3> kSingleStdDevs = (RobotBase.isReal()) ?
         VecBuilder.fill(0.01, 0.01, 5.0) : VecBuilder.fill(0.01, 0.01, 5.0);

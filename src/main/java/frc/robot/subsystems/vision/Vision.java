@@ -2,13 +2,18 @@ package frc.robot.subsystems.vision;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N3;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import static frc.robot.subsystems.vision.VisionConstants.kSingleStdDevs;
 import static frc.robot.subsystems.vision.VisionConstants.kMultiStdDevs;
+import static frc.robot.subsystems.vision.VisionConstants.KUseSingleTagTransform;
 import static frc.robot.subsystems.vision.VisionConstants.kAmbiguityThreshold;;
 
 public class Vision {
@@ -20,7 +25,10 @@ public class Vision {
     private static final LoggedTunableNumber kMultiXYStdev = new LoggedTunableNumber(
         "Vision/kMultiXYStdev", kMultiStdDevs.get(0));
 
+    private final AprilTagFieldLayout k2025Field = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+
     public Vision(VisionIO[] cameras) {
+        Logger.recordOutput("Vision/UseSingleTagTransform", KUseSingleTagTransform);
         this.cameras = cameras;
         camerasData = new VisionIOInputsAutoLogged[cameras.length];
         for(int i = 0; i < cameras.length; i++) {
@@ -46,7 +54,7 @@ public class Vision {
         int i = 0;
         // STANDARD DEVIATION CALCULATIONS \\
         for(VisionIOInputsAutoLogged camData : camerasData) {
-                // No point in adding vision data if it doesn't exist
+            // No point in adding vision data if it doesn't exist
             if(camData.hasTarget && camData.hasBeenUpdated) {
                 // Average distance from tag, and the number of tags to determine estimate stability
                 double numberOfTargets = camData.numberOfTargets;
@@ -90,14 +98,28 @@ public class Vision {
                         camData.latestTimestamp, camData.camName);
                 // In other cases, run single-tag calibration
                 } else if(numberOfTargets == 1) {
-                    observations[i] = new VisionObservation(
-                        true,
-                        camData.latestEstimatedRobotPose.toPose2d(), 
-                        VecBuilder.fill(
-                            kSingleXYStdev.get() * xyScalar, 
-                            kSingleXYStdev.get() * xyScalar, 
-                            Double.MAX_VALUE), 
-                        camData.latestTimestamp, camData.camName);
+                    Pose2d singleTagPose = new Pose2d();
+                    if(KUseSingleTagTransform) {
+                        singleTagPose = 
+                            // Pose of involved tag
+                            k2025Field.getTagPose(camData.aprilTagID).get().toPose2d()
+                            // Transform pose to camera
+                            .plus(new Transform2d(
+                                    camData.cameraToApriltag.getX(), camData.cameraToApriltag.getY(), 
+                                    camData.cameraToApriltag.getRotation().toRotation2d()))
+                            // Transform camera to robot center
+                            .plus(toTransform2d(camData.cameraToRobot.inverse()));
+                    } else {
+                        singleTagPose = camData.latestEstimatedRobotPose.toPose2d();
+                    }
+                        observations[i] = new VisionObservation(
+                            true,
+                            singleTagPose, 
+                            VecBuilder.fill(
+                                kSingleXYStdev.get() * xyScalar, 
+                                kSingleXYStdev.get() * xyScalar, 
+                                Double.MAX_VALUE), 
+                            camData.latestTimestamp, camData.camName);
                 // In other cases, run multi-tag calibration
                 } else {
                     observations[i] = new VisionObservation(
@@ -119,6 +141,10 @@ public class Vision {
             i++;
        }
         return observations;
+    }
+
+    private Transform2d toTransform2d(Transform3d transform) {
+        return new Transform2d(transform.getX(), transform.getY(), transform.getRotation().toRotation2d());
     }
 
     public record VisionObservation(boolean hasObserved, Pose2d pose, Vector<N3> stdDevs, double timeStamp, String camName) {}

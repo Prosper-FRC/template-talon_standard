@@ -17,6 +17,7 @@ public interface VisionIO {
         public boolean hasTarget = false;
         public int numberOfTargets = 0;
 
+        public Transform3d cameraToRobot = new Transform3d();
         public Transform3d cameraToApriltag = new Transform3d();
         public double poseAmbiguity = 0.0;
         public int aprilTagID = 0;

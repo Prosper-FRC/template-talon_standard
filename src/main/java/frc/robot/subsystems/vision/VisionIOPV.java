@@ -66,6 +66,7 @@ public class VisionIOPV implements VisionIO {
     @Override
     public void updateInputs(VisionIOInputs inputs, Pose2d lastRobotPose, Pose2d simOdomPose) {
         inputs.camName = camName;
+        inputs.cameraToRobot= cameraTransform;
         // To stop the dangerous case where the camera disconnects, and causes the code to crash
         try {
             // Updates the position from which the cameras have to look at
