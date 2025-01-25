@@ -16,7 +16,7 @@ public class Elevator extends SubsystemBase {
   /** List of position setpoints for the elevator in meters */
   public enum ElevatorGoal {
     DEMO(() -> 0.5),
-    CUSTOM(new LoggedTunableNumber("Elevator/Custom", 0.0));
+    CUSTOM(new LoggedTunableNumber("Elevator/Custom", 1));
 
     private DoubleSupplier goalMeters;
 
