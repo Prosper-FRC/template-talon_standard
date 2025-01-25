@@ -84,13 +84,13 @@ public class RobotContainer {
     private void configureButtonBindings() {
         driverController.a()
             .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(2);}, 
+                () -> {elevator.setVoltage(3.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
 
         driverController.b()
             .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(-2);}, 
+                () -> {elevator.setVoltage(-3.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
         

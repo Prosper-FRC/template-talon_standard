@@ -42,13 +42,15 @@ public class ElevatorConstants {
   ) {}
 
   // Taken from mech and electrical
-  public static final int kMotorID = 1;
+  public static final int kMotorID = 50;
 
-  public static final double kGearing = 125 / 1.0;
+  public static final double kGearing = 9.0 / 1.0;
   // outer .944inches inner .819inches sprocket radius 
-  public static final double kDrumCircumferenceMeters = Units.inchesToMeters(5.0);
+  public static final double kDrumCircumferenceMeters = 2.0 * Math.PI * Units.inchesToMeters(0.819);
 
-  public static final double kMaxPositionMeters = 2.5;
+  //empty carriage load = .8kg
+
+  public static final double kMaxPositionMeters = 1.778;
   public static final double kMinPositionMeters = 0.0;
 
   /** The frequency that telemetry form the motor is pushed to the CANBus */
@@ -92,17 +94,17 @@ public class ElevatorConstants {
   };
 
   public static final KrakenConfiguration kMotorConfiguration = new KrakenConfiguration(
-    false, 
+    true, 
     true, 
     true, 
     60.0, 
-    45.0, 
+    50.0, 
     NeutralModeValue.Brake);
 
   public static final SimulationConfiguration kSimulationConfiguration = new SimulationConfiguration(
     DCMotor.getKrakenX60(1), 
-    6.0, 
-    Units.inchesToMeters(2.5), 
+    1.0, 
+    Units.inchesToMeters(0.994), 
     true, 
     0.0, 
     0.0002);

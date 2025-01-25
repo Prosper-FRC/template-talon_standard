@@ -76,7 +76,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     motorConfiguration.Feedback.SensorToMechanismRatio = 
       // Rotations -> Linear distance (Circumfrence of the drum over the gearing)
-      ElevatorConstants.kGearing / ElevatorConstants.kDrumCircumferenceMeters;
+      (ElevatorConstants.kDrumCircumferenceMeters / ElevatorConstants.kGearing);
     // Rotor sensor is the built-in sensor
     motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
