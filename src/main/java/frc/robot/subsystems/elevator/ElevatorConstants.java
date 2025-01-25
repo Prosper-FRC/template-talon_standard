@@ -44,7 +44,8 @@ public class ElevatorConstants {
   // Taken from mech and electrical
   public static final int kMotorID = 1;
 
-  public static final double kGearing = 8.0 / 1.0;
+  public static final double kGearing = 125 / 1.0;
+  // outer .944inches inner .819inches sprocket radius 
   public static final double kDrumCircumferenceMeters = Units.inchesToMeters(5.0);
 
   public static final double kMaxPositionMeters = 2.5;
