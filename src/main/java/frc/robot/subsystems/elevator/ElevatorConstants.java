@@ -48,7 +48,8 @@ public class ElevatorConstants {
   // outer .944inches inner .819inches sprocket radius 
   public static final double kDrumCircumferenceMeters = 2.0 * Math.PI * Units.inchesToMeters(0.944);
 
-  //empty carriage load = .8kg
+  // empty carriage load = .8kg
+  // test carriage load = 5kg
 
   public static final double kMaxPositionMeters = 1.65;
   public static final double kMinPositionMeters = 0.0;
@@ -59,16 +60,16 @@ public class ElevatorConstants {
   public static final ElevatorGains kElevatorGains = 
     switch (Constants.kCurrentMode) {
       case REAL -> new ElevatorGains(
+        10.0,
+        0.0,
+        0.0,
+        2.947, //2.947
+        22.0, // 22
         0.0,
         0.0,
         0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0,
-        0.0);
+        0.01, // 0.01
+        0.11); // 0.11
       case SIM -> new ElevatorGains(
         1.8,
         0.0,

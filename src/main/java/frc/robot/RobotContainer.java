@@ -89,13 +89,13 @@ public class RobotContainer {
 
         driverController.a()
             .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(2.0);}, 
+                () -> {elevator.setVoltage(6.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
 
         driverController.b()
             .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(-2.0);}, 
+                () -> {elevator.setVoltage(-6.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
         

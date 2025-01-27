@@ -115,8 +115,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
       temperatureCelsius).isOK();
 
     // Multiply by 2 b/c the elevator is continuous (both stages move at same time)
-    inputs.positionMeters = positionRotations.getValueAsDouble() * ElevatorConstants.kDrumCircumferenceMeters * 2.0;
-    inputs.velocityMetersPerSec = velocityRotationsPerSec.getValueAsDouble() * ElevatorConstants.kDrumCircumferenceMeters * 2.0;
+    inputs.positionMeters =  rotationsToMeters(positionRotations.getValueAsDouble());
+    inputs.velocityMetersPerSec = rotationsToMeters(velocityRotationsPerSec.getValueAsDouble());
     inputs.appliedVoltage = appliedVolts.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
     inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();
@@ -130,7 +130,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
   @Override
   public void setPosition(double positionMeters) {
-    kMotor.setControl(kPositionControl.withPosition(positionMeters).withSlot(0));
+    kMotor.setControl(
+      kPositionControl.withPosition(metersToRotations(positionMeters)).withSlot(0));
   }
 
   @Override
@@ -147,13 +148,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void setGains(double p, double i, double d, double s, double g, double v, double a) {
     var slotConfiguration = new Slot0Configs();
 
-    slotConfiguration.kP = p;
-    slotConfiguration.kI = i;
-    slotConfiguration.kD = d;
-    slotConfiguration.kS = s;
-    slotConfiguration.kG = g;
-    slotConfiguration.kV = v;
-    slotConfiguration.kA = a;
+    slotConfiguration.kP = metersToRotations(p);
+    slotConfiguration.kI = metersToRotations(i);
+    slotConfiguration.kD = metersToRotations(d);
+    slotConfiguration.kS = metersToRotations(s);
+    slotConfiguration.kG = metersToRotations(g);
+    slotConfiguration.kV = metersToRotations(v);
+    slotConfiguration.kA = metersToRotations(a);
 
     kMotor.getConfigurator().apply((slotConfiguration));
   }
@@ -162,9 +163,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   public void setMotionMagicConstraints(double maxVelocity, double maxAcceleration) {
     var motionMagicConfiguration = new MotionMagicConfigs();
 
-    motionMagicConfiguration.MotionMagicCruiseVelocity = maxVelocity;
-    motionMagicConfiguration.MotionMagicAcceleration = maxAcceleration;
-    motionMagicConfiguration.MotionMagicJerk = 10.0 * maxAcceleration;
+    motionMagicConfiguration.MotionMagicCruiseVelocity = metersToRotations(maxVelocity);
+    motionMagicConfiguration.MotionMagicAcceleration = metersToRotations(maxAcceleration);
+    motionMagicConfiguration.MotionMagicJerk = 10.0 * metersToRotations(maxAcceleration);
 
     kMotor.getConfigurator().apply(motionMagicConfiguration);
   }
@@ -174,9 +175,11 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     kMotor.setNeutralMode(enableBrake ? NeutralModeValue.Brake : NeutralModeValue.Coast);
   }
 
-  private double rotationsToMeters(double rotations, double circumference, double gearRatio) {
-    double wheelRevolutions = rotations / gearRatio;
-    double wheelDistance = wheelRevolutions * circumference;
-    return wheelDistance;
+  private double rotationsToMeters(double rotations) {
+    return rotations * ElevatorConstants.kDrumCircumferenceMeters * 2.0;
+  }
+
+  private double metersToRotations(double meters) {
+    return (meters / ElevatorConstants.kDrumCircumferenceMeters) / 2.0;
   }
 }
