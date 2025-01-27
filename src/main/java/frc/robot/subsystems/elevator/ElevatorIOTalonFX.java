@@ -17,6 +17,7 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -74,9 +75,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     // Reset position on startup
     kMotor.setPosition(0.0);
 
-    motorConfiguration.Feedback.SensorToMechanismRatio = 
-      // Rotations -> Linear distance (Circumfrence of the drum over the gearing)
-      (ElevatorConstants.kDrumCircumferenceMeters / ElevatorConstants.kGearing);
+    motorConfiguration.Feedback.SensorToMechanismRatio = ElevatorConstants.kGearing;
     // Rotor sensor is the built-in sensor
     motorConfiguration.Feedback.FeedbackSensorSource = FeedbackSensorSourceValue.RotorSensor;
 
@@ -115,11 +114,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
       statorCurrentAmps,
       temperatureCelsius).isOK();
 
-    inputs.positionMeters = positionRotations.getValueAsDouble();
-    // TODO Double check that this is reporting velocity correctly, it may be reporting it in meters but idk lol
-    inputs.velocityMetersPerSec = rotationsToMeters(velocityRotationsPerSec.getValueAsDouble(), 
-      ElevatorConstants.kDrumCircumferenceMeters, 
-      ElevatorConstants.kGearing);
+    // Multiply by 2 b/c the elevator is continuous (both stages move at same time)
+    inputs.positionMeters = positionRotations.getValueAsDouble() * ElevatorConstants.kDrumCircumferenceMeters * 2.0;
+    inputs.velocityMetersPerSec = velocityRotationsPerSec.getValueAsDouble() * ElevatorConstants.kDrumCircumferenceMeters * 2.0;
     inputs.appliedVoltage = appliedVolts.getValueAsDouble();
     inputs.supplyCurrentAmps = supplyCurrentAmps.getValueAsDouble();
     inputs.statorCurrentAmps = statorCurrentAmps.getValueAsDouble();

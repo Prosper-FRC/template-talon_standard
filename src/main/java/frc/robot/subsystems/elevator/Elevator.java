@@ -81,6 +81,16 @@ public class Elevator extends SubsystemBase {
       Logger.recordOutput("Elevator/Goal", "NONE");
     }
 
+    if (getPositionMeters() > ElevatorConstants.kMaxPositionMeters
+        && kInputs.appliedVoltage > 0.0) {
+      kHardware.stop();
+    } else if (getPositionMeters() < ElevatorConstants.kMinPositionMeters
+        && kInputs.appliedVoltage < 0.0) {
+      kHardware.stop();
+    } else {
+      // Do nothing if limits are not reached
+    }
+
     // This says that if the value is changed in the advantageScope tool,
     // Then we change the values in the code. Saves deploy time.
     // More found in prerequisites slide

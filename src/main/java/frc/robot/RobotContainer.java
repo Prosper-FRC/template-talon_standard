@@ -82,15 +82,20 @@ public class RobotContainer {
     private void configureStateTriggers() {}
 
     private void configureButtonBindings() {
+        driverController.y()
+            .onTrue(Commands.runOnce(
+                () -> {elevator.resetPosition();}, 
+                elevator));
+
         driverController.a()
             .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(3.0);}, 
+                () -> {elevator.setVoltage(2.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
 
         driverController.b()
             .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(-3.0);}, 
+                () -> {elevator.setVoltage(-2.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
         

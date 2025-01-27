@@ -45,7 +45,9 @@ public class Robot extends LoggedRobot {
         switch (Constants.kCurrentMode) {
         case REAL:
             // Running on a real robot, log to a USB stick ("/U/logs")
-            Logger.addDataReceiver(new WPILOGWriter());
+            
+            // Comment out logger since we are testing
+            // Logger.addDataReceiver(new WPILOGWriter());
             Logger.addDataReceiver(new NT4Publisher());
             break;
 
