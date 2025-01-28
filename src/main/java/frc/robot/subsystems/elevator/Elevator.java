@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 
@@ -76,6 +77,12 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     kHardware.updateInputs(kInputs);
     Logger.processInputs("Elevator/Inputs", kInputs);
+
+    // Stop and clear goal if disabled. Used if copilot is still pressing button to command
+    // elevator to go to a setpoint when the disabled key is pressed
+    if (DriverStation.isDisabled()) {
+      stop();
+    }
 
     if (currentElevaotrGoal != null) {
       currentElevatorGoalPositionMeters = currentElevaotrGoal.getGoalMeters();
@@ -174,6 +181,15 @@ public class Elevator extends SubsystemBase {
     positionGoalMeters = MathUtil.clamp(
       positionGoalMeters, ElevatorConstants.kMinPositionMeters, ElevatorConstants.kMaxPositionMeters);
     kHardware.setPosition(positionGoalMeters);
+  }
+
+  /**
+   * Set the elevator motor to brake or coast mode
+   * 
+   * @param enable If the brake should be enabled (True = brake | False = coast)
+   */
+  public void enableElevatorBrake(boolean enable) {
+    kHardware.setBrakeMode(enable);
   }
 
   /**

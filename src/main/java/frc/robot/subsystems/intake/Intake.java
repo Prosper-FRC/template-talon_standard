@@ -9,6 +9,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.wpilibj.DriverStation;
 
 public class Intake extends SubsystemBase {
   /** List of voltage setpoints for the intake in voltage */
@@ -53,6 +54,12 @@ public class Intake extends SubsystemBase {
     Logger.processInputs("Intake/Inputs", kInputs);
     kSensor.updateInputs(kSensorInputs);
     Logger.processInputs("Intake/Inputs/Sensor", kSensorInputs);
+
+    // Stop and clear goal if disabled. Used if copilot is still pressing button to command
+    // intake when the disabled key is pressed
+    if (DriverStation.isDisabled()) {
+      stop();
+    }
 
     // If the CANrange disconnects we can use motor current to detect when we have a coral
     // TODO Test this fallback to see if it actually works
