@@ -9,19 +9,33 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.intake.SensorIO;
+import frc.robot.subsystems.intake.SensorIORange;
+import frc.robot.subsystems.intake.Intake.IntakeGoal;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOSparkMax;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
     private final Elevator elevator;
 
     private final CommandXboxController driverController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
+
+    // Define subsystems
+    // ex: private final LEDSubsystem LEDs;
+    private final Intake intake;
 
     // Define other utility classes
     private final AutonCommands autonCommands;
@@ -35,12 +49,16 @@ public class RobotContainer {
         switch (Constants.kCurrentMode) {
             case REAL:
                 elevator = new Elevator(new ElevatorIOTalonFX());
+                intake = new Intake(new IntakeIOSparkMax(), new SensorIO() {});
                 break;
             case SIM:
                 elevator = new Elevator(new ElevatorIOSim());
+                intake = new Intake(new IntakeIOSim(), new SensorIO(){});
                 break;
             default:
                 elevator = new Elevator(new ElevatorIO() {});
+                // Instantiate subsystems that operate actual hardware (Hardware controller based modules)
+                intake = new Intake(new IntakeIOTalonFX(), new SensorIORange());
                 break;
         }
 
@@ -87,24 +105,28 @@ public class RobotContainer {
                 () -> {elevator.resetPosition();}, 
                 elevator));
 
-        driverController.a()
+        driverController.povUp()
             .whileTrue(Commands.startEnd(
                 () -> {elevator.setVoltage(6.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
 
-        driverController.b()
+        driverController.povDown()
             .whileTrue(Commands.startEnd(
                 () -> {elevator.setVoltage(-6.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
         
-        driverController.x()
+        driverController.a()
             .whileTrue(Commands.run(
                 () -> {elevator.setGoal(ElevatorGoal.CUSTOM);},  
                 elevator))
             .whileFalse(Commands.runOnce(
                 () -> {elevator.stop();}, 
                 elevator));
+
+        driverController.leftBumper()
+            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.CUSTOM);}, intake))
+            .whileFalse(Commands.runOnce(() -> {intake.stop();}, intake));
     }
 }
