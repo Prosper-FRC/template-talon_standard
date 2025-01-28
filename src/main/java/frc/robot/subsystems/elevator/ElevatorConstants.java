@@ -60,14 +60,14 @@ public class ElevatorConstants {
   public static final ElevatorGains kElevatorGains = 
     switch (Constants.kCurrentMode) {
       case REAL -> new ElevatorGains(
-        10.0,
+        5.0,
         0.0,
         0.0,
         2.947, //2.947
         22.0, // 22
         0.0,
         0.0,
-        0.0,
+        0.5,
         0.01, // 0.01
         0.11); // 0.11
       case SIM -> new ElevatorGains(
