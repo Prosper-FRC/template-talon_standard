@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.intake.SensorIO;
 import frc.robot.subsystems.intake.SensorIORange;
@@ -47,7 +48,7 @@ public class RobotContainer {
         switch (Constants.kCurrentMode) {
             case REAL:
                 elevator = new Elevator(new ElevatorIOTalonFX());
-                intake = new Intake(new IntakeIOSparkMax(), new SensorIO() {});
+                intake = new Intake(new IntakeIO(){}, new SensorIO() {});
                 break;
             case SIM:
                 elevator = new Elevator(new ElevatorIOSim());
