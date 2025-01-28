@@ -21,7 +21,7 @@ public class Elevator extends SubsystemBase {
     kL3Coral(() -> 0.0),
     kL2Coral(() -> 0.0),
     kL1Coral(() -> 0.0),
-    custom(new LoggedTunableNumber("Elevator/Custom", 0));
+    custom(new LoggedTunableNumber("Elevator/Custom", 0.0));
 
     private DoubleSupplier goalMeters;
 
@@ -86,6 +86,7 @@ public class Elevator extends SubsystemBase {
       Logger.recordOutput("Elevator/Goal", "NONE");
     }
 
+    // Check if elevator is attempting to move beyond its limitations
     if (getPositionMeters() > ElevatorConstants.kMaxPositionMeters
         && kInputs.appliedVoltage > 0.0) {
       kHardware.stop();

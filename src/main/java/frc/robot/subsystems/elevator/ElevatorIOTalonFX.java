@@ -17,7 +17,6 @@ import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
@@ -114,7 +113,6 @@ public class ElevatorIOTalonFX implements ElevatorIO {
       statorCurrentAmps,
       temperatureCelsius).isOK();
 
-    // Multiply by 2 b/c the elevator is continuous (both stages move at same time)
     inputs.positionMeters =  rotationsToMeters(positionRotations.getValueAsDouble());
     inputs.velocityMetersPerSec = rotationsToMeters(velocityRotationsPerSec.getValueAsDouble());
     inputs.appliedVoltage = appliedVolts.getValueAsDouble();
@@ -176,10 +174,18 @@ public class ElevatorIOTalonFX implements ElevatorIO {
   }
 
   private double rotationsToMeters(double rotations) {
+    /*
+     * Multiply by two since this is a two-stage cascading-elevator where both stages move
+     * simultaneously. If this was a three-stage cascading-elevator we would multiply by 3
+     */
     return rotations * ElevatorConstants.kDrumCircumferenceMeters * 2.0;
   }
 
   private double metersToRotations(double meters) {
+    /*
+     * Divide by two since this is a two-stage cascading-elevator where both stages move
+     * simultaneously. If this was a three-stage cascading-elevator we would divide by 3
+     */
     return (meters / ElevatorConstants.kDrumCircumferenceMeters) / 2.0;
   }
 }

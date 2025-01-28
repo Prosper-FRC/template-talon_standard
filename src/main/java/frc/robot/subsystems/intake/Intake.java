@@ -101,8 +101,8 @@ public class Intake extends SubsystemBase {
    * 
    * @return If the motor thinks it has a gamepiece
    */
-  @AutoLogOutput(key = "Intake/hasGamepiece")
-  public boolean hasGamepiece() {
+  @AutoLogOutput(key = "Intake/detectedGamepiece")
+  public boolean detectedGamepiece() {
     return detectedGamepiece;
   }
 }
