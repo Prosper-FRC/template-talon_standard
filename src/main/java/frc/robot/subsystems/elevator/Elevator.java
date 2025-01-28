@@ -17,11 +17,15 @@ import frc.robot.utils.debugging.LoggedTunableNumber;
 public class Elevator extends SubsystemBase {
   /** List of position setpoints for the elevator in meters */
   public enum ElevatorGoal {
-    kDemo(() -> 0.5),
     kL4Coral(() -> 0.0),
     kL3Coral(() -> 0.0),
     kL2Coral(() -> 0.0),
     kL1Coral(() -> 0.0),
+    /** Stow the elevator during transit */
+    kStow(() -> 0.0),
+    /** Position for intaking from the coral station */
+    kIntake(() -> 0.0),
+    /** Custom setpoint that can be modified over network tables; Useful for debugging */
     custom(new LoggedTunableNumber("Elevator/Custom", 0.0));
 
     private DoubleSupplier goalMeters;
