@@ -16,7 +16,6 @@ import frc.robot.subsystems.intake.SensorIO;
 import frc.robot.subsystems.intake.SensorIORange;
 import frc.robot.subsystems.intake.Intake.IntakeGoal;
 import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.intake.IntakeIOSparkMax;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import frc.robot.subsystems.elevator.Elevator;
@@ -99,24 +98,64 @@ public class RobotContainer {
     private void configureStateTriggers() {}
 
     private void configureButtonBindings() {
-        driverController.y()
-            .onTrue(Commands.runOnce(
-                () -> {elevator.resetPosition();}, 
-                elevator));
-
+        // ELEVATOR: Voltage up
         driverController.povUp()
             .whileTrue(Commands.startEnd(
                 () -> {elevator.setVoltage(2.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
 
+        // ELEVATOR: Voltage down
         driverController.povDown()
             .whileTrue(Commands.startEnd(
                 () -> {elevator.setVoltage(-2.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
+
+        // ELEVATOR: Reset position
+        driverController.povLeft()
+            .onTrue(Commands.runOnce(
+                () -> {elevator.resetPosition();}, 
+                elevator));
+
+        // ELEVATOR: Move to L4 position
+        driverController.y()
+            .whileTrue(Commands.run(
+                () -> {elevator.setGoal(ElevatorGoal.kL4Coral);},  
+                elevator))
+            .whileFalse(Commands.runOnce(
+                () -> {elevator.stop();}, 
+                elevator));
         
+        // ELEVATOR: Move to L3 position
+        driverController.b()
+            .whileTrue(Commands.run(
+                () -> {elevator.setGoal(ElevatorGoal.kL3Coral);},  
+                elevator))
+            .whileFalse(Commands.runOnce(
+                () -> {elevator.stop();}, 
+                elevator));
+        
+        // ELEVATOR: Move to L2 position
         driverController.a()
+            .whileTrue(Commands.run(
+                () -> {elevator.setGoal(ElevatorGoal.kL2Coral);},  
+                elevator))
+            .whileFalse(Commands.runOnce(
+                () -> {elevator.stop();}, 
+                elevator));
+        
+        // ELEVATOR: Move to L1 position
+        driverController.x()
+            .whileTrue(Commands.run(
+                () -> {elevator.setGoal(ElevatorGoal.kL1Coral);},  
+                elevator))
+            .whileFalse(Commands.runOnce(
+                () -> {elevator.stop();}, 
+                elevator));
+
+        // ELEVATOR: Move to custom position
+        driverController.leftTrigger()
             .whileTrue(Commands.run(
                 () -> {elevator.setGoal(ElevatorGoal.custom);},  
                 elevator))
@@ -124,8 +163,19 @@ public class RobotContainer {
                 () -> {elevator.stop();}, 
                 elevator));
 
-        driverController.leftBumper()
+        // ENDAFFECTOR: Run at custom voltage
+        driverController.rightTrigger()
             .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.kCustom);}, intake))
+            .whileFalse(Commands.runOnce(() -> {intake.stop();}, intake));
+
+        // ENDAFFECTOR: Run at intake voltage
+        driverController.leftBumper()
+            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.kIntake);}, intake))
+            .whileFalse(Commands.runOnce(() -> {intake.stop();}, intake));
+
+        // ENDAFFECTOR: Run at outtake voltage
+        driverController.rightBumper()
+            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.kOuttake);}, intake))
             .whileFalse(Commands.runOnce(() -> {intake.stop();}, intake));
     }
 }
