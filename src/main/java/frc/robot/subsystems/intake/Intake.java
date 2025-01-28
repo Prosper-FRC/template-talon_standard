@@ -13,8 +13,8 @@ import edu.wpi.first.math.filter.LinearFilter;
 public class Intake extends SubsystemBase {
   /** List of voltage setpoints for the intake in voltage */
   public enum IntakeGoal {
-    DEMO(() -> 6.0),
-    CUSTOM(new LoggedTunableNumber("Intake/Feedback/Setpoint", 0.0));
+    kDemo(() -> 6.0),
+    kCustom(new LoggedTunableNumber("Intake/Feedback/Setpoint", 0.0));
 
     private DoubleSupplier intakeVolts;
 

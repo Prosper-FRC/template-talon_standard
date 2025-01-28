@@ -9,14 +9,19 @@ import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 
 public class Elevator extends SubsystemBase {
   /** List of position setpoints for the elevator in meters */
   public enum ElevatorGoal {
-    DEMO(() -> 0.5),
-    CUSTOM(new LoggedTunableNumber("Elevator/Custom", 0));
+    kDemo(() -> 0.5),
+    kL4Coral(() -> 0.0),
+    kL3Coral(() -> 0.0),
+    kL2Coral(() -> 0.0),
+    kL1Coral(() -> 0.0),
+    custom(new LoggedTunableNumber("Elevator/Custom", 0));
 
     private DoubleSupplier goalMeters;
 
@@ -165,6 +170,8 @@ public class Elevator extends SubsystemBase {
    * @param positionGoalMeters The position goal in meters
    */
   private void setPosition(double positionGoalMeters) {
+    positionGoalMeters = MathUtil.clamp(
+      positionGoalMeters, ElevatorConstants.kMinPositionMeters, ElevatorConstants.kMaxPositionMeters);
     kHardware.setPosition(positionGoalMeters);
   }
 

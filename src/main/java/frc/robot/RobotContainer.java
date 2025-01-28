@@ -118,14 +118,14 @@ public class RobotContainer {
         
         driverController.a()
             .whileTrue(Commands.run(
-                () -> {elevator.setGoal(ElevatorGoal.CUSTOM);},  
+                () -> {elevator.setGoal(ElevatorGoal.custom);},  
                 elevator))
             .whileFalse(Commands.runOnce(
                 () -> {elevator.stop();}, 
                 elevator));
 
         driverController.leftBumper()
-            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.CUSTOM);}, intake))
+            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.kCustom);}, intake))
             .whileFalse(Commands.runOnce(() -> {intake.stop();}, intake));
     }
 }
