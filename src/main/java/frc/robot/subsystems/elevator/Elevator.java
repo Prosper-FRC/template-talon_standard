@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.debugging.LoggedTunableNumber;
@@ -17,14 +18,14 @@ import frc.robot.utils.debugging.LoggedTunableNumber;
 public class Elevator extends SubsystemBase {
   /** List of position setpoints for the elevator in meters */
   public enum ElevatorGoal {
-    kL4Coral(() -> 0.0),
-    kL3Coral(() -> 0.0),
-    kL2Coral(() -> 0.0),
-    kL1Coral(() -> 0.0),
+    kL4Coral(() -> Units.inchesToMeters(60.0)),
+    kL3Coral(() -> Units.inchesToMeters(34.0)),
+    kL2Coral(() -> Units.inchesToMeters(17.0)),
+    kL1Coral(() -> Units.inchesToMeters(8.0)),
     /** Stow the elevator during transit */
-    kStow(() -> 0.0),
+    kStow(() -> Units.inchesToMeters(4.0)),
     /** Position for intaking from the coral station */
-    kIntake(() -> 0.0),
+    kIntake(() -> Units.inchesToMeters(8.0)),
     /** Custom setpoint that can be modified over network tables; Useful for debugging */
     custom(new LoggedTunableNumber("Elevator/Custom", 0.0));
 
