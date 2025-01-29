@@ -58,6 +58,9 @@ public class ElevatorConstants {
   public static final double kMaxPositionMeters = 1.65;
   public static final double kMinPositionMeters = 0.0;
 
+  /** Position tolerance when controlling the elevator via feedback */
+  public static final double kPositionToleranceMeters = 0.01;
+
   /** The frequency that telemetry form the motor is pushed to the CANBus */
   public static final double kStatusSignalUpdateFrequencyHz = 100.0;
 

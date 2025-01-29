@@ -210,6 +210,14 @@ public class Elevator extends SubsystemBase {
   }
 
   /**
+   * @return If the elevator is at its desired goal yet
+   */
+  @AutoLogOutput(key = "Elevator/Feedback/AtGoal")
+  public boolean atGoal() {
+    return getErrorMeters() < ElevatorConstants.kPositionToleranceMeters;
+  }
+
+  /**
    * @return The position of the linear mechanism in meters
    */
   public double getPositionMeters() {
