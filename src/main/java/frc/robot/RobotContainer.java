@@ -11,9 +11,7 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.intake.SensorIO;
-import frc.robot.subsystems.intake.SensorIORange;
 import frc.robot.subsystems.intake.Intake.IntakeGoal;
 import frc.robot.subsystems.intake.IntakeIOSim;
 
@@ -27,15 +25,11 @@ import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 
 public class RobotContainer {
     private final Elevator elevator;
+    private final Intake intake;
 
     private final CommandXboxController driverController = new CommandXboxController(0);
     private final CommandXboxController operatorController = new CommandXboxController(1);
 
-    // Define subsystems
-    // ex: private final LEDSubsystem LEDs;
-    private final Intake intake;
-
-    // Define other utility classes
     private final AutonCommands autonCommands;
     private final TeleopCommands telopCommands;
 
@@ -47,6 +41,7 @@ public class RobotContainer {
         switch (Constants.kCurrentMode) {
             case REAL:
                 elevator = new Elevator(new ElevatorIOTalonFX());
+                // TODO Replace these with hardware interfaces when intake is ready to test
                 intake = new Intake(new IntakeIO(){}, new SensorIO() {});
                 break;
             case SIM:
@@ -54,9 +49,10 @@ public class RobotContainer {
                 intake = new Intake(new IntakeIOSim(), new SensorIO(){});
                 break;
             default:
+                // If running something other than REAL or SIM, pass in empty hardware interfaces
+                // since we are not trying to run the code on hardware
                 elevator = new Elevator(new ElevatorIO() {});
-                // Instantiate subsystems that operate actual hardware (Hardware controller based modules)
-                intake = new Intake(new IntakeIOTalonFX(), new SensorIORange());
+                intake = new Intake(new IntakeIO(){}, new SensorIO(){});
                 break;
         }
 
@@ -73,9 +69,7 @@ public class RobotContainer {
             autoChooser.addDefaultOption("initActionZeroPath", new InstantCommand());
         }
 
-
         // Pass subsystems to classes that need them for configuration
-
 
         // Create any Dashboard choosers (LoggedDashboardChooser, etc)
 
@@ -99,14 +93,14 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
         // ELEVATOR: Voltage up
-        driverController.a()
+        driverController.povUp()
             .whileTrue(Commands.startEnd(
                 () -> {elevator.setVoltage(6.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
 
         // ELEVATOR: Voltage down
-        driverController.b()
+        driverController.povDown()
             .whileTrue(Commands.startEnd(
                 () -> {elevator.setVoltage(-6.0);}, 
                 () -> {elevator.stop();}, 
@@ -127,23 +121,23 @@ public class RobotContainer {
                 () -> {elevator.stop();}, 
                 elevator));
         
-        // // ELEVATOR: Move to L3 position
-        // driverController.b()
-        //     .whileTrue(Commands.run(
-        //         () -> {elevator.setGoal(ElevatorGoal.kL3Coral);},  
-        //         elevator))
-        //     .whileFalse(Commands.runOnce(
-        //         () -> {elevator.stop();}, 
-        //         elevator));
+        // ELEVATOR: Move to L3 position
+        driverController.b()
+            .whileTrue(Commands.run(
+                () -> {elevator.setGoal(ElevatorGoal.kL3Coral);},  
+                elevator))
+            .whileFalse(Commands.runOnce(
+                () -> {elevator.stop();}, 
+                elevator));
         
-        // // ELEVATOR: Move to L2 position
-        // driverController.a()
-        //     .whileTrue(Commands.run(
-        //         () -> {elevator.setGoal(ElevatorGoal.kL2Coral);},  
-        //         elevator))
-        //     .whileFalse(Commands.runOnce(
-        //         () -> {elevator.stop();}, 
-        //         elevator));
+        // ELEVATOR: Move to L2 position
+        driverController.a()
+            .whileTrue(Commands.run(
+                () -> {elevator.setGoal(ElevatorGoal.kL2Coral);},  
+                elevator))
+            .whileFalse(Commands.runOnce(
+                () -> {elevator.stop();}, 
+                elevator));
         
         // ELEVATOR: Move to L1 position
         driverController.x()
@@ -165,7 +159,7 @@ public class RobotContainer {
 
         // ENDAFFECTOR: Run at custom voltage
         driverController.rightTrigger()
-            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.kCustom);}, intake))
+            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.custom);}, intake))
             .whileFalse(Commands.runOnce(() -> {intake.stop();}, intake));
 
         // ENDAFFECTOR: Run at intake voltage

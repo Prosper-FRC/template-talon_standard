@@ -14,10 +14,10 @@ import edu.wpi.first.wpilibj.DriverStation;
 public class Intake extends SubsystemBase {
   /** List of voltage setpoints for the intake in voltage */
   public enum IntakeGoal {
-    kDemo(() -> 6.0),
     kIntake(() -> 12.0),
     kOuttake(() -> -12.0),
-    kCustom(new LoggedTunableNumber("Intake/Feedback/Setpoint", 0.0));
+    /** Custom setpoint that can be modified over network tables; Useful for debugging */
+    custom(new LoggedTunableNumber("Intake/Feedback/Setpoint", 0.0));
 
     private DoubleSupplier intakeVolts;
 
