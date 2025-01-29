@@ -92,10 +92,10 @@ public class RobotContainer {
     private void configureStateTriggers() {}
 
     private void configureButtonBindings() {
-        elevator.setDefaultCommand(
-            Commands.run(
-                () -> {elevator.setPosition(elevator.getPositionGoalMeters());}, 
-                elevator));
+        // elevator.setDefaultCommand(
+        //     Commands.run(
+        //         () -> {elevator.setPosition(elevator.getPositionMeters());}, 
+        //         elevator));
 
         // ELEVATOR: Voltage up
         driverController.povUp()
