@@ -143,11 +143,16 @@ public class ElevatorVisualizer {
    * Display a line in the 2D visualizer that shows the goal setpoint
    * 
    * @param setpointMeters The vertical position setpoint in meters that should be displayed
+   * @param atGoal Whether the mechanism is currently at the goal or not
    */
-  public void setGoalLine(double setpointMeters) {
+  public void setGoalLine(double setpointMeters, boolean atGoal) {
     setpointRoot.setPosition(0.0, setpointMeters);
     setpointLine.setLineWeight(2.0);
-    setpointLine.setColor(new Color8Bit(Color.kOrange));
+    if (atGoal) {
+      setpointLine.setColor(new Color8Bit(Color.kLimeGreen));
+    } else {
+      setpointLine.setColor(new Color8Bit(Color.kOrange));
+    }
 
     Logger.recordOutput(MEASURE_LOG_KEY, mesaurementVisualField);
   }

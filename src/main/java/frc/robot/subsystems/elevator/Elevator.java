@@ -92,12 +92,12 @@ public class Elevator extends SubsystemBase {
     if (currentElevaotrGoal != null) {
       currentElevatorGoalPositionMeters = currentElevaotrGoal.getGoalMeters();
       setPosition(currentElevatorGoalPositionMeters);
-      kVisualizer.setGoalLine(currentElevatorGoalPositionMeters);
+      kVisualizer.setGoalLine(currentElevatorGoalPositionMeters, atGoal());
 
       Logger.recordOutput("Elevator/Goal", currentElevaotrGoal);
     } else {
       Logger.recordOutput("Elevator/Goal", "NONE");
-      kVisualizer.setGoalLine(0.0);
+      kVisualizer.setGoalLine(0.0, false);
     }
 
     // Check if elevator is attempting to move beyond its limitations
@@ -214,7 +214,7 @@ public class Elevator extends SubsystemBase {
    */
   @AutoLogOutput(key = "Elevator/Feedback/AtGoal")
   public boolean atGoal() {
-    return getErrorMeters() < ElevatorConstants.kPositionToleranceMeters;
+    return Math.abs(getErrorMeters()) < ElevatorConstants.kPositionToleranceMeters;
   }
 
   /**
