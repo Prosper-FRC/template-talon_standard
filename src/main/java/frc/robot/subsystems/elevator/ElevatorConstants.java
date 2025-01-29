@@ -75,16 +75,16 @@ public class ElevatorConstants {
         0.01, // 0.01
         0.11); // 0.11
       case SIM -> new ElevatorGains(
-        1.8,
+        1.0,
         0.0,
         0.0,
         10.0,
         25.0,
         0.0,
         0.0,
-        3.07,
-        0.41,
-        2.28);
+        14.34,
+        0.01,
+        0.11);
       default -> new ElevatorGains(
         0.0,
         0.0,

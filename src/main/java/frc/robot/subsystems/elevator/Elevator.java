@@ -184,7 +184,7 @@ public class Elevator extends SubsystemBase {
    * 
    * @param positionGoalMeters The position goal in meters
    */
-  private void setPosition(double positionGoalMeters) {
+  public void setPosition(double positionGoalMeters) {
     positionGoalMeters = MathUtil.clamp(
       positionGoalMeters, ElevatorConstants.kMinPositionMeters, ElevatorConstants.kMaxPositionMeters);
     kHardware.setPosition(positionGoalMeters);
