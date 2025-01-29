@@ -2,6 +2,7 @@
   "NTProvider": {
     "types": {
       "/AdvantageKit/RealOutputs/Elevator/Visualier": "Mechanism2d",
+      "/AdvantageKit/RealOutputs/Elevator/VisualierMeasure": "Mechanism2d",
       "/FMSInfo": "FMSInfo",
       "/SmartDashboard/Auton Program": "String Chooser"
     }

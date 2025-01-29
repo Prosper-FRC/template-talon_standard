@@ -92,10 +92,12 @@ public class Elevator extends SubsystemBase {
     if (currentElevaotrGoal != null) {
       currentElevatorGoalPositionMeters = currentElevaotrGoal.getGoalMeters();
       setPosition(currentElevatorGoalPositionMeters);
+      kVisualizer.setGoalLine(currentElevatorGoalPositionMeters);
 
       Logger.recordOutput("Elevator/Goal", currentElevaotrGoal);
     } else {
       Logger.recordOutput("Elevator/Goal", "NONE");
+      kVisualizer.setGoalLine(0.0);
     }
 
     // Check if elevator is attempting to move beyond its limitations

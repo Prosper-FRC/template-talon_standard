@@ -99,16 +99,16 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
         // ELEVATOR: Voltage up
-        driverController.povUp()
+        driverController.a()
             .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(2.0);}, 
+                () -> {elevator.setVoltage(6.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
 
         // ELEVATOR: Voltage down
-        driverController.povDown()
+        driverController.b()
             .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(-2.0);}, 
+                () -> {elevator.setVoltage(-6.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
 
@@ -127,23 +127,23 @@ public class RobotContainer {
                 () -> {elevator.stop();}, 
                 elevator));
         
-        // ELEVATOR: Move to L3 position
-        driverController.b()
-            .whileTrue(Commands.run(
-                () -> {elevator.setGoal(ElevatorGoal.kL3Coral);},  
-                elevator))
-            .whileFalse(Commands.runOnce(
-                () -> {elevator.stop();}, 
-                elevator));
+        // // ELEVATOR: Move to L3 position
+        // driverController.b()
+        //     .whileTrue(Commands.run(
+        //         () -> {elevator.setGoal(ElevatorGoal.kL3Coral);},  
+        //         elevator))
+        //     .whileFalse(Commands.runOnce(
+        //         () -> {elevator.stop();}, 
+        //         elevator));
         
-        // ELEVATOR: Move to L2 position
-        driverController.a()
-            .whileTrue(Commands.run(
-                () -> {elevator.setGoal(ElevatorGoal.kL2Coral);},  
-                elevator))
-            .whileFalse(Commands.runOnce(
-                () -> {elevator.stop();}, 
-                elevator));
+        // // ELEVATOR: Move to L2 position
+        // driverController.a()
+        //     .whileTrue(Commands.run(
+        //         () -> {elevator.setGoal(ElevatorGoal.kL2Coral);},  
+        //         elevator))
+        //     .whileFalse(Commands.runOnce(
+        //         () -> {elevator.stop();}, 
+        //         elevator));
         
         // ELEVATOR: Move to L1 position
         driverController.x()

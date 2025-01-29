@@ -45,11 +45,15 @@ public class ElevatorConstants {
   public static final int kMotorID = 50;
 
   public static final double kGearing = 9.0 / 1.0;
-  // outer .944inches inner .819inches sprocket radius 
-  public static final double kDrumCircumferenceMeters = 2.0 * Math.PI * Units.inchesToMeters(0.944);
+  /*
+   * Outside sprocket radius: 0.944 in
+   * Root sprocket radius: 0.819
+   */
+  public static final double kDrumRadiusMeters = Units.inchesToMeters(0.944);
+  public static final double kDrumCircumferenceMeters = 2.0 * Math.PI * kDrumRadiusMeters;
 
   // empty carriage load = .8kg
-  // test carriage load = 5kg
+  // prototype carriage load = 5kg
 
   public static final double kMaxPositionMeters = 1.65;
   public static final double kMinPositionMeters = 0.0;
@@ -104,8 +108,8 @@ public class ElevatorConstants {
 
   public static final SimulationConfiguration kSimulationConfiguration = new SimulationConfiguration(
     DCMotor.getKrakenX60(1), 
-    1.0, 
-    Units.inchesToMeters(0.994), 
+    5.0, 
+    kDrumRadiusMeters, 
     true, 
     0.0, 
     0.0002);
