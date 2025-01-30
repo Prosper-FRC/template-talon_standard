@@ -4,11 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.drive.Drive;
 import frc.robot.drive.GyroIOPigeon2;
 import frc.robot.drive.Drive.DriveState;
@@ -98,7 +100,7 @@ public class RobotContainer {
         drive.acceptJoystickInputs(
             () -> driverController.getLeftY(),
             () -> driverController.getLeftX(),
-            () -> driverController.getRightX());
+            () -> -driverController.getRightX());
 
         drive.setDefaultCommand(Commands.run(
             () -> drive.setDriveEnum(DriveState.TELEOP), drive));
@@ -120,7 +122,7 @@ public class RobotContainer {
     }
 
     private void configureStateTriggers() {
-        
+        new Trigger(DriverStation::isEnabled).onTrue(Commands.runOnce(() -> drive.resetAllEncoders()));
     }
 
     private void configureButtonBindings() {
