@@ -116,6 +116,8 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
+        Commands.runOnce(() -> {drive.setDriveEnum(DriveState.AUTON);}, drive).schedule();
+        
         return autoChooser.get();
     }
 
