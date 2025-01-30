@@ -79,7 +79,7 @@ public class Drive extends SubsystemBase{
     private RobotConfig robotConfig;
     private SwerveSetpointGenerator generator;
     private SwerveSetpoint previousSetpoint;
-    private PIDConstants translationPathplannerConstants = new PIDConstants(1.5, 0.0, 0.0);
+    private PIDConstants translationPathplannerConstants = new PIDConstants(3, 0.0, 0.0);
     private PIDConstants rotationPathplannerConstants = new PIDConstants(1.5, 0.0, 0.0);
     private boolean useGenerator = false;
 
@@ -307,7 +307,7 @@ public class Drive extends SubsystemBase{
         Logger.recordOutput("Drive/Swerve/preOptimizedSetpoints", unOptimizedSetpointStates);
 
         unOptimizedSetpointStates = kinematics.toSwerveModuleStates(desiredSpeeds);
-        for(int i = 0; i <4; i++) {
+        for(int i = 0; i < 4; i++) {
             unOptimizedSetpointStates[i] = new SwerveModuleState(
                     unOptimizedSetpointStates[i].speedMetersPerSecond,
                     Math.abs(previousSetpoint.moduleStates()[i].speedMetersPerSecond / kMaxLinearSpeed) < 0.01 ?
@@ -357,7 +357,7 @@ public class Drive extends SubsystemBase{
 
                 setpointStates[i].cosineScale(modules[i].getCurrentState().angle);
 
-                optimizedSetpointStates[i] = modules[i].setSwerveStatewithAccel(setpointStates[i], 0.0);
+                optimizedSetpointStates[i] = modules[i].setSwerveState(setpointStates[i]);
 
                 // modules[i].setDesiredAzimuthVelocity(azimuthVelocity);
             } else {
