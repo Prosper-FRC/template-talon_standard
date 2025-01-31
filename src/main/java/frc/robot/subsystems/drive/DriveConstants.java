@@ -39,33 +39,21 @@ public class DriveConstants {
     // TODO: Needs to be tuned //
     public static final double kDriftRate = RobotBase.isReal() ? 1 : 3.0;
 
-    public static final SwerveModuleHardwareConfig kFrontLeft = new SwerveModuleHardwareConfig(
-      "FrontLeft", 
-      11, 
-      21, 
-      31, 
-      Rotation2d.fromRotations(0.416016));
-    
-    public static final SwerveModuleHardwareConfig kFrontRight = new SwerveModuleHardwareConfig(
-      "FrontRight", 
-      12, 
-      22,
-      34,
-      Rotation2d.fromRotations(0.2732));
-   
-    public static final SwerveModuleHardwareConfig kBackLeft = new SwerveModuleHardwareConfig(
-      "BackLeft", 
-      23, 
-      13,
-      33, 
-      Rotation2d.fromRotations(-0.4204));
-    
-    public static final SwerveModuleHardwareConfig kBackRight = new SwerveModuleHardwareConfig(
-      "BackRight",
-      14, 
-      24,
-      32, 
-      Rotation2d.fromRotations(-0.0935));
+    public static final SwerveModuleHardwareConfig kFrontLeft =
+        new SwerveModuleHardwareConfig("FrontLeft", 11, 21, 31, 
+            Rotation2d.fromRotations(-0.226074).plus(Rotation2d.fromDegrees(180.0)));
+
+    public static final SwerveModuleHardwareConfig kFrontRight =
+        new SwerveModuleHardwareConfig("FrontRight", 12, 22, 32, 
+            Rotation2d.fromRotations(-0.037598).plus(Rotation2d.fromDegrees(180.0)));
+
+    public static final SwerveModuleHardwareConfig kBackLeft =
+        new SwerveModuleHardwareConfig("BackLeft", 13, 23, 33,
+            Rotation2d.fromRotations(-0.452881).plus(Rotation2d.fromDegrees(180.0)));
+
+    public static final SwerveModuleHardwareConfig kBackRight =
+        new SwerveModuleHardwareConfig("BackRight", 14, 24, 34,
+            Rotation2d.fromRotations(-0.172119).plus(Rotation2d.fromDegrees(180.0)));
 
     public static final boolean kInvertAzimuths = true;
 

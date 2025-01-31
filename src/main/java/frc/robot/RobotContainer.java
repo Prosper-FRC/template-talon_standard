@@ -60,7 +60,7 @@ public class RobotContainer {
                     new Module("BL", new ModuleIOKraken(kBackLeft)),
                     new Module("BR", new ModuleIOKraken(kBackRight))}, 
                     new GyroIOPigeon2());
-                elevator = new Elevator(new ElevatorIOTalonFX());
+                elevator = new Elevator(new ElevatorIO() {});
                 // TODO Replace these with hardware interfaces when intake is ready to test
                 intake = new Intake(new IntakeIO(){}, new SensorIO() {});
                 break;
