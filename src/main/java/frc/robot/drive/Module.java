@@ -22,7 +22,6 @@ public class Module {
     // Different set points for the azimuth and drive motors //
     private Double velocitySetpointMPS = null;
     private Rotation2d azimuthSetpointAngle = null;
-    private Double accelerationSetpointMPSS = null;
 
     // Current state and current position are updated periodically //
     private SwerveModuleState currentState = new SwerveModuleState();
@@ -90,20 +89,6 @@ public class Module {
      * @return set state
      */
     public SwerveModuleState setSwerveState(SwerveModuleState state){
-        setDriveAcceleration(null);
-        setDriveVelocity(state.speedMetersPerSecond);
-        setAzimuthPosition(state.angle);
-        return new SwerveModuleState(velocitySetpointMPS, azimuthSetpointAngle);
-    }
-
-    /**
-     * Set the desired velocity/position respectivly to the drive and azimuth with acceleration
-     * @param state desired state (position + velocity)
-     * @param accel desired acceleration (m/s^2)
-     * @return set state
-     */
-    public SwerveModuleState setSwerveStatewithAccel(SwerveModuleState state, double accel){
-        setDriveAcceleration(accelerationSetpointMPSS);
         setDriveVelocity(state.speedMetersPerSecond);
         setAzimuthPosition(state.angle);
         return new SwerveModuleState(velocitySetpointMPS, azimuthSetpointAngle);
@@ -117,7 +102,6 @@ public class Module {
     public SwerveModuleState setAzimuthPosition(SwerveModuleState state){
         setAzimuthPosition(state.angle);
         setDriveVelocity(null);
-        setDriveAcceleration(null);
         return new SwerveModuleState(0, azimuthSetpointAngle);
     }
 
@@ -143,14 +127,6 @@ public class Module {
      */
     public void setDriveVelocity(Double velocityDemand){
         velocitySetpointMPS = velocityDemand;
-    }
-
-    /**
-     * Set acceleration demand to the drive motor
-     * @param accelDemand (units : m/s^2)
-     */
-    public void setDriveAcceleration(Double accelDemand){
-        accelerationSetpointMPSS = accelDemand;
     }
 
     /**

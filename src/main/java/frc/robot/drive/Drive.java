@@ -1,5 +1,6 @@
 package frc.robot.drive;
 
+import static frc.robot.drive.DriveConstants.kMaxAzimuthAngularRadiansPS;
 import static frc.robot.drive.DriveConstants.kMaxLinearAcceleration;
 import static frc.robot.drive.DriveConstants.kMaxLinearSpeed;
 import static frc.robot.drive.DriveConstants.kMaxRotationalAccelerationRadians;
@@ -14,8 +15,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.pathfinding.Pathfinding;
 import com.pathplanner.lib.util.*;
-import com.pathplanner.lib.util.swerve.SwerveSetpoint;
-import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
 import com.pathplanner.lib.config.PIDConstants;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import com.pathplanner.lib.path.PathConstraints;
@@ -43,6 +42,8 @@ import frc.robot.drive.controllers.TeleopController;
 import frc.robot.utils.debugging.LoggedTunableNumber;
 import frc.robot.utils.debugging.SysIDCharacterization;
 import frc.robot.utils.swerve.LocalADStarAK;
+import frc.robot.utils.swerve.SwerveSetpoint;
+import frc.robot.utils.swerve.SwerveSetpointGenerator;
 import frc.robot.utils.swerve.SwerveUtils;
 
 public class Drive extends SubsystemBase{
@@ -79,7 +80,7 @@ public class Drive extends SubsystemBase{
     private RobotConfig robotConfig;
     private SwerveSetpointGenerator generator;
     private SwerveSetpoint previousSetpoint;
-    private PIDConstants translationPathplannerConstants = new PIDConstants(1.5, 0.0, 0.0);
+    private PIDConstants translationPathplannerConstants = new PIDConstants(3, 0.0, 0.0);
     private PIDConstants rotationPathplannerConstants = new PIDConstants(1.5, 0.0, 0.0);
     private boolean useGenerator = false;
 
@@ -112,7 +113,11 @@ public class Drive extends SubsystemBase{
             System.out.println("HELP ME I CANT CATCH ROBOTCONFIG");
         }
 
-        generator = new SwerveSetpointGenerator(robotConfig, DriveConstants.kMaxAzimuthAngularRadiansPS);
+        generator = new SwerveSetpointGenerator(
+            robotConfig, // The robot configuration. This is the same config used for generating trajectories and running path following commands.
+            kMaxAzimuthAngularRadiansPS // The max rotation velocity of a swerve module in radians per second. This should probably be stored in your Constants file
+        );
+
         previousSetpoint = new SwerveSetpoint(
             new ChassisSpeeds(0, 0, 0), 
             new SwerveModuleState[] {
@@ -357,9 +362,7 @@ public class Drive extends SubsystemBase{
 
                 setpointStates[i].cosineScale(modules[i].getCurrentState().angle);
 
-                optimizedSetpointStates[i] = modules[i].setSwerveStatewithAccel(setpointStates[i], 0.0);
-
-                // modules[i].setDesiredAzimuthVelocity(azimuthVelocity);
+                optimizedSetpointStates[i] = modules[i].setSwerveState(setpointStates[i]);
             } else {
                 setpointStates[i] = new SwerveModuleState(
                     setpointStates[i].speedMetersPerSecond,

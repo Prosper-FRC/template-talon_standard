@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -97,9 +98,9 @@ public class RobotContainer {
         // Configure controls (drivebase suppliers, DriverStation triggers, Button and other Controller bindings)
         
         drive.acceptJoystickInputs(
-            () -> -driverController.getLeftY(),
+            () -> driverController.getLeftY(),
             () -> driverController.getLeftX(),
-            () -> driverController.getRightX());
+            () -> -driverController.getRightX());
 
         drive.setDefaultCommand(Commands.run(
             () -> drive.setDriveEnum(DriveState.TELEOP), drive));
@@ -117,12 +118,12 @@ public class RobotContainer {
 
     public Command getAutonomousCommand() {
         Commands.runOnce(() -> {drive.setDriveEnum(DriveState.AUTON);}, drive).schedule();
-        
+
         return autoChooser.get();
     }
 
     private void configureStateTriggers() {
-        
+        new Trigger(DriverStation::isEnabled).onTrue(Commands.runOnce(() -> drive.resetAllEncoders()));
     }
 
     private void configureButtonBindings() {
