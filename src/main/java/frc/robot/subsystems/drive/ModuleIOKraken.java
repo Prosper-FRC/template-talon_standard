@@ -1,4 +1,4 @@
-package frc.robot.drive;
+package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -21,7 +21,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
-import frc.robot.drive.DriveConstants.SwerveModuleHardwareConfig;
+import frc.robot.subsystems.drive.DriveConstants.SwerveModuleHardwareConfig;
 public class ModuleIOKraken implements ModuleIO{
 
   // Robot Specific info //

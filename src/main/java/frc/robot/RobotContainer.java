@@ -11,18 +11,18 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-import static frc.robot.drive.DriveConstants.*;
-
-import frc.robot.drive.Drive;
-import frc.robot.drive.GyroIOPigeon2;
-import frc.robot.drive.Drive.DriveState;
-import frc.robot.drive.GyroIO;
-import frc.robot.drive.Module;
-import frc.robot.drive.ModuleIO;
-import frc.robot.drive.ModuleIOKraken;
-import frc.robot.drive.ModuleIOSim;
+import static frc.robot.subsystems.drive.DriveConstants.*;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.Module;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOKraken;
+import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.Drive.DriveState;
 
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.Elevator.ElevatorGoal;
