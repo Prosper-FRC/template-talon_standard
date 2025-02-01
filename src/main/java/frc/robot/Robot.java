@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -65,8 +66,13 @@ public class Robot extends LoggedRobot {
             break;
         }
 
+        // Start logger
         Logger.start();
 
+        // Begin sending camera feed to driver dashboard
+        CameraServer.startAutomaticCapture();
+
+        // Initialize robot container
         mRobotContainer = new RobotContainer();
     }
 
