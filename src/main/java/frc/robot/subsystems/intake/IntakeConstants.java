@@ -37,17 +37,17 @@ public class IntakeConstants {
   public static final int kMotorID = 56;
   public static final int kCANrangeID = 57;
 
-  public static final double kGearing = 9.0 / 1.0;
+  public static final double kGearing = 3.0 / 1.0;
   public static final double kWheelRadiusMeters = Units.inchesToMeters(0.0);
 
   /** The intake subsystem will periodically compare the motors current amperage to this 
    * value, if it is exceeding this value over a certain interval of time, it likely has 
    * a gamepiece as intaking a gamepiece spikes the amperage of the motor */
-  public static final int kAmpFilterThreshold = 0;
+  public static final int kAmpFilterThreshold = 15;
 
   /** The number of motor current reading samples the gamepeice detection filter averages 
    * over, this number cannot be 0 */
-  public static final int kLinearFilterSampleCount = 10;
+  public static final int kLinearFilterSampleCount = 5;
 
   /** The frequency that telemetry form the motor is pushed to the CANBus */
   public static final double kStatusSignalUpdateFrequencyHz = 100.0;

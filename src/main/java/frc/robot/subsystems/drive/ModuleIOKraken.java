@@ -135,6 +135,7 @@ public class ModuleIOKraken implements ModuleIO{
   @Override
   public void updateInputs(SwerveModuleInputs inputs){
     inputs.driveConnected = BaseStatusSignal.refreshAll(
+      drivePosistion,
       driveVelocity,
       driveVoltage,
       driveStatorCurrent,

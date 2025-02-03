@@ -25,7 +25,7 @@ public class IntakeIOTalonFX implements IntakeIO {
   private StatusSignal<Current> statorCurrentAmps;
   private StatusSignal<Temperature> temperatureCelsius;
   
-  private VoltageOut voltageControl;
+  private VoltageOut voltageControl = new VoltageOut(0.0);
 
   public IntakeIOTalonFX() {
     // Apply configurations

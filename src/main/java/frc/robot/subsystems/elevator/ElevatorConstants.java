@@ -102,7 +102,7 @@ public class ElevatorConstants {
   };
 
   public static final KrakenConfiguration kMotorConfiguration = new KrakenConfiguration(
-    true, 
+    false, 
     true, 
     true, 
     60.0, 

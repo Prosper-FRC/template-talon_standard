@@ -14,19 +14,19 @@ import edu.wpi.first.wpilibj.DriverStation;
 public class Intake extends SubsystemBase {
   /** List of voltage setpoints for the intake in voltage */
   public enum IntakeGoal {
-    kIntake(() -> 12.0),
-    kOuttake(() -> -12.0),
+    kIntake(() -> 4.0),
+    kOuttake(() -> -4.0),
     /** Custom setpoint that can be modified over network tables; Useful for debugging */
     custom(new LoggedTunableNumber("Intake/Feedback/Setpoint", 0.0));
 
     private DoubleSupplier intakeVolts;
 
-    private IntakeGoal(DoubleSupplier intakeVolts) {
+    IntakeGoal(DoubleSupplier intakeVolts) {
       this.intakeVolts = intakeVolts;
     }
 
     public double getGoalVolts() {
-      return intakeVolts.getAsDouble();
+      return this.intakeVolts.getAsDouble();
     }
   }
 
@@ -72,6 +72,8 @@ public class Intake extends SubsystemBase {
         kInputs.statorCurrentAmps) > IntakeConstants.kAmpFilterThreshold;
     }
 
+    Logger.recordOutput("Intake/Goal", goal);
+
     if (goal != null) {
       setVoltage(goal.getGoalVolts());
     }
@@ -97,7 +99,7 @@ public class Intake extends SubsystemBase {
    * 
    * @param voltage
    */
-  private void setVoltage(double voltage) {
+  public void setVoltage(double voltage) {
     kHardware.setVoltage(voltage);
   }
 

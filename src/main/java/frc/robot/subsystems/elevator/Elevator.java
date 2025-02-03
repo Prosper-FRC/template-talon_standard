@@ -19,8 +19,8 @@ public class Elevator extends SubsystemBase {
   /** List of position setpoints for the elevator in meters */
   public enum ElevatorGoal {
     kL4Coral(() -> Units.inchesToMeters(60.0)),
-    kL3Coral(() -> Units.inchesToMeters(34.0)),
-    kL2Coral(() -> Units.inchesToMeters(17.0)),
+    kL3Coral(() -> 0.84),
+    kL2Coral(() -> 0.41),
     kL1Coral(() -> Units.inchesToMeters(8.0)),
     /** Stow the elevator during transit */
     kStow(() -> Units.inchesToMeters(4.0)),

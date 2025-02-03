@@ -35,6 +35,7 @@ import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.SensorIO;
 import frc.robot.subsystems.intake.Intake.IntakeGoal;
 import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
 
 public class RobotContainer {
     private Drive drive;
@@ -60,9 +61,9 @@ public class RobotContainer {
                     new Module("BL", new ModuleIOKraken(kBackLeft)),
                     new Module("BR", new ModuleIOKraken(kBackRight))}, 
                     new GyroIOPigeon2());
-                elevator = new Elevator(new ElevatorIO() {});
+                elevator = new Elevator(new ElevatorIOTalonFX() {});
                 // TODO Replace these with hardware interfaces when intake is ready to test
-                intake = new Intake(new IntakeIO(){}, new SensorIO() {});
+                intake = new Intake(new IntakeIOTalonFX(){}, new SensorIO() {});
                 break;
             case SIM:
                 drive = new Drive( new Module[] {
@@ -166,22 +167,17 @@ public class RobotContainer {
         driverController.rightBumper()
             .onTrue(Commands.runOnce(() -> {drive.resetPose();}));
 
-        // elevator.setDefaultCommand(
-        //     Commands.run(
-        //         () -> {elevator.setPosition(elevator.getPositionMeters());}, 
-        //         elevator));
-
         // ELEVATOR: Voltage up
         operatorController.povUp()
             .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(6.0);}, 
+                () -> {elevator.setVoltage(3.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
 
         // ELEVATOR: Voltage down
         operatorController.povDown()
             .whileTrue(Commands.startEnd(
-                () -> {elevator.setVoltage(-6.0);}, 
+                () -> {elevator.setVoltage(-3.0);}, 
                 () -> {elevator.stop();}, 
                 elevator));
 
@@ -190,6 +186,15 @@ public class RobotContainer {
             .onTrue(Commands.runOnce(
                 () -> {elevator.resetPosition();}, 
                 elevator));
+
+        // ELEVATOR: Move to intake position
+        operatorController.povRight()
+            .whileTrue(Commands.run(
+                () -> {elevator.setGoal(ElevatorGoal.kIntake);},  
+                elevator))
+            .whileFalse(Commands.runOnce(
+                () -> {elevator.stop();}, 
+                elevator));       
 
         // ELEVATOR: Move to L4 position
         operatorController.y()
@@ -238,17 +243,30 @@ public class RobotContainer {
 
         // ENDAFFECTOR: Run at custom voltage
         operatorController.rightTrigger()
-            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.custom);}, intake))
-            .whileFalse(Commands.runOnce(() -> {intake.stop();}, intake));
+            .whileTrue(Commands.run(
+                () -> {intake.setGoal(IntakeGoal.custom);}, 
+                intake))
+            .whileFalse(Commands.runOnce(
+                () -> {intake.stop();}, 
+                intake));
 
-        // ENDAFFECTOR: Run at intake voltage
+        // ENDAFFECTOR: Run intake until gamepiece detected
         operatorController.leftBumper()
-            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.kIntake);}, intake))
-            .whileFalse(Commands.runOnce(() -> {intake.stop();}, intake));
+            .whileTrue(Commands.run(
+                () -> {intake.setGoal(IntakeGoal.kIntake);}, 
+                intake))
+                    .and(() -> !intake.detectedGamepiece())
+            .whileFalse(Commands.runOnce(
+                () -> {intake.stop();}, 
+                intake));
 
         // ENDAFFECTOR: Run at outtake voltage
         operatorController.rightBumper()
-            .whileTrue(Commands.run(() -> {intake.setGoal(IntakeGoal.kOuttake);}, intake))
-            .whileFalse(Commands.runOnce(() -> {intake.stop();}, intake));
+            .whileTrue(Commands.run(
+                () -> {intake.setGoal(IntakeGoal.kOuttake);}, 
+                intake))
+            .whileFalse(Commands.runOnce(
+                () -> {intake.stop();}, 
+                intake));
     }
 }
