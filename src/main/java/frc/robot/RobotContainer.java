@@ -33,6 +33,7 @@ import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.SensorIO;
+import frc.robot.subsystems.intake.SensorIORange;
 import frc.robot.subsystems.intake.Intake.IntakeGoal;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
@@ -63,7 +64,7 @@ public class RobotContainer {
                     new GyroIOPigeon2());
                 elevator = new Elevator(new ElevatorIOTalonFX() {});
                 // TODO Replace these with hardware interfaces when intake is ready to test
-                intake = new Intake(new IntakeIOTalonFX(){}, new SensorIO() {});
+                intake = new Intake(new IntakeIOTalonFX(){}, new SensorIORange() {});
                 break;
             case SIM:
                 drive = new Drive( new Module[] {

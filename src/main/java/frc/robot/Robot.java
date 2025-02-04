@@ -14,6 +14,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+import au.grapplerobotics.CanBridge;
 
 public class Robot extends LoggedRobot {
     private Command mAutonomousCommand;
@@ -24,6 +25,7 @@ public class Robot extends LoggedRobot {
     // ==================== Robot Power On ====================
     @Override
     public void robotInit() {
+        CanBridge.runTCP();
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
         Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
